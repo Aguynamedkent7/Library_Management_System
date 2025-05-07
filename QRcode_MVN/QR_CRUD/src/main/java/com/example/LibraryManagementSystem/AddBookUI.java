@@ -1,18 +1,18 @@
-package com.example.qrcode;
+package com.example.LibraryManagementSystem;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class AddBook {
+public class AddBookUI {
     private JFrame frame;
     private JTextField bookTitleField;
     private JTextField authorField;
     private JTextField genreField;
     private JTextField datePublishedField;
     private JLabel qrCodeLabel;
-    private QRCodeController controller;
+    private AddBook_Function controller;
 
-    public AddBook() {
+    public AddBookUI() {
         initializeUI();
     }
 
@@ -44,7 +44,7 @@ public class AddBook {
         formPanel.add(datePublishedField);
 
         // Button
-        JButton generateButton = new JButton("Generate QR Code");
+        JButton generateButton = new JButton("Add Book to Library");
         generateButton.addActionListener(e -> controller.generateQRCode());
 
         // QR Code display
@@ -65,7 +65,7 @@ public class AddBook {
         frame.pack();
     }
 
-    public void setController(QRCodeController controller) {
+    public void setController(AddBook_Function controller) {
         this.controller = controller;
     }
 

@@ -1,4 +1,4 @@
-package com.example.qrcode;
+package com.example.LibraryManagementSystem;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -8,10 +8,10 @@ import com.google.zxing.common.BitMatrix;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 
-public class QRCodeController {
-    private AddBook view;
+public class AddBook_Function {
+    private AddBookUI view;
 
-    public QRCodeController(AddBook view) {
+    public AddBook_Function(AddBookUI view) {
         this.view = view;
     }
 

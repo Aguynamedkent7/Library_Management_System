@@ -1,4 +1,4 @@
-package com.example.qrcode;
+package com.example.LibraryManagementSystem;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
