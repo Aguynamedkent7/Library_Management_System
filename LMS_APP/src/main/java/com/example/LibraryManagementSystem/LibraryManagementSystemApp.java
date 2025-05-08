@@ -1,11 +1,11 @@
 package com.example.LibraryManagementSystem;
 import javax.swing.SwingUtilities;
 
-public class LibraryManagementSystemApp {
+public class  LibraryManagementSystemApp {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            AddBookUI view = new AddBookUI();
-            AddBook_Function controller = new AddBook_Function(view);
+            ManageBooksUI view = new ManageBooksUI();
+            ManageBooksFunctions controller = new ManageBooksFunctions(view);
             view.setController(controller);
             view.show();
         });
