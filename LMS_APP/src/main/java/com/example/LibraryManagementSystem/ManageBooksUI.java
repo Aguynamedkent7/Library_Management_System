@@ -33,7 +33,7 @@ public class ManageBooksUI {
         DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Make table non-editable
+                return false;
             }
         };
         bookTable = new JTable(model);
@@ -171,6 +171,7 @@ public class ManageBooksUI {
     public void addBookToTable(String[] bookData) {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
         model.addRow(bookData);
+        selectLastRow();
     }
 
     public int getSelectedBookRow() {
@@ -200,6 +201,17 @@ public class ManageBooksUI {
 
     public JFrame getFrame() {
         return frame;
+    }
+
+    public JTable getBookTable() {
+        return bookTable;
+    }
+
+    public void selectLastRow() {
+        int lastRow = bookTable.getRowCount() - 1;
+        if (lastRow >= 0) {
+            bookTable.setRowSelectionInterval(lastRow, lastRow);
+        }
     }
 
     public void displayQRCode(ImageIcon qrImage) {

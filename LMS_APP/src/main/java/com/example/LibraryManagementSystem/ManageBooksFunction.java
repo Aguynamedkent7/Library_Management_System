@@ -31,6 +31,9 @@ public class ManageBooksFunction {
         view.addBookToTable(bookData);
         view.clearForm();
         view.showMessage("Book added successfully!");
+
+        // Generate QR code for the newly added book
+        generateQRCode();
     }
 
     public void updateBook() {
@@ -87,7 +90,6 @@ public class ManageBooksFunction {
         try {
             BufferedImage qrImage = generateQRCodeImage(qrContent);
             view.displayQRCode(new ImageIcon(qrImage));
-            view.showMessage("QR Code generated successfully!");
         } catch (WriterException e) {
             view.showError("Failed to generate QR code: " + e.getMessage());
         }
@@ -116,7 +118,5 @@ public class ManageBooksFunction {
 
     public void goBack() {
         view.showMessage("Returning to main menu...");
-        // view.getFrame().dispose();
-        // new MainMenu().show();
     }
 }
