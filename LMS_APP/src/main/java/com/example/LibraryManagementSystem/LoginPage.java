@@ -16,7 +16,7 @@ public class LoginPage extends JFrame {
 
         // Create main panel with GridBagLayout to center our login panel
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(240, 240, 245)); // Light background color
+        mainPanel.setBackground(new Color(0xaa, 0xaa, 0xaa)); // Light background color
 
         // Create the fixed-size login panel
         JPanel loginPanel = createLoginPanel();
@@ -39,7 +39,7 @@ public class LoginPage extends JFrame {
                 BorderFactory.createLineBorder(new Color(150, 150, 150), 1),
                 BorderFactory.createEmptyBorder(0, 20, 20, 20)
         ));
-        loginPanel.setBackground(Color.WHITE);
+        loginPanel.setBackground( new Color(0xDADADA));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 5, 10, 5);
