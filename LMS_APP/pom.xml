@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.example</groupId>
-  <artifactId>qr-code-reader</artifactId>
+  <artifactId>Library-Management-System</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>QR Code Reader</name>
   <description>A Java application for reading QR codes</description>
