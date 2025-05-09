@@ -167,6 +167,8 @@ public class ManageBooksFunction {
         // Close QR reader if it's open before going back
         if (qrReader != null) {
             qrReader.stopScanning();
+            qrReader.dispose();
+            qrReader = null;  // Set to null so a new instance will be created next time
         }
 
         view.showMessage("Returning to main menu...");

@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,12 +19,16 @@ import java.util.concurrent.TimeUnit;
 import com.github.sarxos.webcam.Webcam;
 import com.github.sarxos.webcam.WebcamPanel;
 import com.github.sarxos.webcam.WebcamResolution;
+import java.util.List;
+import com.github.sarxos.webcam.WebcamException;
 
 public class ReadQR {
     private final JFrame window;
     private final JLabel statusLabel;
     private final JTextArea resultTextArea;
-    private final Webcam webcam;
+    private Webcam webcam;
+    private WebcamPanel webcamPanel;
+    private final JPanel webcamContainer;
     private ScheduledExecutorService executor;
     private boolean scanning = false;
 
@@ -33,19 +38,9 @@ public class ReadQR {
         window.setLayout(new BorderLayout());
         window.setSize(640, 480);
         window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        // Initialize the webcam with medium resolution
-        webcam = Webcam.getDefault();
-        if (webcam == null) {
-            throw new RuntimeException("No webcam detected");
-        }
         
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
-        
-        // Create webcam panel
-        WebcamPanel webcamPanel = new WebcamPanel(webcam);
-        webcamPanel.setFPSDisplayed(true);
-        webcamPanel.setMirrored(false);
+        // Create a container for the webcam panel that we can refresh later
+        webcamContainer = new JPanel(new BorderLayout());
         
         // Create status label and result text area
         statusLabel = new JLabel("Ready to scan", SwingConstants.CENTER);
@@ -67,7 +62,7 @@ public class ReadQR {
         controlPanel.add(clearButton);
         
         // Add components to the window
-        window.add(webcamPanel, BorderLayout.CENTER);
+        window.add(webcamContainer, BorderLayout.CENTER);
         window.add(statusLabel, BorderLayout.NORTH);
         window.add(scrollPane, BorderLayout.SOUTH);
         window.add(controlPanel, BorderLayout.PAGE_END);
@@ -81,23 +76,122 @@ public class ReadQR {
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                stopScanning();
-                if (webcam.isOpen()) {
-                    webcam.close();
-                }
+                cleanupResources();
+            }
+            
+            @Override
+            public void windowOpened(WindowEvent e) {
+                // Initialize the webcam when the window is opened
+                initializeWebcam();
             }
         });
     }
-    
+
+    /**
+     * Initialize the webcam and its panel
+     */
+private void initializeWebcam() {
+    try {
+        // Try to get the default webcam
+        webcam = Webcam.getDefault();
+        
+        // If no default webcam, try to get any available webcam
+        if (webcam == null) {
+            List<Webcam> webcams = Webcam.getWebcams();
+            if (!webcams.isEmpty()) {
+                webcam = webcams.get(0);
+            }
+        }
+        
+        if (webcam == null) {
+            throw new RuntimeException("No webcam detected");
+        }
+        
+        // Close webcam if it's already open
+        if (webcam.isOpen()) {
+            webcam.close();
+        }
+        
+        // Set a standard resolution (VGA)
+        webcam.setViewSize(WebcamResolution.VGA.getSize());
+        
+        // Open the webcam
+        webcam.open();
+        
+        // Create webcam panel with performance optimizations
+        webcamPanel = new WebcamPanel(webcam);
+        webcamPanel.setFPSDisplayed(true);
+        webcamPanel.setMirrored(false);
+        webcamPanel.setFPSLimit(20); // Limit FPS to reduce CPU usage
+        
+        // Add the webcam panel to the container
+        webcamContainer.removeAll();
+        webcamContainer.add(webcamPanel, BorderLayout.CENTER);
+        webcamContainer.revalidate();
+        webcamContainer.repaint();
+        
+        // Prepare for scanning
+        if (!scanning) {
+            statusLabel.setText("Ready to scan. Click 'Start Scanning' to begin.");
+        }
+    } catch (Exception e) {
+        statusLabel.setText("Error initializing webcam: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+    /**
+     * Clean up all resources
+     */
+    private void cleanupResources() {
+        stopScanning();
+        
+        if (webcamPanel != null) {
+            webcamPanel.stop();
+        }
+        
+        if (webcam != null && webcam.isOpen()) {
+            webcam.close();
+        }
+    }
+
+    /**
+     * Show the QR code scanner window
+     */
+    public void show() {
+        window.setLocationRelativeTo(null);
+        window.setVisible(true);
+        
+        // Initialize if not already done
+        if (webcam == null) {
+            initializeWebcam();
+        }
+    }
+
     /**
      * Start the QR code scanning process
      */
     public void startScanning() {
         if (scanning) return;
         
-        // Open the webcam if it's not already open
-        if (!webcam.isOpen()) {
-            webcam.open();
+        // Check if webcam is valid and open it if needed
+        if (webcam == null || !webcam.isOpen()) {
+            initializeWebcam();
+            
+            if (webcam == null) {
+                statusLabel.setText("Cannot start scanning: No webcam detected");
+                return;
+            }
+            
+            if (!webcam.isOpen()) {
+                try {
+                    webcam.open(true); // Open the webcam immediately
+                } catch (Exception e) {
+                    statusLabel.setText("Failed to open webcam: " + e.getMessage());
+                    e.printStackTrace();
+                    return;
+                }
+            }
         }
         
         statusLabel.setText("Scanning for QR codes...");
@@ -106,6 +200,14 @@ public class ReadQR {
         // Create a scheduled task to scan for QR codes every 100ms
         executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(this::scanQRCode, 0, 100, TimeUnit.MILLISECONDS);
+        
+        // If this is part of ManageBooks flow, set up book processing
+        for (WindowListener listener : window.getWindowListeners()) {
+            if (listener instanceof WindowAdapter) {
+                WindowEvent event = new WindowEvent(window, WindowEvent.WINDOW_OPENED);
+                listener.windowOpened(event);
+            }
+        }
     }
     
     /**
@@ -163,14 +265,6 @@ public class ReadQR {
     }
     
     /**
-     * Show the QR code scanner window
-     */
-    public void show() {
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-    }
-    
-    /**
      * Get the last scanned QR code result
      * 
      * @return The text of the last scanned QR code, or null if none
@@ -188,7 +282,28 @@ public class ReadQR {
     
     // Method to integrate the QR reader with the ManageBooksFunction
     public void integrateWithManageBooks(ManageBooksFunction booksFunction) {
-        // Listen for QR scan results and use them to look up books
+        // Store the books function reference instead of immediately scheduling
+        // The actual scheduling will happen when startScanning() is called
+        final ManageBooksFunction booksFunctionRef = booksFunction;
+        
+        // Add a new method to the webcam window adapter to process books when a QR is found
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                // After window is opened, this will make sure executor is initialized in startScanning first
+                SwingUtilities.invokeLater(() -> {
+                    if (scanning && executor != null) {
+                        setupBookProcessing(booksFunctionRef);
+                    }
+                });
+            }
+        });
+    }
+
+    // New helper method to set up book processing when the executor is ready
+    private void setupBookProcessing(ManageBooksFunction booksFunction) {
+        if (executor == null) return;
+        
         executor.scheduleAtFixedRate(() -> {
             String lastResult = getLastResult();
             if (lastResult != null && lastResult.contains("Book Information")) {
@@ -214,7 +329,7 @@ public class ReadQR {
                     ex.printStackTrace();
                 }
             }
-        }, 1, 2, TimeUnit.SECONDS);
+        }, 1L, 2L, TimeUnit.SECONDS);
     }
     
     public static void main(String[] args) {
@@ -233,4 +348,12 @@ public class ReadQR {
             }
         });
     }
+
+/**
+ * Properly dispose of all resources
+ */
+public void dispose() {
+    cleanupResources();
+    window.dispose();
+}
 }
