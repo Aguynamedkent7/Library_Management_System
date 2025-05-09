@@ -171,6 +171,6 @@ public class ManageBooksFunction {
             qrReader = null;  // Set to null so a new instance will be created next time
         }
 
-        view.showMessage("Returning to main menu...");
+        view.getFrame().dispose();
     }
 }
