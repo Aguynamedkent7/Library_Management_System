@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;
+    private ReadQR qrReader; // Add this line to declare the qrReader variable
 
     public ManageBooksFunction(ManageBooksUI view) {
         this.view = view;
@@ -77,6 +78,35 @@ public class ManageBooksFunction {
         }
     }
 
+    /**
+     * Open QR code reader to scan and process books
+     * This method replaces both the old scanQR and returnBook functions
+     */
+    public void returnBook() {
+        try {
+            if (qrReader == null) {
+                qrReader = new ReadQR();
+                // Set up the QR reader to handle book processing
+                setupQRListener();
+            }
+            
+            qrReader.show();
+            qrReader.startScanning();
+        } catch (Exception e) {
+            view.showError("Error initializing webcam: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Set up the QR reader to handle book processing
+     */
+    private void setupQRListener() {
+        if (qrReader != null) {
+            qrReader.integrateWithManageBooks(this);
+        }
+    }
+
     public void generateQRCode() {
         int selectedRow = view.getSelectedBookRow();
         if (selectedRow == -1) {
@@ -93,6 +123,23 @@ public class ManageBooksFunction {
         } catch (WriterException e) {
             view.showError("Failed to generate QR code: " + e.getMessage());
         }
+    }
+
+    /**
+     * Processes a book after its QR code has been scanned
+     * @param bookTitle The title of the book being processed
+     */
+    public void processBookReturn(String bookTitle) {
+        // In a real application, you would update a database to mark the book as returned
+        // For this example, we'll just show a confirmation message
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                view.getFrame(),
+                "Book \"" + bookTitle + "\" has been successfully returned.",
+                "Book Return Successful",
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        });
     }
 
     private String formatQRContent(String title, String author, String genre, String publisher, String date) {
@@ -117,6 +164,11 @@ public class ManageBooksFunction {
     }
 
     public void goBack() {
+        // Close QR reader if it's open before going back
+        if (qrReader != null) {
+            qrReader.stopScanning();
+        }
+
         view.showMessage("Returning to main menu...");
     }
 }

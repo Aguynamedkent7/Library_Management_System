@@ -22,7 +22,7 @@ public class ManageBooksUI {
     private void initializeUI() {
         frame = new JFrame("Library Management System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 700);
+        frame.setSize(1920, 1080);
         frame.setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -62,7 +62,7 @@ public class ManageBooksUI {
         formPanel.add(datePublishedField);
 
         // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 5, 5)); // Changed to 6 rows since we removed one button
         JButton addButton = new JButton("Add Book");
         addButton.addActionListener(e -> controller.addBook());
 
@@ -85,8 +85,8 @@ public class ManageBooksUI {
         JButton deleteButton = new JButton("Delete Book");
         deleteButton.addActionListener(e -> controller.deleteBook());
 
-        JButton qrButton = new JButton("Generate QR");
-        qrButton.addActionListener(e -> controller.generateQRCode());
+        JButton returnBookButton = new JButton("Return Book");
+        returnBookButton.addActionListener(e -> controller.returnBook());
 
         JButton backButton = new JButton("Back");
         backButton.addActionListener(e -> controller.goBack());
@@ -95,7 +95,7 @@ public class ManageBooksUI {
         buttonPanel.add(editButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
-        buttonPanel.add(qrButton);
+        buttonPanel.add(returnBookButton);
         buttonPanel.add(backButton);
 
         // QR Code panel
@@ -106,16 +106,16 @@ public class ManageBooksUI {
         qrPanel.setBorder(BorderFactory.createTitledBorder("Book QR Code"));
         qrPanel.add(qrCodeLabel, BorderLayout.CENTER);
 
-        // Right panel for QR code
+        // Right panel for QR code and buttons
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.add(qrPanel, BorderLayout.NORTH);
+        rightPanel.add(buttonPanel, BorderLayout.CENTER);
         rightPanel.setPreferredSize(new Dimension(350, 0));
 
         // Center panel for table and form
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(formPanel, BorderLayout.NORTH);
         centerPanel.add(scrollPane, BorderLayout.CENTER);
-        centerPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Main layout
         mainPanel.add(centerPanel, BorderLayout.CENTER);
@@ -124,6 +124,7 @@ public class ManageBooksUI {
         frame.add(mainPanel);
     }
 
+    // Rest of the methods remain unchanged...
     public void setController(ManageBooksFunction controller) {
         this.controller = controller;
     }
