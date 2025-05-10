@@ -107,6 +107,18 @@ public class ManageBooksFunction {
         }
     }
 
+    /**
+     * Select a book in the table by index
+     * This method would be called from the ManageBooksIntegration
+     */
+    public void selectBookInTable(int rowIndex) {
+        if (rowIndex >= 0) {
+            view.getBookTable().setRowSelectionInterval(rowIndex, rowIndex);
+            view.getBookTable().scrollRectToVisible(
+                view.getBookTable().getCellRect(rowIndex, 0, true));
+        }
+    }
+
     public void generateQRCode() {
         int selectedRow = view.getSelectedBookRow();
         if (selectedRow == -1) {

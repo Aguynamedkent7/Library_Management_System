@@ -31,6 +31,10 @@ public class ReadQR {
     private final JPanel webcamContainer;
     private ScheduledExecutorService executor;
     private boolean scanning = false;
+    // Add a flag to track if webcam initialization is in progress
+    private boolean initializingWebcam = false;
+    // Store the QR content window reference
+    private JFrame qrContentWindow;
 
     public ReadQR() {
         // Set up the main window
@@ -82,63 +86,91 @@ public class ReadQR {
             @Override
             public void windowOpened(WindowEvent e) {
                 // Initialize the webcam when the window is opened
-                initializeWebcam();
+                initializeWebcamAsync();
             }
         });
     }
 
     /**
-     * Initialize the webcam and its panel
+     * Initialize the webcam asynchronously with a loading indicator
      */
-private void initializeWebcam() {
-    try {
-        // Try to get the default webcam
-        webcam = Webcam.getDefault();
-        
-        // If no default webcam, try to get any available webcam
-        if (webcam == null) {
-            List<Webcam> webcams = Webcam.getWebcams();
-            if (!webcams.isEmpty()) {
-                webcam = webcams.get(0);
-            }
+    private void initializeWebcamAsync() {
+        // If already initializing, don't start again
+        if (initializingWebcam) {
+            return;
         }
         
-        if (webcam == null) {
-            throw new RuntimeException("No webcam detected");
-        }
+        initializingWebcam = true;
+        statusLabel.setText("Initializing camera...");
         
-        // Close webcam if it's already open
-        if (webcam.isOpen()) {
-            webcam.close();
-        }
-        
-        // Set a standard resolution (VGA)
-        webcam.setViewSize(WebcamResolution.VGA.getSize());
-        
-        // Open the webcam
-        webcam.open();
-        
-        // Create webcam panel with performance optimizations
-        webcamPanel = new WebcamPanel(webcam);
-        webcamPanel.setFPSDisplayed(true);
-        webcamPanel.setMirrored(false);
-        webcamPanel.setFPSLimit(20); // Limit FPS to reduce CPU usage
-        
-        // Add the webcam panel to the container
+        // Create a loading indicator
+        JProgressBar loadingBar = new JProgressBar();
+        loadingBar.setIndeterminate(true);
         webcamContainer.removeAll();
-        webcamContainer.add(webcamPanel, BorderLayout.CENTER);
+        webcamContainer.add(loadingBar, BorderLayout.CENTER);
         webcamContainer.revalidate();
         webcamContainer.repaint();
         
-        // Prepare for scanning
-        if (!scanning) {
-            statusLabel.setText("Ready to scan. Click 'Start Scanning' to begin.");
-        }
-    } catch (Exception e) {
-        statusLabel.setText("Error initializing webcam: " + e.getMessage());
-        e.printStackTrace();
+        // Initialize webcam in background thread
+        new Thread(() -> {
+            try {
+                // Try to get the default webcam
+                webcam = Webcam.getDefault();
+                
+                // If no default webcam, try to get any available webcam
+                if (webcam == null) {
+                    List<Webcam> webcams = Webcam.getWebcams();
+                    if (!webcams.isEmpty()) {
+                        webcam = webcams.get(0);
+                    }
+                }
+                
+                if (webcam == null) {
+                    throw new RuntimeException("No webcam detected");
+                }
+                
+                // Close webcam if it's already open
+                if (webcam.isOpen()) {
+                    webcam.close();
+                }
+                
+                // Set a smaller resolution for faster initialization
+                webcam.setViewSize(WebcamResolution.QVGA.getSize()); // 320x240 instead of VGA
+                
+                // Open webcam with non-blocking mode
+                webcam.open(false);
+                
+                // Update UI in EDT
+                SwingUtilities.invokeLater(() -> {
+                    // Create webcam panel with performance optimizations
+                    webcamPanel = new WebcamPanel(webcam);
+                    webcamPanel.setFPSDisplayed(true);
+                    webcamPanel.setMirrored(false);
+                    webcamPanel.setFPSLimit(15); // Lower FPS limit for better performance
+                    
+                    // Add the webcam panel to the container
+                    webcamContainer.removeAll();
+                    webcamContainer.add(webcamPanel, BorderLayout.CENTER);
+                    webcamContainer.revalidate();
+                    webcamContainer.repaint();
+                    
+                    // Prepare for scanning
+                    if (!scanning) {
+                        statusLabel.setText("Ready to scan. Click 'Start Scanning' to begin.");
+                    }
+                    
+                    // Reset the initialization flag
+                    initializingWebcam = false;
+                });
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> {
+                    statusLabel.setText("Error initializing webcam: " + e.getMessage());
+                    e.printStackTrace();
+                    initializingWebcam = false;
+                });
+            }
+        }).start();
     }
-}
 
     /**
      * Clean up all resources
@@ -150,8 +182,12 @@ private void initializeWebcam() {
             webcamPanel.stop();
         }
         
-        if (webcam != null && webcam.isOpen()) {
-            webcam.close();
+        // We don't close the webcam here to cache it for potential reuse
+        // The webcam will be closed in the dispose() method
+        
+        // Close the QR content window if it's open
+        if (qrContentWindow != null && qrContentWindow.isVisible()) {
+            qrContentWindow.dispose();
         }
     }
 
@@ -163,8 +199,8 @@ private void initializeWebcam() {
         window.setVisible(true);
         
         // Initialize if not already done
-        if (webcam == null) {
-            initializeWebcam();
+        if (webcam == null && !initializingWebcam) {
+            initializeWebcamAsync();
         }
     }
 
@@ -174,24 +210,30 @@ private void initializeWebcam() {
     public void startScanning() {
         if (scanning) return;
         
+        // If webcam is initializing, notify user to wait
+        if (initializingWebcam) {
+            statusLabel.setText("Please wait, camera is still initializing...");
+            return;
+        }
+        
         // Check if webcam is valid and open it if needed
         if (webcam == null || !webcam.isOpen()) {
-            initializeWebcam();
-            
-            if (webcam == null) {
-                statusLabel.setText("Cannot start scanning: No webcam detected");
-                return;
+            if (!initializingWebcam) {
+                initializeWebcamAsync();
             }
             
-            if (!webcam.isOpen()) {
-                try {
-                    webcam.open(true); // Open the webcam immediately
-                } catch (Exception e) {
-                    statusLabel.setText("Failed to open webcam: " + e.getMessage());
-                    e.printStackTrace();
-                    return;
-                }
-            }
+            // Schedule a retry after a short delay
+            SwingUtilities.invokeLater(() -> {
+                Timer timer = new Timer(1000, e -> {
+                    if (webcam != null && webcam.isOpen() && !initializingWebcam) {
+                        startScanning();
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            });
+            
+            return;
         }
         
         statusLabel.setText("Scanning for QR codes...");
@@ -230,6 +272,69 @@ private void initializeWebcam() {
     }
     
     /**
+     * Display QR code content in a separate window
+     * 
+     * @param content The QR code content to display
+     */
+    private void displayQRContentInSeparateWindow(String content) {
+        // If the window already exists, just update its content and make it visible
+        if (qrContentWindow != null) {
+            // Get the text area from the content pane
+            Container contentPane = qrContentWindow.getContentPane();
+            Component[] components = contentPane.getComponents();
+            for (Component component : components) {
+                if (component instanceof JScrollPane) {
+                    JScrollPane scrollPane = (JScrollPane) component;
+                    JViewport viewport = scrollPane.getViewport();
+                    if (viewport.getView() instanceof JTextArea) {
+                        JTextArea textArea = (JTextArea) viewport.getView();
+                        textArea.setText(content);
+                        qrContentWindow.setVisible(true);
+                        qrContentWindow.toFront();
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // Create a new window if it doesn't exist or couldn't be updated
+        qrContentWindow = new JFrame("QR Code Content");
+        qrContentWindow.setSize(400, 300);
+        qrContentWindow.setLayout(new BorderLayout());
+        
+        // Create a text area to display the content
+        JTextArea contentTextArea = new JTextArea(content);
+        contentTextArea.setEditable(false);
+        contentTextArea.setWrapStyleWord(true);
+        contentTextArea.setLineWrap(true);
+        contentTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        contentTextArea.setMargin(new Insets(10, 10, 10, 10));
+        
+        JScrollPane scrollPane = new JScrollPane(contentTextArea);
+        qrContentWindow.add(scrollPane, BorderLayout.CENTER);
+        
+        // Add a copy button at the bottom
+        JButton copyButton = new JButton("Copy to Clipboard");
+        copyButton.addActionListener(e -> {
+            contentTextArea.selectAll();
+            contentTextArea.copy();
+            contentTextArea.setCaretPosition(0);
+        });
+        
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(copyButton);
+        qrContentWindow.add(buttonPanel, BorderLayout.SOUTH);
+        
+        // Position the window relative to the main scanner window
+        qrContentWindow.setLocationRelativeTo(window);
+        
+        // When the main window is closed, also close this window
+        qrContentWindow.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        
+        qrContentWindow.setVisible(true);
+    }
+    
+    /**
      * Scan for QR codes in the current webcam frame
      */
     private void scanQRCode() {
@@ -254,6 +359,9 @@ private void initializeWebcam() {
                     statusLabel.setText("QR Code Found!");
                     resultTextArea.append(text + "\n");
                     resultTextArea.setCaretPosition(resultTextArea.getDocument().getLength());
+                    
+                    // Display QR content in a separate window
+                    displayQRContentInSeparateWindow(text);
                 });
                 
                 // Small pause after finding a QR code to avoid multiple detections
@@ -349,11 +457,26 @@ private void initializeWebcam() {
         });
     }
 
-/**
- * Properly dispose of all resources
- */
-public void dispose() {
-    cleanupResources();
-    window.dispose();
-}
+    /**
+     * Properly dispose of all resources
+     */
+    public void dispose() {
+        stopScanning();
+        
+        if (webcamPanel != null) {
+            webcamPanel.stop();
+        }
+        
+        // Only close the webcam when actually disposing the component
+        if (webcam != null && webcam.isOpen()) {
+            webcam.close();
+        }
+        
+        // Dispose of the QR content window as well
+        if (qrContentWindow != null) {
+            qrContentWindow.dispose();
+        }
+        
+        window.dispose();
+    }
 }
