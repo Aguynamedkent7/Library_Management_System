@@ -1,17 +1,13 @@
 package com.example.LibraryManagementSystem;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import com.example.LibraryManagementSystem.ManageBooksUI;
-import com.example.LibraryManagementSystem.ManageBooksFunction;
 
-public class AdminDashboard extends JFrame {
+public class UserDashboard extends JFrame {
     private static final Color BACKGROUND_COLOR = new Color(0xaa, 0xaa, 0xaa);
     private static final Color CARD_COLOR = new Color(0xef, 0xef, 0xef);
 
-    public AdminDashboard() {
-        setTitle("Admin Dashboard");
+    public UserDashboard() {
+        setTitle("User Dashboard");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -33,7 +29,7 @@ public class AdminDashboard extends JFrame {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         headerPanel.setBackground(BACKGROUND_COLOR);
 
-        JLabel titleLabel = new JLabel("Admin Dashboard", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("User Dashboard", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         GridBagConstraints cns = new GridBagConstraints();
         cns.anchor = GridBagConstraints.CENTER;
@@ -55,30 +51,12 @@ public class AdminDashboard extends JFrame {
         dashboardPanel.setBorder(BorderFactory.createEmptyBorder(50, 50, 400, 50));
 
         String[] cardLabels = {
-                "Manage Books",
-                "Borrowed Books",
-                "Returned Books",
-                "Manage Students"
+                "Borrow a book",
+                "Books borrowed"
         };
 
         for (String label : cardLabels) {
             JPanel card = createDashboardCard(label);
-
-            if (label.equals("Manage Books")) {
-                card.addMouseListener(new java.awt.event.MouseAdapter() {
-                    @Override
-                    public void mouseClicked(java.awt.event.MouseEvent e) {
-                        // Launch ManageBooksUI via LibraryManagementSystemApp logic
-                        SwingUtilities.invokeLater(() -> {
-                            ManageBooksUI view = new ManageBooksUI();
-                            ManageBooksFunction controller = new ManageBooksFunction(view);
-                            view.setController(controller);
-                            view.show();
-                        });
-                    }
-                });
-            }
-
             dashboardPanel.add(card);
         }
 
@@ -116,7 +94,7 @@ public class AdminDashboard extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new AdminDashboard().setVisible(true);
+            new UserDashboard().setVisible(true);
         });
     }
 }
