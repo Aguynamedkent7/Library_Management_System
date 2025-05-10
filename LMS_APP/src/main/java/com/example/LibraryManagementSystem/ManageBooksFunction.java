@@ -1,13 +1,17 @@
 package com.example.LibraryManagementSystem;
 
+import api.query;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.util.function.Consumer;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;
@@ -21,6 +25,26 @@ public class ManageBooksFunction {
         this.view = view;
     }
 
+    public JList<String> getGenres() {
+        DefaultListModel<String> genresListModel = new DefaultListModel<>();
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            ArrayList<String> genres = query.QueryAllGenres(conn);
+
+            if (genres != null) {
+                for (String genre : genres) {
+                    genresListModel.addElement(genre);
+                }
+            }
+            conn.close();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        return new JList<>(genresListModel);
+    }
     public void addBook() {
         String title = view.getTitle();
         String author = view.getAuthor();
