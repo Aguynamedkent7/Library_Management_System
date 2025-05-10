@@ -193,7 +193,7 @@ public class ManageBooksFunction {
     public void goBack() {
         // Clean up resources properly
         cleanupQRComponents();
-        view.showMessage("Returning to main menu...");
+        view.getFrame().dispose();
     }
     
     /**
