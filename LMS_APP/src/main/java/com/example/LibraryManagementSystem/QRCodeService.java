@@ -9,7 +9,9 @@ import com.google.zxing.Result;
 import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +23,9 @@ import java.util.function.Consumer;
  * Handles webcam access and QR code detection without UI dependencies.
  */
 public class QRCodeService {
+    // Add this static variable to track the default camera across all instances
+    private static Webcam defaultWebcam = null;
+    
     private Webcam webcam;
     private WebcamPanel webcamPanel;
     private ScheduledExecutorService executor;
@@ -44,11 +49,50 @@ public class QRCodeService {
     }
     
     /**
-     * Initialize webcam asynchronously
+     * Get the current default webcam
+     * @return The default webcam, or null if none set
+     */
+    public static Webcam getDefaultWebcam() {
+        return defaultWebcam;
+    }
+    
+    /**
+     * Set the default webcam for all QRCodeService instances
+     * @param webcam The webcam to set as default
+     */
+    public static void setDefaultWebcam(Webcam webcam) {
+        defaultWebcam = webcam;
+    }
+    
+    /**
+     * Check if a default webcam is set
+     * @return true if a default webcam is set
+     */
+    public static boolean hasDefaultWebcam() {
+        return defaultWebcam != null;
+    }
+    
+    /**
+     * Get a list of all available webcams
      * 
+     * @return List of available webcams
+     */
+    public List<Webcam> getAvailableWebcams() {
+        try {
+            return Webcam.getWebcams();
+        } catch (Exception e) {
+            notifyError(e);
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Initialize a specific webcam asynchronously
+     * 
+     * @param selectedWebcam The webcam to initialize
      * @param onComplete Callback when initialization completes
      */
-    public void initializeWebcam(Runnable onComplete) {
+    public void initializeWebcam(Webcam selectedWebcam, Runnable onComplete) {
         if (initializing) {
             return;
         }
@@ -58,50 +102,55 @@ public class QRCodeService {
         
         new Thread(() -> {
             try {
-                // Get default webcam
-                webcam = Webcam.getDefault();
-                
-                // If no default, try to find any available webcam
-                if (webcam == null) {
-                    List<Webcam> webcams = Webcam.getWebcams();
-                    if (!webcams.isEmpty()) {
-                        webcam = webcams.get(0);
-                    }
-                }
+                // Set webcam to the selected one
+                webcam = selectedWebcam;
                 
                 if (webcam == null) {
-                    throw new RuntimeException("No webcam detected");
+                    throw new RuntimeException("No webcam selected");
                 }
                 
-                // Close if already open
+                // Close webcam if it's already open
                 if (webcam.isOpen()) {
                     webcam.close();
                 }
                 
-                // Set resolution
-                webcam.setViewSize(WebcamResolution.QVGA.getSize());
+                // Set a smaller resolution for faster initialization
+                webcam.setViewSize(WebcamResolution.QVGA.getSize()); // 320x240 instead of VGA
                 
-                // Open non-blocking
+                // Open webcam with non-blocking mode
                 webcam.open(false);
                 
-                // Create webcam panel for UI
+                // Create webcam panel with performance optimizations
                 webcamPanel = new WebcamPanel(webcam);
                 webcamPanel.setFPSDisplayed(true);
                 webcamPanel.setMirrored(false);
-                webcamPanel.setFPSLimit(15);
+                webcamPanel.setFPSLimit(15); // Lower FPS limit for better performance
                 
-                notifyStatus("Ready to scan");
                 initializing = false;
+                notifyStatus("Camera ready.");
                 
+                // Call completion callback
                 if (onComplete != null) {
-                    onComplete.run();
+                    SwingUtilities.invokeLater(onComplete);
                 }
             } catch (Exception e) {
                 initializing = false;
                 notifyError(e);
-                notifyStatus("Error: " + e.getMessage());
             }
         }).start();
+    }
+    
+    /**
+     * Backward compatibility method - initializes default webcam
+     */
+    public void initializeWebcam(Runnable onComplete) {
+        List<Webcam> webcams = getAvailableWebcams();
+        if (webcams.isEmpty()) {
+            notifyError(new RuntimeException("No webcams detected"));
+            return;
+        }
+        
+        initializeWebcam(webcams.get(0), onComplete);
     }
     
     /**
@@ -110,18 +159,15 @@ public class QRCodeService {
     public void startScanning() {
         if (scanning) return;
         
-        // If webcam isn't ready, initialize it first
         if (webcam == null || !webcam.isOpen()) {
-            if (!initializing) {
-                initializeWebcam(() -> startScanning());
-            }
+            notifyStatus("Camera not initialized.");
             return;
         }
         
         notifyStatus("Scanning for QR codes...");
         scanning = true;
         
-        // Create scan task
+        // Create a scheduled task to scan for QR codes every 100ms
         executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(this::scanQRCode, 0, 100, TimeUnit.MILLISECONDS);
     }
@@ -132,8 +178,8 @@ public class QRCodeService {
     public void stopScanning() {
         if (!scanning) return;
         
-        scanning = false;
         notifyStatus("Scanning stopped");
+        scanning = false;
         
         if (executor != null) {
             executor.shutdown();
@@ -150,26 +196,34 @@ public class QRCodeService {
      */
     private void scanQRCode() {
         try {
+            // Capture image from webcam
             BufferedImage image = webcam.getImage();
             if (image == null) return;
             
+            // Convert image to binary bitmap for ZXing
             BinaryBitmap bitmap = new BinaryBitmap(
                 new HybridBinarizer(
                     new BufferedImageLuminanceSource(image)
                 )
             );
             
+            // Try to decode QR code
             Result result = new MultiFormatReader().decode(bitmap);
             if (result != null) {
-                // QR code found
-                String text = result.getText();
-                notifyQRDetected(text);
+                // QR code found - notify listener
+                final String text = result.getText();
                 
-                // Pause to avoid multiple detections
+                // Notify on the EDT
+                SwingUtilities.invokeLater(() -> {
+                    notifyStatus("QR Code Found!");
+                    notifyQRDetected(text);
+                });
+                
+                // Small pause after finding a QR code to avoid multiple detections
                 Thread.sleep(1000);
             }
         } catch (Exception e) {
-            // No QR code found in this frame - normal, continue
+            // No QR code found in this frame, that's normal, just continue
         }
     }
     
@@ -216,6 +270,19 @@ public class QRCodeService {
         }
     }
     
+    // Set event handlers (added for flexibility)
+    public void setOnQRCodeDetected(Consumer<String> handler) {
+        this.onQRCodeDetected = handler;
+    }
+    
+    public void setOnStatusChange(Consumer<String> handler) {
+        this.onStatusChange = handler;
+    }
+    
+    public void setOnError(Consumer<Exception> handler) {
+        this.onError = handler;
+    }
+    
     // Notification methods
     private void notifyQRDetected(String text) {
         if (onQRCodeDetected != null) {
@@ -225,13 +292,13 @@ public class QRCodeService {
     
     private void notifyStatus(String status) {
         if (onStatusChange != null) {
-            onStatusChange.accept(status);
+            SwingUtilities.invokeLater(() -> onStatusChange.accept(status));
         }
     }
     
     private void notifyError(Exception e) {
         if (onError != null) {
-            onError.accept(e);
+            SwingUtilities.invokeLater(() -> onError.accept(e));
         }
     }
 }

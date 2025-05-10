@@ -1,71 +1,84 @@
-
 package com.example.LibraryManagementSystem;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Handler for book-specific QR code processing.
- * This separates the book-specific logic from the general QR scanning.
+ * Specialized handler for processing book QR codes.
+ * Extracts and processes book information from QR code content.
  */
 public class BookQRHandler {
-    private final Window parentWindow;
-    private final Consumer<String> onBookFound;
+    private final ManageBooksFunction booksFunction;
+    private final Pattern titlePattern = Pattern.compile("Title: (.+)");
     
-    public BookQRHandler(Window parentWindow, Consumer<String> onBookFound) {
-        this.parentWindow = parentWindow;
-        this.onBookFound = onBookFound;
+    /**
+     * Create a new book QR handler
+     * 
+     * @param booksFunction The book management function to process book returns
+     */
+    public BookQRHandler(ManageBooksFunction booksFunction) {
+        this.booksFunction = booksFunction;
     }
     
     /**
-     * Process QR code content for book information
+     * Process QR code content to extract book information
      * 
-     * @param qrContent The QR code content
-     * @return true if book information was found and processed
+     * @param qrContent The content of the scanned QR code
+     * @return true if the content was processed as a book QR code, false otherwise
      */
     public boolean processQRContent(String qrContent) {
-        if (qrContent == null || !qrContent.contains("Book Information")) {
+        // Check if this is a book QR code
+        if (qrContent == null || !qrContent.contains("=== Book Information ===")) {
             return false;
         }
         
         try {
-            // Extract book title
-            String bookTitle = extractBookTitle(qrContent);
-            
-            if (bookTitle != null && !bookTitle.isEmpty()) {
-                // Notify listener
-                if (onBookFound != null) {
-                    onBookFound.accept(bookTitle);
-                }
+            // Extract the book title from the QR code
+            Matcher matcher = titlePattern.matcher(qrContent);
+            if (matcher.find()) {
+                final String title = matcher.group(1);
                 
-                // Show confirmation
+                // Process the book return
                 SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(parentWindow,
-                        "Found book: " + bookTitle,
-                        "Book Found",
-                        JOptionPane.INFORMATION_MESSAGE);
+                    // First try to find and select the book in the table
+                    findAndSelectBook(title);
+                    
+                    // Then process the return
+                    booksFunction.processBookReturn(title);
                 });
                 
                 return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            
+            // Show error in the view
+            SwingUtilities.invokeLater(() -> 
+                booksFunction.getView().showError("Error processing book QR code: " + e.getMessage()));
         }
         
         return false;
     }
     
     /**
-     * Extract book title from QR content
+     * Find a book in the table by title and select it
+     * 
+     * @param title The title of the book to find
+     * @return true if found, false otherwise
      */
-    private String extractBookTitle(String qrContent) {
-        String[] lines = qrContent.split("\n");
-        for (String line : lines) {
-            if (line.startsWith("Title: ")) {
-                return line.substring(7).trim();
+    private boolean findAndSelectBook(String title) {
+        JTable bookTable = booksFunction.getView().getBookTable();
+        int rowCount = bookTable.getRowCount();
+        
+        for (int i = 0; i < rowCount; i++) {
+            String bookTitle = (String) bookTable.getValueAt(i, 0);
+            if (title.equals(bookTitle)) {
+                booksFunction.selectBookInTable(i);
+                return true;
             }
         }
-        return null;
+        
+        return false;
     }
 }

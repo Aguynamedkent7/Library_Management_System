@@ -7,10 +7,15 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;
-    private ReadQR qrReader; // Add this line to declare the qrReader variable
+    
+    // Replace single ReadQR with modular components
+    private QRScannerView qrScanner;
+    private BookQRHandler bookQRHandler;
+    private QRCodeService qrService;
 
     public ManageBooksFunction(ManageBooksUI view) {
         this.view = view;
@@ -84,32 +89,42 @@ public class ManageBooksFunction {
      */
     public void returnBook() {
         try {
-            if (qrReader == null) {
-                qrReader = new ReadQR();
-                // Set up the QR reader to handle book processing
-                setupQRListener();
+            if (qrScanner == null) {
+                // Initialize components in the proper order
+                initializeQRComponents();
             }
             
-            qrReader.show();
-            qrReader.startScanning();
+            // Show the scanner window and start scanning automatically
+            qrScanner.show();
+            qrScanner.startScanning();
         } catch (Exception e) {
-            view.showError("Error initializing webcam: " + e.getMessage());
+            view.showError("Error initializing QR scanner: " + e.getMessage());
             e.printStackTrace();
         }
     }
     
     /**
-     * Set up the QR reader to handle book processing
+     * Initialize QR scanner components using the recommended approach
      */
-    private void setupQRListener() {
-        if (qrReader != null) {
-            qrReader.integrateWithManageBooks(this);
-        }
+    private void initializeQRComponents() {
+        // 1. Create QR service with event handlers
+        qrService = new QRCodeService(
+            // These handlers will be replaced by QRScannerView
+            text -> {}, 
+            status -> {}, 
+            error -> view.showError("QR Scanner error: " + error.getMessage())
+        );
+        
+        // 2. Create book handler that references this class
+        bookQRHandler = new BookQRHandler(this);
+        
+        // 3. Create scanner view with the service and handler
+        qrScanner = new QRScannerView(qrService, bookQRHandler);
     }
 
     /**
      * Select a book in the table by index
-     * This method would be called from the ManageBooksIntegration
+     * This method is called from the BookQRHandler when a book QR is scanned
      */
     public void selectBookInTable(int rowIndex) {
         if (rowIndex >= 0) {
@@ -176,13 +191,31 @@ public class ManageBooksFunction {
     }
 
     public void goBack() {
-        // Close QR reader if it's open before going back
-        if (qrReader != null) {
-            qrReader.stopScanning();
-            qrReader.dispose();
-            qrReader = null;  // Set to null so a new instance will be created next time
-        }
-
+        // Clean up resources properly
+        cleanupQRComponents();
         view.showMessage("Returning to main menu...");
+    }
+    
+    /**
+     * Clean up QR scanner components
+     */
+    private void cleanupQRComponents() {
+        if (qrScanner != null) {
+            qrScanner.dispose();
+            qrScanner = null;
+        }
+        
+        if (qrService != null) {
+            qrService.dispose();
+            qrService = null;
+        }
+        
+        // No need to dispose bookQRHandler as it has no resources
+        bookQRHandler = null;
+    }
+    
+    // Getter for the UI view (needed by BookQRHandler)
+    public ManageBooksUI getView() {
+        return view;
     }
 }
