@@ -85,7 +85,7 @@ public class ManageBooksUI {
         JButton deleteButton = new JButton("Delete Book");
         deleteButton.addActionListener(e -> controller.deleteBook());
 
-        JButton returnBookButton = new JButton("Return Book");
+        JButton returnBookButton = new JButton("Return a Book");
         returnBookButton.addActionListener(e -> controller.returnBook());
 
         JButton backButton = new JButton("Back");

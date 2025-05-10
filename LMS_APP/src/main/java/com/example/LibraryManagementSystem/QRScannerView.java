@@ -32,7 +32,7 @@ public class QRScannerView {
     public QRScannerView(QRCodeService qrService, BookQRHandler bookHandler) {
         this.qrService = qrService;
         this.bookHandler = bookHandler;
-        this.contentWindow = new QRContentWindow();
+        this.contentWindow = new QRContentWindow(bookHandler);
         
         // Set up the main window
         window = new JFrame("QR Code Scanner");
@@ -326,14 +326,10 @@ public class QRScannerView {
         // Add to results
         resultTextArea.append(text + "\n");
         resultTextArea.setCaretPosition(resultTextArea.getDocument().getLength());
-        
+
         // Show in separate window
         contentWindow.display(text, window);
-        
-        // Process if it's a book QR code
-        if (bookHandler != null) {
-            bookHandler.processQRContent(text);
-        }
+
     }
     
     /**

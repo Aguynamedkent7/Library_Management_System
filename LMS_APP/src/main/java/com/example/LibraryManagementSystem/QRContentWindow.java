@@ -10,6 +10,16 @@ import java.awt.event.ActionEvent;
 public class QRContentWindow {
     private JFrame window;
     private JTextArea contentArea;
+    private BookQRHandler bookHandler;
+    
+    /**
+     * Create a new QR content window
+     * 
+     * @param bookHandler The handler for book QR codes
+     */
+    public QRContentWindow(BookQRHandler bookHandler) {
+        this.bookHandler = bookHandler;
+    }
     
     /**
      * Display QR content in a window
@@ -27,7 +37,7 @@ public class QRContentWindow {
         }
         
         // Create new window
-        window = new JFrame("QR Code Content");
+        window = new JFrame("Book Content");
         window.setSize(400, 300);
         window.setLayout(new BorderLayout());
         window.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -43,12 +53,12 @@ public class QRContentWindow {
         JScrollPane scrollPane = new JScrollPane(contentArea);
         window.add(scrollPane, BorderLayout.CENTER);
         
-        // Copy button
-        JButton copyButton = new JButton("Copy to Clipboard");
-        copyButton.addActionListener(this::copyToClipboard);
+        // Return button
+        JButton returnButton = new JButton("Return");
+        returnButton.addActionListener(this::returnBook);
         
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonPanel.add(copyButton);
+        buttonPanel.add(returnButton);
         window.add(buttonPanel, BorderLayout.SOUTH);
         
         // Position window
@@ -62,12 +72,14 @@ public class QRContentWindow {
     }
     
     /**
-     * Copy content to clipboard
+     * Return the book when the Return button is clicked
      */
-    private void copyToClipboard(ActionEvent e) {
-        contentArea.selectAll();
-        contentArea.copy();
-        contentArea.setCaretPosition(0);
+    private void returnBook(ActionEvent e) {
+        if (bookHandler != null && contentArea != null) {
+            String content = contentArea.getText();
+            bookHandler.processQRContent(content);
+        }
+        close();
     }
     
     /**
