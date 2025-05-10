@@ -21,6 +21,7 @@ public class QRScannerView {
     private final BookQRHandler bookHandler;
     private final QRContentWindow contentWindow;
     private JComboBox<WebcamItem> cameraSelector;
+    private JButton setDefaultButton;
     
     /**
      * Create a new QR scanner view
@@ -56,10 +57,12 @@ public class QRScannerView {
         JLabel cameraLabel = new JLabel("Select Camera: ");
         cameraSelector = new JComboBox<>();
         JButton refreshButton = new JButton("Refresh");
+        setDefaultButton = new JButton("Set as Default");
         
         cameraPanel.add(cameraLabel);
         cameraPanel.add(cameraSelector);
         cameraPanel.add(refreshButton);
+        cameraPanel.add(setDefaultButton);
         
         // Create control panel with buttons
         JPanel controlPanel = new JPanel();
@@ -84,6 +87,7 @@ public class QRScannerView {
         
         // Add event listeners
         refreshButton.addActionListener(e -> populateCameraSelector());
+        setDefaultButton.addActionListener(e -> setDefaultCamera());
         cameraSelector.addActionListener(e -> onCameraSelected());
         startButton.addActionListener(e -> startScanning());
         stopButton.addActionListener(e -> stopScanning());
@@ -103,14 +107,72 @@ public class QRScannerView {
             public void windowOpened(WindowEvent e) {
                 // Populate camera selector when window opens
                 populateCameraSelector();
+                
+                // If there's a default webcam, select it
+                selectDefaultWebcamIfAvailable();
             }
         });
+    }
+    
+    /**
+     * Set the currently selected camera as the default for the application
+     */
+    private void setDefaultCamera() {
+        WebcamItem selectedItem = (WebcamItem) cameraSelector.getSelectedItem();
+        if (selectedItem == null) {
+            statusLabel.setText("Please select a camera first");
+            return;
+        }
+        
+        // Set the webcam as default in the service
+        QRCodeService.setDefaultWebcam(selectedItem.getWebcam());
+        statusLabel.setText("Camera set as default: " + selectedItem.getWebcam().getName());
+        
+        // Update button text
+        setDefaultButton.setText("Default Camera");
+        
+        // Visual feedback for successful operation
+        setDefaultButton.setEnabled(false);
+        Timer enableTimer = new Timer(1500, e -> {
+            setDefaultButton.setEnabled(true);
+            // Update button text based on whether this camera is still the default
+            boolean isDefault = QRCodeService.hasDefaultWebcam() && 
+                            selectedItem.getWebcam().equals(QRCodeService.getDefaultWebcam());
+            setDefaultButton.setText(isDefault ? "Default Camera" : "Set as Default");
+        });
+        enableTimer.setRepeats(false);
+        enableTimer.start();
+    }
+    
+    /**
+     * Select the default webcam in the dropdown if available
+     */
+    private void selectDefaultWebcamIfAvailable() {
+        if (!QRCodeService.hasDefaultWebcam()) {
+            return;
+        }
+        
+        Webcam defaultWebcam = QRCodeService.getDefaultWebcam();
+        
+        // Find and select the default webcam in the dropdown
+        for (int i = 0; i < cameraSelector.getItemCount(); i++) {
+            WebcamItem item = cameraSelector.getItemAt(i);
+            if (item.getWebcam().equals(defaultWebcam)) {
+                cameraSelector.setSelectedIndex(i);
+                // Initialize this webcam
+                onCameraSelected();
+                break;
+            }
+        }
     }
     
     /**
      * Populate the camera selector dropdown with available webcams
      */
     private void populateCameraSelector() {
+        // Store the currently selected item
+        WebcamItem selectedItem = (WebcamItem) cameraSelector.getSelectedItem();
+        
         // Stop scanning if active
         if (qrService.isScanning()) {
             qrService.stopScanning();
@@ -129,6 +191,22 @@ public class QRScannerView {
             for (Webcam webcam : webcams) {
                 cameraSelector.addItem(new WebcamItem(webcam));
             }
+            
+            // Try to reselect the previously selected item
+            if (selectedItem != null) {
+                for (int i = 0; i < cameraSelector.getItemCount(); i++) {
+                    WebcamItem item = cameraSelector.getItemAt(i);
+                    if (item.getWebcam().equals(selectedItem.getWebcam())) {
+                        cameraSelector.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            } 
+            // If no previously selected item or not found, try to select default
+            else if (QRCodeService.hasDefaultWebcam()) {
+                selectDefaultWebcamIfAvailable();
+            }
+            
             statusLabel.setText("Select a camera and click 'Start Scanning'");
         }
     }
@@ -147,6 +225,11 @@ public class QRScannerView {
         // Get selected webcam
         WebcamItem selectedItem = (WebcamItem) cameraSelector.getSelectedItem();
         if (selectedItem == null) return;
+        
+        // Update button state based on whether this camera is the default
+        boolean isDefault = QRCodeService.hasDefaultWebcam() && 
+                        selectedItem.getWebcam().equals(QRCodeService.getDefaultWebcam());
+        setDefaultButton.setText(isDefault ? "Default Camera" : "Set as Default");
         
         // Initialize the selected webcam
         initializeWebcam(selectedItem.getWebcam());

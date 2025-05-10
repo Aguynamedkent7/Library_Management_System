@@ -23,6 +23,9 @@ import java.util.function.Consumer;
  * Handles webcam access and QR code detection without UI dependencies.
  */
 public class QRCodeService {
+    // Add this static variable to track the default camera across all instances
+    private static Webcam defaultWebcam = null;
+    
     private Webcam webcam;
     private WebcamPanel webcamPanel;
     private ScheduledExecutorService executor;
@@ -43,6 +46,30 @@ public class QRCodeService {
         this.onQRCodeDetected = onQRCodeDetected;
         this.onStatusChange = onStatusChange;
         this.onError = onError;
+    }
+    
+    /**
+     * Get the current default webcam
+     * @return The default webcam, or null if none set
+     */
+    public static Webcam getDefaultWebcam() {
+        return defaultWebcam;
+    }
+    
+    /**
+     * Set the default webcam for all QRCodeService instances
+     * @param webcam The webcam to set as default
+     */
+    public static void setDefaultWebcam(Webcam webcam) {
+        defaultWebcam = webcam;
+    }
+    
+    /**
+     * Check if a default webcam is set
+     * @return true if a default webcam is set
+     */
+    public static boolean hasDefaultWebcam() {
+        return defaultWebcam != null;
     }
     
     /**
