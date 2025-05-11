@@ -103,6 +103,11 @@ public class ManageBooksUI {
         String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable = new JTable(model);
+        bookTable.setDefaultEditor(Object.class, null);
+        bookTable.getTableHeader().setReorderingAllowed(false); // Prevent column reordering
+        bookTable.setDragEnabled(false); // Prevent row reordering
+        bookTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         // remove ID column from table
         bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
         JScrollPane tableScrollPane = new JScrollPane(bookTable);
@@ -120,8 +125,6 @@ public class ManageBooksUI {
         titleField = new JTextField();
         titleField.setPreferredSize(fieldSize);
         titleField.setFont(smallFont);
-        titleField.setEditable(false);
-        titleField.setBackground(Color.WHITE);
         formPanel.add(titleField);
 
 // Author
@@ -129,8 +132,6 @@ public class ManageBooksUI {
         authorField = new JTextField();
         authorField.setPreferredSize(fieldSize);
         authorField.setFont(smallFont);
-        authorField.setEditable(false);
-        authorField.setBackground(Color.WHITE);
         formPanel.add(authorField);
 
 // Genre
@@ -143,8 +144,6 @@ public class ManageBooksUI {
         publisherField = new JTextField();
         publisherField.setPreferredSize(fieldSize);
         publisherField.setFont(smallFont);
-        publisherField.setEditable(false);
-        publisherField.setBackground(Color.WHITE);
         formPanel.add(publisherField);
 
 // Date Published
@@ -302,7 +301,7 @@ public class ManageBooksUI {
     public void addBookToTable(Object[] bookData) {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
         model.addRow(bookData);
-        selectLastRow();
+        selectFirstRow();
     }
 
     public int getSelectedBookRow() {
@@ -344,11 +343,8 @@ public class ManageBooksUI {
         return bookTable;
     }
 
-    public void selectLastRow() {
-        int lastRow = bookTable.getRowCount() - 1;
-        if (lastRow >= 0) {
-            bookTable.setRowSelectionInterval(lastRow, lastRow);
-        }
+    public void selectFirstRow() {
+        bookTable.setRowSelectionInterval(0, 0);
     }
 
     public void displayQRCode(ImageIcon qrImage) {
