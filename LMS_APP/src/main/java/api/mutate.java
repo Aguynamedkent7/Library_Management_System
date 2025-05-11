@@ -15,8 +15,8 @@ public class mutate {
                 throw new SQLException();
             }
 
-            AddBookToDatabase(conn, "Brave New World", "Aldous Huxley", "Science Fiction,Dystopian Fiction", "Chatto & Windus", "1932-02-04");
-
+            String test = "mary's lamb";
+            System.out.println(toTitleCase(test));
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -43,8 +43,8 @@ public class mutate {
             String query = "INSERT INTO books (title, author, publisher_id, published_date) " +
                     "VALUES (?, ?, ?, ?) RETURNING id";
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, title);
-            pstmt.setString(2, author);
+            pstmt.setString(1, toTitleCase(title));
+            pstmt.setString(2, toTitleCase(author));
             pstmt.setInt(3, publisher_id);
             LocalDate date = LocalDate.parse(published_date);
             pstmt.setDate(4, Date.valueOf(date));
@@ -74,12 +74,34 @@ public class mutate {
     public static int GetPublisherID(Connection conn, String publisher_name) {
         int publisher_id;
         try {
-            String query = "SELECT id FROM publishers WHERE publisher_name = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
+            // First try to insert the publisher if it doesn't exist and return the id
+            String upsertQuery = 
+                "WITH ins AS (" +
+                "    INSERT INTO publishers (publisher_name) " +
+                "    SELECT ? " +
+                "    WHERE NOT EXISTS (SELECT 1 FROM publishers WHERE publisher_name = ?) " +
+                "    RETURNING id" +
+                ") " +
+                "SELECT id FROM ins " +
+                "UNION ALL " +
+                "SELECT id FROM publishers WHERE publisher_name = ? " +
+                "LIMIT 1";
+
+            publisher_name = toTitleCase(publisher_name);
+            PreparedStatement pstmt = conn.prepareStatement(upsertQuery);
             pstmt.setString(1, publisher_name);
+            pstmt.setString(2, publisher_name);
+            pstmt.setString(3, publisher_name);
+            
             ResultSet rs = pstmt.executeQuery();
-            rs.next();
-            publisher_id = rs.getInt("id");
+            if (rs.next()) {
+                publisher_id = rs.getInt("id");
+            } else {
+                publisher_id = -1;
+            }
+            rs.close();
+            pstmt.close();
+            
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             publisher_id = -1;
@@ -91,6 +113,9 @@ public class mutate {
     public static ArrayList<Integer> GetGenreID(Connection conn, String genres) {
         ArrayList<Integer> genre_ids = new ArrayList<>();
         String[] genre_list = genres.split("\\s*,\\s*");
+        for (int i = 0; i < genre_list.length; i++) {
+            genre_list[i] = toTitleCase(genre_list[i]);
+        }
 
         try {
             for (String genre : genre_list) {
@@ -105,5 +130,46 @@ public class mutate {
             System.out.println(e.getMessage());
         }
         return genre_ids;
+    }
+
+    public static String toTitleCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        StringBuilder titleCase = new StringBuilder();
+        boolean nextTitleCase = true;
+
+        for (char c : input.toLowerCase().toCharArray()) {
+            if (Character.isSpaceChar(c) || c == '-') {
+                nextTitleCase = true;
+            } else if (nextTitleCase) {
+                c = Character.toTitleCase(c);
+                nextTitleCase = false;
+            }
+            titleCase.append(c);
+        }
+
+        return titleCase.toString();
+    }
+
+    public static void DeleteBookFromDatabase(Connection conn, int book_id) throws SQLException {
+        try {
+            conn.setAutoCommit(false);
+            String query = "DELETE FROM books WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_id);
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("Book not found in database");
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            conn.rollback();
+            throw e;
+        }
     }
 }

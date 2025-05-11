@@ -49,6 +49,34 @@ public class ManageBooksFunction {
 
         return new JList<>(genresListModel);
     }
+
+    public void loadBooksFromDatabase() {
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            ArrayList<Book> books = query.QueryAllBooks(conn);
+
+            view.clearTable();
+
+            assert books != null;
+            for (Book book : books) {
+                Object[] rowData = {
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getGenre(),
+                        book.getPublisher(),
+                        book.getPublished_Date()
+                };
+                view.addBookToTable(rowData);
+            }
+
+            conn.close();
+        } catch (SQLException | NullPointerException e) {
+            view.showError("Error loading books: " + e.getMessage());
+        }
+    }
+
     public void addBook() {
         String title = view.getTitle();
         String author = view.getAuthor();
@@ -61,8 +89,6 @@ public class ManageBooksFunction {
             return;
         }
 
-        String[] bookData = {title, author, genre, publisher, datePublished};
-//        view.addBookToTable(bookData);
 
         try {
             String url = System.getenv("LMS_DB_URL");
@@ -77,33 +103,6 @@ public class ManageBooksFunction {
             view.showError("Error adding book: " + e.getMessage());
             System.out.println(e.getMessage());
             return;
-        }
-    }
-
-    // Example of querying all books
-    public void loadBooksFromDatabase() {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            ArrayList<Book> books = query.QueryAllBooks(conn);
-
-            view.clearTable();
-
-            assert books != null;
-            for (Book book : books) {
-                String[] rowData = {
-                        book.getTitle(),
-                        book.getAuthor(),
-                        book.getGenre(),
-                        book.getPublisher(),
-                        book.getPublished_Date()
-                };
-                view.addBookToTable(rowData);
-            }
-
-            conn.close();
-        } catch (SQLException | NullPointerException e) {
-            view.showError("Error loading books: " + e.getMessage());
         }
     }
 
@@ -143,7 +142,16 @@ public class ManageBooksFunction {
                 "Confirm Delete", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            view.removeBookFromTable(selectedRow);
+            try {
+                Connection conn = DriverManager.getConnection(System.getenv("LMS_DB_URL"));
+                mutate.DeleteBookFromDatabase(conn, view.getSelectedBookID(selectedRow));
+                loadBooksFromDatabase();
+                conn.close();
+            } catch (SQLException e) {
+                view.showError("Error deleting book: " + e.getMessage());
+                System.out.println(e.getMessage());
+                return;
+            }
             view.showMessage("Book deleted successfully!");
         }
     }
@@ -206,8 +214,10 @@ public class ManageBooksFunction {
             return;
         }
 
-        String[] bookData = view.getBookAtRow(selectedRow);
-        String qrContent = formatQRContent(bookData[0], bookData[1], bookData[2], bookData[3], bookData[4]);
+        Object[] bookData = view.getBookAtRow(selectedRow);
+        String qrContent = formatQRContent(bookData[1].toString(),
+                bookData[2].toString(), bookData[3].toString(),
+                bookData[4].toString(), bookData[5].toString());
 
         try {
             BufferedImage qrImage = generateQRCodeImage(qrContent);

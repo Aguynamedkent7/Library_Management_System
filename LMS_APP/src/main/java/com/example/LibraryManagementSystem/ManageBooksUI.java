@@ -76,12 +76,13 @@ public class ManageBooksUI {
         editButton.addActionListener(e -> {
             int selectedRow = bookTable.getSelectedRow();
             if (selectedRow >= 0) {
-                String[] bookData = getBookAtRow(selectedRow);
-                titleField.setText(bookData[0]);
-                authorField.setText(bookData[1]);
-                setGenreSelection(bookData[2]); // Critical for genre checkboxes
-                publisherField.setText(bookData[3]);
-                setDatePublished(bookData[4]);
+                Object[] bookData = getBookAtRow(selectedRow);
+                // bookData[0] contains book ID
+                titleField.setText(bookData[1].toString());
+                authorField.setText(bookData[2].toString());
+                setGenreSelection(bookData[3].toString()); // Critical for genre checkboxes
+                publisherField.setText(bookData[4].toString());
+                setDatePublished(bookData[5].toString());
             } else {
                 showError("Please select a book to edit!");
             }
@@ -99,9 +100,11 @@ public class ManageBooksUI {
         JPanel centerPanel = new JPanel(new BorderLayout());
 
 
-        String[] columnNames = {"Title", "Author", "Genre", "Publisher", "Date Published"};
+        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable = new JTable(model);
+        // remove ID column from table
+        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
         JScrollPane tableScrollPane = new JScrollPane(bookTable);
         centerPanel.add(tableScrollPane, BorderLayout.CENTER);
         controller.loadBooksFromDatabase();
@@ -194,6 +197,15 @@ public class ManageBooksUI {
         frame.setVisible(true);
     }
 
+    public int getSelectedBookID(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
+        return Integer.parseInt(idValue.toString());
+
+    }
+
     public String getTitle() {
         return titleField.getText();
     }
@@ -281,7 +293,7 @@ public class ManageBooksUI {
         JOptionPane.showMessageDialog(frame, message, "Message", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void addBookToTable(String[] bookData) {
+    public void addBookToTable(Object[] bookData) {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
         model.addRow(bookData);
         selectLastRow();
@@ -291,11 +303,11 @@ public class ManageBooksUI {
         return bookTable.getSelectedRow();
     }
 
-    public String[] getBookAtRow(int row) {
+    public Object[] getBookAtRow(int row) {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
-        String[] bookData = new String[5];
-        for (int i = 0; i < 5; i++) {
-            bookData[i] = model.getValueAt(row, i).toString();
+        Object[] bookData = new Object[6];
+        for (int i = 0; i < 6; i++) {
+            bookData[i] = model.getValueAt(row, i);
         }
         return bookData;
     }
