@@ -172,4 +172,60 @@ public class mutate {
             throw e;
         }
     }
+
+    public static void UpdateBookInDatabase(Connection conn,
+                                            int book_id, String title,
+                                            String author, String genre,
+                                            String publisher, String published_date
+    ) throws SQLException {
+        try {
+            conn.setAutoCommit(false);
+            int publisher_id = GetPublisherID(conn, publisher);
+            if (publisher_id == -1) {
+                throw new SQLException("Invalid publisher name");
+            }
+            ArrayList<Integer> genre_ids = GetGenreID(conn, genre);
+            if (genre_ids.isEmpty()) {
+                throw new SQLException("Invalid genre name");
+            }
+            String query = "UPDATE books SET title = ?, author = ?, " +
+                    "publisher_id = ?, published_date = ? WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, toTitleCase(title));
+            pstmt.setString(2, toTitleCase(author));
+            pstmt.setInt(3, publisher_id);
+            LocalDate date = LocalDate.parse(published_date);
+            pstmt.setDate(4, Date.valueOf(date));
+            pstmt.setInt(5, book_id);
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("Book not found in database");
+            }
+
+            // First, delete existing genre associations
+            query = "DELETE FROM genres_of_book WHERE book_id = ?";
+            pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_id);
+            pstmt.executeUpdate();
+
+            // Then, insert new genre associations
+            query = "INSERT INTO genres_of_book (book_id, genre_id) VALUES (?, ?)";
+            PreparedStatement genrePstmt = conn.prepareStatement(query);
+            for (Integer genre_id : genre_ids) {
+                genrePstmt.setInt(1, book_id);
+                genrePstmt.setInt(2, genre_id);
+                genrePstmt.addBatch();
+            }
+            genrePstmt.executeBatch();
+
+            System.out.println("Book updated successfully!");
+            pstmt.close();
+            genrePstmt.close();
+            conn.commit();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            conn.rollback();
+        }
+    }
 }

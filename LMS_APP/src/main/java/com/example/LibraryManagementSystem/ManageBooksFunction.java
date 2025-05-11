@@ -12,7 +12,6 @@ import models.Book;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -102,7 +101,6 @@ public class ManageBooksFunction {
         } catch (SQLException e) {
             view.showError("Error adding book: " + e.getMessage());
             System.out.println(e.getMessage());
-            return;
         }
     }
 
@@ -113,6 +111,7 @@ public class ManageBooksFunction {
             return;
         }
 
+        int id = view.getSelectedBookID(selectedRow);
         String title = view.getTitle();
         String author = view.getAuthor();
         String genre = view.getGenre();
@@ -124,10 +123,17 @@ public class ManageBooksFunction {
             return;
         }
 
-        String[] bookData = {title, author, genre, publisher, datePublished};
-        view.updateBookInTable(selectedRow, bookData);
-        view.clearForm();
-        view.showMessage("Book updated successfully!");
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            mutate.UpdateBookInDatabase(conn, id, title, author, genre, publisher, datePublished);
+            view.clearForm();
+            view.showMessage("Book updated successfully!");
+            loadBooksFromDatabase();
+        } catch (SQLException e) {
+            view.showError("Error updating book: " + e.getMessage());
+            System.out.println(e.getMessage());
+        }
     }
 
     public void deleteBook() {

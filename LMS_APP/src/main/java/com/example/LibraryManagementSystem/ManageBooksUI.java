@@ -120,6 +120,8 @@ public class ManageBooksUI {
         titleField = new JTextField();
         titleField.setPreferredSize(fieldSize);
         titleField.setFont(smallFont);
+        titleField.setEditable(false);
+        titleField.setBackground(Color.WHITE);
         formPanel.add(titleField);
 
 // Author
@@ -127,6 +129,8 @@ public class ManageBooksUI {
         authorField = new JTextField();
         authorField.setPreferredSize(fieldSize);
         authorField.setFont(smallFont);
+        authorField.setEditable(false);
+        authorField.setBackground(Color.WHITE);
         formPanel.add(authorField);
 
 // Genre
@@ -139,6 +143,8 @@ public class ManageBooksUI {
         publisherField = new JTextField();
         publisherField.setPreferredSize(fieldSize);
         publisherField.setFont(smallFont);
+        publisherField.setEditable(false);
+        publisherField.setBackground(Color.WHITE);
         formPanel.add(publisherField);
 
 // Date Published
