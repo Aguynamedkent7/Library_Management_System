@@ -25,7 +25,7 @@ public class ManageBooksUI {
 
     private void initializeGenres() {
         DefaultListModel<JCheckBox> model = new DefaultListModel<>();
-        JList<String> tempList = controller.getGenres();
+        JList<String> tempList = controller.queryGenresFromDB();
         ListModel<String> tempModel = tempList.getModel();
         
         for (int i = 0; i < tempModel.getSize(); i++) {
@@ -98,6 +98,7 @@ public class ManageBooksUI {
         bookTable = new JTable(model);
         JScrollPane tableScrollPane = new JScrollPane(bookTable);
         centerPanel.add(tableScrollPane, BorderLayout.CENTER);
+        controller.loadBooksFromDatabase();
 
         // Input Fields (Under the table)
         JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 10));
@@ -295,6 +296,12 @@ public class ManageBooksUI {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
         model.removeRow(row);
     }
+
+    public void clearTable() {
+        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
+        model.setRowCount(0);
+    }
+
 
     public JFrame getFrame() {
         return frame;

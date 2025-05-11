@@ -6,11 +6,13 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import models.Book;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ManageBooksFunction {
@@ -25,7 +27,7 @@ public class ManageBooksFunction {
         this.view = view;
     }
 
-    public JList<String> getGenres() {
+    public JList<String> queryGenresFromDB() {
         DefaultListModel<String> genresListModel = new DefaultListModel<>();
         try {
             String url = System.getenv("LMS_DB_URL");
@@ -64,6 +66,33 @@ public class ManageBooksFunction {
 
         // Generate QR code for the newly added book
         generateQRCode();
+    }
+
+    // Example of querying all books
+    public void loadBooksFromDatabase() {
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            ArrayList<Book> books = query.QueryAllBooks(conn);
+
+            view.clearTable();
+
+            assert books != null;
+            for (Book book : books) {
+                String[] rowData = {
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getGenre(),
+                        book.getPublisher(),
+                        book.getPublished_Date()
+                };
+                view.addBookToTable(rowData);
+            }
+
+            conn.close();
+        } catch (SQLException | NullPointerException e) {
+            view.showError("Error loading books: " + e.getMessage());
+        }
     }
 
     public void updateBook() {
