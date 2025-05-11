@@ -1,5 +1,6 @@
 package com.example.LibraryManagementSystem;
 
+import api.mutate;
 import api.query;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
@@ -11,6 +12,7 @@ import models.Book;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -60,12 +62,22 @@ public class ManageBooksFunction {
         }
 
         String[] bookData = {title, author, genre, publisher, datePublished};
-        view.addBookToTable(bookData);
-        view.clearForm();
-        view.showMessage("Book added successfully!");
+//        view.addBookToTable(bookData);
 
-        // Generate QR code for the newly added book
-        generateQRCode();
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            mutate.AddBookToDatabase(conn, title, author, genre, publisher, datePublished);
+            view.clearForm();
+            view.showMessage("Book added successfully!");
+            loadBooksFromDatabase();
+            // Generate QR code for the newly added book
+            generateQRCode();
+        } catch (SQLException e) {
+            view.showError("Error adding book: " + e.getMessage());
+            System.out.println(e.getMessage());
+            return;
+        }
     }
 
     // Example of querying all books

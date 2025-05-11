@@ -6,6 +6,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import com.toedter.calendar.JDateChooser;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
+
 
 public class ManageBooksUI {
     private JFrame frame;
@@ -15,9 +21,9 @@ public class ManageBooksUI {
     private JList<JCheckBox> genreList;
     private JScrollPane genreScrollPane;
     private JTextField publisherField;
-    private JTextField datePublishedField;
     private JLabel qrCodeLabel;
     private ManageBooksFunction controller = new ManageBooksFunction(this);
+    private JDateChooser datePublishedChooser;
 
     public ManageBooksUI() {
         initializeUI();
@@ -75,7 +81,7 @@ public class ManageBooksUI {
                 authorField.setText(bookData[1]);
                 setGenreSelection(bookData[2]); // Critical for genre checkboxes
                 publisherField.setText(bookData[3]);
-                datePublishedField.setText(bookData[4]);
+                setDatePublished(bookData[4]);
             } else {
                 showError("Please select a book to edit!");
             }
@@ -134,10 +140,12 @@ public class ManageBooksUI {
 
 // Date Published
         formPanel.add(new JLabel("Date Published:"));
-        datePublishedField = new JTextField();
-        datePublishedField.setPreferredSize(fieldSize);
-        datePublishedField.setFont(smallFont);
-        formPanel.add(datePublishedField);
+        datePublishedChooser = new JDateChooser();
+        datePublishedChooser.setPreferredSize(fieldSize);
+        datePublishedChooser.setFont(smallFont);
+        datePublishedChooser.setDateFormatString("yyyy-MM-dd");
+        datePublishedChooser.getDateEditor().getUiComponent().setEnabled(false);
+        formPanel.add(datePublishedChooser);
 
         // Add input fields below the table
 
@@ -243,7 +251,14 @@ public class ManageBooksUI {
     }
 
     public String getDatePublished() {
-        return datePublishedField.getText();
+        if (datePublishedChooser.getDate() != null) {
+            LocalDate localDate = datePublishedChooser.getDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+            return localDate.toString(); // Returns in yyyy-MM-dd format
+        }
+        return "";
     }
 
     public void clearForm() {
@@ -255,7 +270,7 @@ public class ManageBooksUI {
         }
         genreList.repaint();
         publisherField.setText("");
-        datePublishedField.setText("");
+        datePublishedChooser.setDate(null);
     }
 
     public void showError(String message) {
@@ -322,6 +337,20 @@ public class ManageBooksUI {
         qrCodeLabel.setIcon(qrImage);
         frame.revalidate();
         frame.repaint();
+    }
+
+    public void setDatePublished(String dateStr) {
+        if (dateStr != null && !dateStr.isEmpty()) {
+            try {
+                LocalDate localDate = LocalDate.parse(dateStr);
+                Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                datePublishedChooser.setDate(date);
+            } catch (DateTimeParseException e) {
+                datePublishedChooser.setDate(null);
+            }
+        } else {
+            datePublishedChooser.setDate(null);
+        }
     }
 
     // Add this class at the end of ManageBooksUI

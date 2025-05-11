@@ -50,11 +50,10 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- for dot env -->
     <dependency>
-      <groupId>io.github.cdimascio</groupId>
-      <artifactId>java-dotenv</artifactId>
-      <version>5.2.2</version>
+        <groupId>com.toedter</groupId>
+        <artifactId>jcalendar</artifactId>
+        <version>1.4</version>
     </dependency>
   </dependencies>
 
