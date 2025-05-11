@@ -50,7 +50,7 @@ public class ManageBooksUI {
         });
         
         genreScrollPane = new JScrollPane(genreList);
-        genreScrollPane.setPreferredSize(new Dimension(200, 100));
+        genreScrollPane.setPreferredSize(new Dimension(150, 30));
     }
 
 
@@ -63,44 +63,9 @@ public class ManageBooksUI {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Table panel
-        String[] columnNames = {"Title", "Author", "Genre", "Publisher", "Date Published"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        bookTable = new JTable(model);
-        JScrollPane scrollPane = new JScrollPane(bookTable);
-
-        // Form panel
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-        formPanel.add(new JLabel("Title:"));
-        titleField = new JTextField();
-        formPanel.add(titleField);
-
-        formPanel.add(new JLabel("Author:"));
-        authorField = new JTextField();
-        formPanel.add(authorField);
-
-        initializeGenres();
-        formPanel.add(new JLabel("Genre:"));
-        formPanel.add(genreScrollPane);
-
-        formPanel.add(new JLabel("Publisher:"));
-        publisherField = new JTextField();
-        formPanel.add(publisherField);
-
-        formPanel.add(new JLabel("Date Published:"));
-        datePublishedField = new JTextField();
-        formPanel.add(datePublishedField);
-
-        // Button panel
-        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 5, 5)); // Changed to 6 rows since we removed one button
+        // 1. Left Panel: Vertical Action Buttons (Add/Edit/Update/Delete)
+        JPanel leftPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         JButton addButton = new JButton("Add Book");
-        addButton.addActionListener(e -> controller.addBook());
-
         JButton editButton = new JButton("Edit Book");
         editButton.addActionListener(e -> {
             int selectedRow = bookTable.getSelectedRow();
@@ -108,53 +73,105 @@ public class ManageBooksUI {
                 String[] bookData = getBookAtRow(selectedRow);
                 titleField.setText(bookData[0]);
                 authorField.setText(bookData[1]);
-                setGenreSelection(bookData[2]);
+                setGenreSelection(bookData[2]); // Critical for genre checkboxes
                 publisherField.setText(bookData[3]);
                 datePublishedField.setText(bookData[4]);
+            } else {
+                showError("Please select a book to edit!");
             }
         });
-
         JButton updateButton = new JButton("Update Book");
-        updateButton.addActionListener(e -> controller.updateBook());
-
         JButton deleteButton = new JButton("Delete Book");
-        deleteButton.addActionListener(e -> controller.deleteBook());
+        leftPanel.add(addButton);
+        leftPanel.add(editButton);
+        leftPanel.add(updateButton);
+        leftPanel.add(deleteButton);
+        leftPanel.setPreferredSize(new Dimension(150, 0));
+        mainPanel.add(leftPanel, BorderLayout.WEST);
 
-        JButton returnBookButton = new JButton("Return a Book");
-        returnBookButton.addActionListener(e -> controller.returnBook());
+        // 2. Center Panel: Table + Input Fields (Stacked vertically)
+        JPanel centerPanel = new JPanel(new BorderLayout());
 
-        JButton backButton = new JButton("Back");
-        backButton.addActionListener(e -> controller.goBack());
 
-        buttonPanel.add(addButton);
-        buttonPanel.add(editButton);
-        buttonPanel.add(updateButton);
-        buttonPanel.add(deleteButton);
-        buttonPanel.add(returnBookButton);
-        buttonPanel.add(backButton);
+        String[] columnNames = {"Title", "Author", "Genre", "Publisher", "Date Published"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        bookTable = new JTable(model);
+        JScrollPane tableScrollPane = new JScrollPane(bookTable);
+        centerPanel.add(tableScrollPane, BorderLayout.CENTER);
 
-        // QR Code panel
+        // Input Fields (Under the table)
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 10));
+
+        Font smallFont = new Font("Arial", Font.PLAIN, 12);
+        Dimension fieldSize = new Dimension(150, 30);
+
+// Title
+        formPanel.add(new JLabel("Title:"));
+        titleField = new JTextField();
+        titleField.setPreferredSize(fieldSize);
+        titleField.setFont(smallFont);
+        formPanel.add(titleField);
+
+// Author
+        formPanel.add(new JLabel("Author:"));
+        authorField = new JTextField();
+        authorField.setPreferredSize(fieldSize);
+        authorField.setFont(smallFont);
+        formPanel.add(authorField);
+
+// Genre
+        initializeGenres(); // assumes genreScrollPane is created here
+        formPanel.add(new JLabel("Genre:"));
+        formPanel.add(genreScrollPane);
+
+// Publisher
+        formPanel.add(new JLabel("Publisher:"));
+        publisherField = new JTextField();
+        publisherField.setPreferredSize(fieldSize);
+        publisherField.setFont(smallFont);
+        formPanel.add(publisherField);
+
+// Date Published
+        formPanel.add(new JLabel("Date Published:"));
+        datePublishedField = new JTextField();
+        datePublishedField.setPreferredSize(fieldSize);
+        datePublishedField.setFont(smallFont);
+        formPanel.add(datePublishedField);
+
+        // Add input fields below the table
+
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+        // 3. Bottom Panel: QR Code (Left) + Return/Back Buttons (Right)
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+
+        // QR Code (Left)
         qrCodeLabel = new JLabel();
-        qrCodeLabel.setHorizontalAlignment(JLabel.CENTER);
         qrCodeLabel.setPreferredSize(new Dimension(300, 300));
         JPanel qrPanel = new JPanel(new BorderLayout());
         qrPanel.setBorder(BorderFactory.createTitledBorder("Book QR Code"));
         qrPanel.add(qrCodeLabel, BorderLayout.CENTER);
+        bottomPanel.add(qrPanel, BorderLayout.WEST);
 
-        // Right panel for QR code and buttons
-        JPanel rightPanel = new JPanel(new BorderLayout());
-        rightPanel.add(qrPanel, BorderLayout.NORTH);
-        rightPanel.add(buttonPanel, BorderLayout.CENTER);
-        rightPanel.setPreferredSize(new Dimension(350, 0));
+        // Return/Back Buttons (Right)
+        JPanel returnBackPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        JButton returnButton = new JButton("Return a Book");
+        JButton backButton = new JButton("Back");
+        returnBackPanel.add(returnButton);
+        returnBackPanel.add(backButton);
+        bottomPanel.add(formPanel, BorderLayout.CENTER, FlowLayout.CENTER);
+        bottomPanel.add(returnBackPanel, BorderLayout.SOUTH);
 
-        // Center panel for table and form
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(formPanel, BorderLayout.NORTH);
-        centerPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Main layout
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        mainPanel.add(rightPanel, BorderLayout.EAST);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Add action listeners
+        addButton.addActionListener(e -> controller.addBook());
+
+        updateButton.addActionListener(e -> controller.updateBook());
+        deleteButton.addActionListener(e -> controller.deleteBook());
+        returnButton.addActionListener(e -> controller.returnBook());
+        backButton.addActionListener(e -> controller.goBack());
 
         frame.add(mainPanel);
     }
