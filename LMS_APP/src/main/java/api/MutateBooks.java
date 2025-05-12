@@ -3,9 +3,8 @@ package api;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
-public class mutate {
+public class MutateBooks {
     public static void main(String[] args) {
         try {
             String url = System.getenv("LMS_DB_URL");
@@ -15,13 +14,15 @@ public class mutate {
                 throw new SQLException();
             }
 
-            String test = "mary's lamb";
-            System.out.println(toTitleCase(test));
+            int account_id = 3;
+            int book_id = 2;
+
+            ReturnBook(conn, 1);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
-
+    // MUTATE BOOKS
     public static void AddBookToDatabase(Connection conn,
                                          String title,
                                          String author,
@@ -226,6 +227,49 @@ public class mutate {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             conn.rollback();
+            throw e;
+        }
+    }
+
+    public static void BorrowBook(Connection conn, int account_id, int book_id, String return_date) throws SQLException {
+        try {
+            String query = "INSERT INTO borrowed_books (account_id, book_id, borrow_date, return_date) " +
+                    "VALUES (?, ?, ?, ?)";
+            conn.setAutoCommit(false);
+
+            Date borrow_date = Date.valueOf(LocalDate.now());
+            Date return_date_obj = Date.valueOf(LocalDate.parse(return_date));
+
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, account_id);
+            pstmt.setInt(2, book_id);
+            pstmt.setDate(3, borrow_date);
+            pstmt.setDate(4, return_date_obj);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.commit();
+            System.out.println("Book borrowed successfully!");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            conn.rollback();
+            throw e;
+        }
+    }
+
+    public static void ReturnBook(Connection conn, int reference_id) throws SQLException {
+        try {
+            String query = "DELETE FROM borrowed_books WHERE reference_id = ?";
+            conn.setAutoCommit(false);
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, reference_id);
+            pstmt.executeUpdate();
+            pstmt.close();
+            conn.commit();
+            System.out.println("Book returned successfully!");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            conn.rollback();
+            throw e;
         }
     }
 }

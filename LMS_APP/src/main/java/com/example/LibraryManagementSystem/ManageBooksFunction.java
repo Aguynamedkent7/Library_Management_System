@@ -1,7 +1,7 @@
 package com.example.LibraryManagementSystem;
 
-import api.mutate;
-import api.query;
+import api.MutateBooks;
+import api.Query;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -33,7 +33,7 @@ public class ManageBooksFunction {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            ArrayList<String> genres = query.QueryAllGenres(conn);
+            ArrayList<String> genres = Query.QueryAllGenres(conn);
 
             if (genres != null) {
                 for (String genre : genres) {
@@ -53,7 +53,7 @@ public class ManageBooksFunction {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            ArrayList<Book> books = query.QueryAllBooks(conn);
+            ArrayList<Book> books = Query.QueryAllBooks(conn);
 
             view.clearTable();
 
@@ -92,7 +92,7 @@ public class ManageBooksFunction {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            mutate.AddBookToDatabase(conn, title, author, genre, publisher, datePublished);
+            MutateBooks.AddBookToDatabase(conn, title, author, genre, publisher, datePublished);
             view.clearForm();
             view.showMessage("Book added successfully!");
             loadBooksFromDatabase();
@@ -126,7 +126,7 @@ public class ManageBooksFunction {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            mutate.UpdateBookInDatabase(conn, id, title, author, genre, publisher, datePublished);
+            MutateBooks.UpdateBookInDatabase(conn, id, title, author, genre, publisher, datePublished);
             view.clearForm();
             view.showMessage("Book updated successfully!");
             loadBooksFromDatabase();
@@ -150,7 +150,7 @@ public class ManageBooksFunction {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 Connection conn = DriverManager.getConnection(System.getenv("LMS_DB_URL"));
-                mutate.DeleteBookFromDatabase(conn, view.getSelectedBookID(selectedRow));
+                MutateBooks.DeleteBookFromDatabase(conn, view.getSelectedBookID(selectedRow));
                 loadBooksFromDatabase();
                 conn.close();
             } catch (SQLException e) {

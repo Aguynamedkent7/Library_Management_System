@@ -1,13 +1,15 @@
 package api;
 
+import models.Account;
 import models.Book;
+import models.BorrowedBook;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Set;
 
 
-public class query {
+public class Query {
     public static void main(String[] args) {
        String url = System.getenv("LMS_DB_URL");//TO FIX
 
@@ -19,20 +21,18 @@ public class query {
            }
 
             // SAMPLE QUERY
-           ArrayList<Book> Books = QueryAllBooks(conn);
-           if (Books == null) {
-               System.out.println("Error fetching books.");
-           } else if (Books.isEmpty()) {
+           ArrayList<BorrowedBook> borrowedBooks = QueryBorrowedBooks(conn);
+           if (borrowedBooks.isEmpty()) {
                System.out.println("Empty search results.");
            } else {
-               for (Book book : Books) {
-                   System.out.println("Book ID: " + book.getId());
-                   System.out.println("Title: " + book.getTitle());
-                   System.out.println("Author: " + book.getAuthor());
-                   System.out.println("Genre/s: " + book.getGenre());
-                   System.out.println("Publisher: " + book.getPublisher());
-                   System.out.println("Published Date: " + book.getPublished_Date());
-                   System.out.println("Is Borrowed? " + book.isBorrowed());
+               for (BorrowedBook b : borrowedBooks) {
+                   System.out.println("Reference ID: " + b.getReferenceID());
+                   System.out.println("Borrower username: " + b.getUsername());
+                   System.out.println("Borrower full name: " + b.getFirstName() + " " + b.getLastName());
+                   System.out.println("Book title: " + b.getBookTitle());
+                   System.out.println("Book author: " + b.getBookAuthor());
+                   System.out.println("Borrow date: " + b.getBorrowDate());
+                   System.out.println("Return date: " + b.getReturnDate());
                    System.out.println();
                }
            }
@@ -141,4 +141,88 @@ public class query {
         }
         return genres;
     }
+
+    public static ArrayList<Account> QueryAllAccounts(Connection conn) {
+        ArrayList<Account> accounts = new ArrayList<>();
+
+        try {
+            String query = "SELECT id, username, first_name, last_name, role_name " +
+                    "FROM accounts " +
+                    "INNER JOIN roles ON accounts.role_id = roles.id";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String username = rs.getString("username");
+                String first_name = rs.getString("first_name");
+                String last_name = rs.getString("last_name");
+                String role_name = rs.getString("role_name");
+                Account account = new Account(id, username, first_name, last_name, role_name);
+                accounts.add(account);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return accounts;
+    }
+
+    public static Account QueryAccountByUsername(Connection conn, String username) {
+        try {
+            String first_name = null, last_name = null, role_name = null;
+            int id = 0;
+            String query = "SELECT accounts.id, username, first_name, last_name, role_name " +
+                    "FROM accounts " +
+                    "INNER JOIN roles ON accounts.role_id = roles.id " +
+                    "WHERE username = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                id = rs.getInt("id");
+                first_name = rs.getString("first_name");
+                last_name = rs.getString("last_name");
+                role_name = rs.getString("role_name");
+            }
+            return new Account(id, username, first_name, last_name, role_name);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public static ArrayList<BorrowedBook> QueryBorrowedBooks(Connection conn) throws SQLException {
+        ArrayList<BorrowedBook> borrowedBooks = new ArrayList<>();
+
+        try {
+            String query = "SELECT reference_id, accounts.username, accounts.first_name, accounts.last_name, " +
+                    "books.title, books.author, borrow_date, return_date " +
+                    "FROM accounts INNER JOIN borrowed_books ON accounts.id = borrowed_books.account_id " +
+                    "INNER JOIN books ON borrowed_books.book_id = books.id";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int reference_id = rs.getInt("reference_id");
+                String username = rs.getString("username");
+                String first_name = rs.getString("first_name");
+                String last_name = rs.getString("last_name");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String borrow_date = rs.getDate("borrow_date").toString();
+                String return_date = rs.getDate("return_date").toString();
+                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, username,
+                        first_name, last_name,
+                        title, author, borrow_date, return_date);
+                borrowedBooks.add(borrowed_book_instance);
+            }
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+
+        return borrowedBooks;
+    }
+
 }
