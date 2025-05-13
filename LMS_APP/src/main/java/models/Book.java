@@ -7,16 +7,16 @@ public class Book {
     private String genre;
     private String publisher;
     private String published_date;
-    private boolean is_borrowed;
+    private int available_copies;
 
-    public Book (int id, String title, String author, String genre, String publisher, String published_date, boolean is_borrowed) {
+    public Book (int id, String title, String author, String genre, String publisher, String published_date, int available_copies) {
         this.id = id;
         this.author = author;
         this.title = title;
         this.genre = genre;
         this.publisher = publisher;
         this.published_date = published_date;
-        this.is_borrowed = is_borrowed;
+        this.available_copies = available_copies;
     }
 
     public int getId() {
@@ -67,13 +67,12 @@ public class Book {
         this.published_date = published_date;
     }
 
-    public boolean isBorrowed() {
-        return is_borrowed;
+    public int getAvailableCopies() {
+        return available_copies;
     }
 
-    public void setIsBorrowed(boolean is_borrowed) {
-        this.is_borrowed = is_borrowed;
+    public void setAvailableCopies(int available_copies) {
+        this.available_copies = available_copies;
     }
-
 }
 

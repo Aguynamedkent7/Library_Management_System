@@ -20,22 +20,13 @@ public class Query {
                throw new SQLException();
            }
 
-            // SAMPLE QUERY
-           ArrayList<BorrowedBook> borrowedBooks = QueryBorrowedBooks(conn);
-           if (borrowedBooks.isEmpty()) {
-               System.out.println("Empty search results.");
-           } else {
-               for (BorrowedBook b : borrowedBooks) {
-                   System.out.println("Reference ID: " + b.getReferenceID());
-                   System.out.println("Borrower username: " + b.getUsername());
-                   System.out.println("Borrower full name: " + b.getFirstName() + " " + b.getLastName());
-                   System.out.println("Book title: " + b.getBookTitle());
-                   System.out.println("Book author: " + b.getBookAuthor());
-                   System.out.println("Borrow date: " + b.getBorrowDate());
-                   System.out.println("Return date: " + b.getReturnDate());
-                   System.out.println();
-               }
-           }
+            ArrayList<BorrowedBook> borrowedBooks = QueryBorrowedBooksByAccount(conn, 3);
+           for (BorrowedBook borrowedBook : borrowedBooks) {
+                System.out.println(borrowedBook.getUsername());
+                System.out.println(borrowedBook.getBookCopyID());
+                System.out.println(borrowedBook.getBookTitle());
+                System.out.println(borrowedBook.getBookAuthor());
+            }
 
        } catch (SQLException e) {
            System.out.println(e.getMessage());
@@ -47,22 +38,22 @@ public class Query {
     public static ArrayList<Book> SearchBooks(Connection Conn, String SearchQuery, String SearchBy) {
         ArrayList<Book> BookResults = new ArrayList<>();
         try {
-            final Set<String> VALID_COLUMNS = Set.of(
-                    "title", "author", "genre", "publisher", "published_date"
+            final Set<String> VALID_SEARCH_COLUMNS = Set.of(
+                    "title", "author", "genre"
             );
-            if (!VALID_COLUMNS.contains(SearchBy)) {
+            if (!VALID_SEARCH_COLUMNS.contains(SearchBy)) {
                 throw new IllegalArgumentException("Invalid column: " + SearchBy);
             }
-            String query = "SELECT " +
-                    "  books.id, books.title, books.author, string_agg(genres.genre_name, ', ') AS genres," +
-                    "  publisher_name, published_date, is_borrowed " +
+            String query = "SELECT books.id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
+                    "publisher_name, published_date, COUNT(DISTINCT book_copies.copy_id) FILTER (WHERE book_copies.status = 'AVAILABLE') " +
+                    "AS available_copies " +
                     "FROM books " +
-                    "INNER JOIN genres_of_book ON books.id = genres_of_book.book_id " +
-                    "INNER JOIN genres ON genres_of_book.genre_id = genres.id " +
-                    "INNER JOIN publishers ON publishers.id = books.publisher_id " +
-                    "WHERE " + SearchBy + " LIKE ? " +
-                    "GROUP BY books.id, books.title, publisher_name, published_date " +
-                    "ORDER BY books.id";
+                    "LEFT JOIN book_copies ON book_copies.book_id = books.id " +
+                    "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
+                    "LEFT JOIN genres ON genres_of_book.genre_id = genres.id " +
+                    "LEFT JOIN publishers ON books.publisher_id = publishers.id " +
+                    "GROUP BY books.id, title, author, publisher_name, published_date " +
+                    "WHERE " + SearchBy + " = ?";
             PreparedStatement pstmt = Conn.prepareStatement(query);
             pstmt.setString(1, '%' + SearchQuery + '%');
             ResultSet rs = pstmt.executeQuery();
@@ -75,7 +66,7 @@ public class Query {
                         rs.getString("genres"),
                         rs.getString("publisher_name"),
                         rs.getString("published_date"),
-                        rs.getBoolean("is_borrowed")
+                        rs.getInt("available_copies")
                 );
                 BookResults.add(book);
             }
@@ -89,18 +80,18 @@ public class Query {
     }
 
     // search books by title, author, genre, publisher, or published_date
-    public static ArrayList<Book> QueryAllBooks(Connection Conn) {
+    public static ArrayList<Book> QueryAllAvailableBooks(Connection Conn) {
         ArrayList<Book> BookResults = new ArrayList<>();
         try {
-            String query = "SELECT " +
-                    "  books.id, books.title, books.author, string_agg(genres.genre_name, ', ') AS genres," +
-                    "  publisher_name, published_date, is_borrowed " +
+            String query = "SELECT books.id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
+                    "publisher_name, published_date, COUNT(DISTINCT book_copies.copy_id) FILTER (WHERE book_copies.status = 'AVAILABLE') " +
+                    "AS available_copies " +
                     "FROM books " +
-                    "INNER JOIN genres_of_book ON books.id = genres_of_book.book_id " +
-                    "INNER JOIN genres ON genres_of_book.genre_id = genres.id " +
-                    "INNER JOIN publishers ON publishers.id = books.publisher_id " +
-                    "GROUP BY books.id, books.title, publisher_name, published_date " +
-                    "ORDER BY books.id";
+                    "LEFT JOIN book_copies ON book_copies.book_id = books.id " +
+                    "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
+                    "LEFT JOIN genres ON genres_of_book.genre_id = genres.id " +
+                    "LEFT JOIN publishers ON books.publisher_id = publishers.id " +
+                    "GROUP BY books.id, title, author, publisher_name, published_date ";
             PreparedStatement pstmt = Conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -111,7 +102,7 @@ public class Query {
                         rs.getString("genres"),
                         rs.getString("publisher_name"),
                         rs.getString("published_date"),
-                        rs.getBoolean("is_borrowed")
+                        rs.getInt("available_copies")
                 );
                 BookResults.add(book);
             }
@@ -190,19 +181,21 @@ public class Query {
         }
     }
 
-    public static ArrayList<BorrowedBook> QueryBorrowedBooks(Connection conn) throws SQLException {
+    public static ArrayList<BorrowedBook> QueryAllBookBorrowers(Connection conn) throws SQLException {
         ArrayList<BorrowedBook> borrowedBooks = new ArrayList<>();
 
         try {
-            String query = "SELECT reference_id, accounts.username, accounts.first_name, accounts.last_name, " +
+            String query = "SELECT reference_id, book_copy_id, accounts.username, accounts.first_name, accounts.last_name, " +
                     "books.title, books.author, borrow_date, return_date " +
                     "FROM accounts INNER JOIN borrowed_books ON accounts.id = borrowed_books.account_id " +
-                    "INNER JOIN books ON borrowed_books.book_id = books.id";
+                    "INNER JOIN book_copies ON borrowed_books.book_copy_id = book_copies.copy_id " +
+                    "INNER JOIN books ON book_copies.book_id = books.id";
             PreparedStatement pstmt = conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 int reference_id = rs.getInt("reference_id");
+                int book_copy_id = rs.getInt("book_copy_id");
                 String username = rs.getString("username");
                 String first_name = rs.getString("first_name");
                 String last_name = rs.getString("last_name");
@@ -210,7 +203,46 @@ public class Query {
                 String author = rs.getString("author");
                 String borrow_date = rs.getDate("borrow_date").toString();
                 String return_date = rs.getDate("return_date").toString();
-                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, username,
+                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, book_copy_id, username,
+                        first_name, last_name,
+                        title, author, borrow_date, return_date);
+                borrowedBooks.add(borrowed_book_instance);
+            }
+            rs.close();
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+
+        return borrowedBooks;
+    }
+
+    public static ArrayList<BorrowedBook> QueryBorrowedBooksByAccount(Connection conn, int account_id) throws SQLException {
+        ArrayList<BorrowedBook> borrowedBooks = new ArrayList<>();
+
+        try {
+            String query = "SELECT reference_id, book_copy_id, accounts.username, accounts.first_name, accounts.last_name, " +
+                    "books.title, books.author, borrow_date, return_date " +
+                    "FROM accounts INNER JOIN borrowed_books ON accounts.id = borrowed_books.account_id " +
+                    "INNER JOIN book_copies ON borrowed_books.book_copy_id = book_copies.copy_id " +
+                    "INNER JOIN books ON book_copies.book_id = books.id " +
+                    "WHERE accounts.id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, account_id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int reference_id = rs.getInt("reference_id");
+                int book_copy_id = rs.getInt("book_copy_id");
+                String username = rs.getString("username");
+                String first_name = rs.getString("first_name");
+                String last_name = rs.getString("last_name");
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String borrow_date = rs.getDate("borrow_date").toString();
+                String return_date = rs.getDate("return_date").toString();
+                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, book_copy_id, username,
                         first_name, last_name,
                         title, author, borrow_date, return_date);
                 borrowedBooks.add(borrowed_book_instance);

@@ -49,11 +49,11 @@ public class ManageBooksFunction {
         return new JList<>(genresListModel);
     }
 
-    public void loadBooksFromDatabase() {
+    public void loadAvailableBooks() {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            ArrayList<Book> books = Query.QueryAllBooks(conn);
+            ArrayList<Book> books = Query.QueryAllAvailableBooks(conn);
 
             view.clearTable();
 
@@ -65,7 +65,8 @@ public class ManageBooksFunction {
                         book.getAuthor(),
                         book.getGenre(),
                         book.getPublisher(),
-                        book.getPublished_Date()
+                        book.getPublished_Date(),
+                        book.getAvailableCopies()
                 };
                 view.addBookToTable(rowData);
             }
@@ -95,7 +96,7 @@ public class ManageBooksFunction {
             MutateBooks.AddBookToDatabase(conn, title, author, genre, publisher, datePublished);
             view.clearForm();
             view.showMessage("Book added successfully!");
-            loadBooksFromDatabase();
+            loadAvailableBooks();
             // Generate QR code for the newly added book
             generateQRCode();
         } catch (SQLException e) {
@@ -129,7 +130,7 @@ public class ManageBooksFunction {
             MutateBooks.UpdateBookInDatabase(conn, id, title, author, genre, publisher, datePublished);
             view.clearForm();
             view.showMessage("Book updated successfully!");
-            loadBooksFromDatabase();
+            loadAvailableBooks();
         } catch (SQLException e) {
             view.showError("Error updating book: " + e.getMessage());
             System.out.println(e.getMessage());
@@ -151,7 +152,7 @@ public class ManageBooksFunction {
             try {
                 Connection conn = DriverManager.getConnection(System.getenv("LMS_DB_URL"));
                 MutateBooks.DeleteBookFromDatabase(conn, view.getSelectedBookID(selectedRow));
-                loadBooksFromDatabase();
+                loadAvailableBooks();
                 conn.close();
             } catch (SQLException e) {
                 view.showError("Error deleting book: " + e.getMessage());

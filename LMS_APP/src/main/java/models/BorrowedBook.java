@@ -2,6 +2,7 @@ package models;
 
 public class BorrowedBook {
     private int reference_id;
+    private int book_copy_id;
     private String username;
     private String first_name;
     private String last_name;
@@ -10,9 +11,10 @@ public class BorrowedBook {
     private String borrow_date;
     private String return_date;
 
-    public BorrowedBook(int reference_id, String username, String first_name, String last_name,
+    public BorrowedBook(int reference_id, int book_copy_id, String username, String first_name, String last_name,
                         String book_title, String book_author, String borrow_date, String return_date) {
         this.reference_id = reference_id;
+        this.book_copy_id = book_copy_id;
         this.username = username;
         this.return_date = return_date;
         this.first_name = first_name;
@@ -28,6 +30,14 @@ public class BorrowedBook {
 
     public void setReferenceID(int reference_id) {
         this.reference_id = reference_id;
+    }
+
+    public int getBookCopyID() {
+        return book_copy_id;
+    }
+
+    public void setBookCopyID(int book_copy_id) {
+        this.book_copy_id = book_copy_id;
     }
 
     public String getUsername() {

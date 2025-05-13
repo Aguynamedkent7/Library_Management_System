@@ -24,6 +24,7 @@ public class ManageBooksUI {
     private JLabel qrCodeLabel;
     private ManageBooksFunction controller = new ManageBooksFunction(this);
     private JDateChooser datePublishedChooser;
+    private JTextField availableCopiesField;
 
     public ManageBooksUI() {
         initializeUI();
@@ -100,7 +101,7 @@ public class ManageBooksUI {
         JPanel centerPanel = new JPanel(new BorderLayout());
 
 
-        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
+        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Available Copies"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable = new JTable(model);
         bookTable.setDefaultEditor(Object.class, null);
@@ -112,7 +113,7 @@ public class ManageBooksUI {
         bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
         JScrollPane tableScrollPane = new JScrollPane(bookTable);
         centerPanel.add(tableScrollPane, BorderLayout.CENTER);
-        controller.loadBooksFromDatabase();
+        controller.loadAvailableBooks();
 
         // Input Fields (Under the table)
         JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 10));

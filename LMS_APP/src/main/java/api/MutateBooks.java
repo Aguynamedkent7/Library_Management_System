@@ -17,7 +17,9 @@ public class MutateBooks {
             int account_id = 3;
             int book_id = 2;
 
-            ReturnBook(conn, 1);
+            int copy_id = 1;
+            ReturnBook(conn, copy_id, account_id);
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -60,6 +62,10 @@ public class MutateBooks {
                     pstmt.setInt(2, id);
                     pstmt.executeUpdate();
                 }
+                query = "INSERT INTO book_copies (book_id, status) VALUES (?, 'AVAILABLE')";
+                pstmt = conn.prepareStatement(query);
+                pstmt.setInt(1, book_id);
+                pstmt.executeUpdate();
             }
 
             System.out.println("Book added successfully!");
@@ -231,24 +237,42 @@ public class MutateBooks {
         }
     }
 
-    public static void BorrowBook(Connection conn, int account_id, int book_id, String return_date) throws SQLException {
+    public static int BorrowBook(Connection conn, int account_id, int book_id, String return_date) throws SQLException {
         try {
-            String query = "INSERT INTO borrowed_books (account_id, book_id, borrow_date, return_date) " +
-                    "VALUES (?, ?, ?, ?)";
+            String query = "SELECT copy_id FROM book_copies WHERE book_id = ? AND status = 'AVAILABLE' LIMIT 1";
             conn.setAutoCommit(false);
+
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_id);
+            ResultSet rs = pstmt.executeQuery();
+            if (!rs.next()) {
+                throw new SQLException("No available copies of this book");
+            }
+
+            int copy_id = rs.getInt("copy_id");
+
+            query = "INSERT INTO borrowed_books (account_id, book_copy_id, borrow_date, return_date) " +
+                    "VALUES (?, ?, ?, ?)";
 
             Date borrow_date = Date.valueOf(LocalDate.now());
             Date return_date_obj = Date.valueOf(LocalDate.parse(return_date));
 
-            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, account_id);
-            pstmt.setInt(2, book_id);
+            pstmt.setInt(2, copy_id);
             pstmt.setDate(3, borrow_date);
             pstmt.setDate(4, return_date_obj);
             pstmt.executeUpdate();
+
+            query = "UPDATE book_copies SET status = 'BORROWED' WHERE copy_id = ?";
+            pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, copy_id);
+            pstmt.executeUpdate();
+
             pstmt.close();
             conn.commit();
             System.out.println("Book borrowed successfully!");
+            return copy_id;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             conn.rollback();
@@ -256,13 +280,20 @@ public class MutateBooks {
         }
     }
 
-    public static void ReturnBook(Connection conn, int reference_id) throws SQLException {
+    public static void ReturnBook(Connection conn, int copy_id, int account_id) throws SQLException {
         try {
-            String query = "DELETE FROM borrowed_books WHERE reference_id = ?";
+            String query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
             conn.setAutoCommit(false);
             PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, reference_id);
+            pstmt.setInt(1, copy_id);
             pstmt.executeUpdate();
+
+            String newQuery = "DELETE FROM borrowed_books WHERE book_copy_id = ? AND account_id = ?";
+            pstmt = conn.prepareStatement(newQuery);
+            pstmt.setInt(1, copy_id);
+            pstmt.setInt(2, account_id);
+            pstmt.executeUpdate();
+
             pstmt.close();
             conn.commit();
             System.out.println("Book returned successfully!");
