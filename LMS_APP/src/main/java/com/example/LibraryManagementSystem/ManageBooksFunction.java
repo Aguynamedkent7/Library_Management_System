@@ -371,11 +371,16 @@ public class ManageBooksFunction {
             int bookId = Integer.parseInt(bookData[0].toString());
             JTextField firstNameField = new JTextField(10);
             JTextField lastNameField = new JTextField(10);
+            JPanel headTextPanel = new JPanel();
+
+            headTextPanel.add(Box.createHorizontalStrut(15));
 
             JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.add(new JLabel("Select a book first, then enter credentials below."));
             panel.add(new JLabel("First Name:"));
             panel.add(firstNameField);
-            panel.add(Box.createHorizontalStrut(15)); // space
+            panel.add(Box.createVerticalStrut(15)); // space
             panel.add(new JLabel("Last Name:"));
             panel.add(lastNameField);
 
