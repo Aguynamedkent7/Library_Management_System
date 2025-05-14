@@ -7,7 +7,9 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import models.Account;
 import models.Book;
+import models.BorrowedBook;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
@@ -19,8 +21,10 @@ import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class ManageBooksFunction {
@@ -74,6 +78,34 @@ public class ManageBooksFunction {
                         book.getPublisher(),
                         book.getPublished_Date(),
                         book.getAvailableCopies()
+                };
+                view.addBookToTable(rowData);
+            }
+
+            conn.close();
+        } catch (SQLException | NullPointerException e) {
+            view.showError("Error loading books: " + e.getMessage());
+        }
+    }
+
+    public void loadBorrowedBooks() {
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            ArrayList<BorrowedBook> borrowedBooks = Query.QueryAllBookBorrowers(conn);
+
+            view.clearTable();
+
+            for (BorrowedBook book : borrowedBooks) {
+                Object[] rowData = {
+                        book.getReferenceID(),
+                        book.getUsername(),
+                        book.getFirstName(),
+                        book.getLastName(),
+                        book.getBookTitle(),
+                        book.getBookAuthor(),
+                        book.getBorrowDate(),
+                        book.getReturnDate()
                 };
                 view.addBookToTable(rowData);
             }
@@ -312,10 +344,46 @@ public class ManageBooksFunction {
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
-    public void goBack() {
-        // Clean up resources properly
-        cleanupQRComponents();
-        view.getFrame().dispose();
+    public void borrowBook() {
+        int selectedRow = view.getBookTable().getSelectedRow();
+
+        if (selectedRow == -1) {
+            view.showError("Please select a book to borrow");
+        } else {
+            Object[] bookData = view.getBookAtRow(selectedRow);
+            int bookId = Integer.parseInt(bookData[0].toString());
+
+            // Show username input dialog
+            String username = JOptionPane.showInputDialog(
+                    view.getFrame(), // parent component
+                    "Enter username: ", // message
+                    "Username", // title
+                    JOptionPane.PLAIN_MESSAGE // message type
+            );
+            if (username != null && !username.trim().isEmpty()) {
+                // Valid username entered, proceed with borrowing logic
+                try {
+                    String url = System.getenv("LMS_DB_URL");
+                    Connection conn = DriverManager.getConnection(url);
+                    Account account = Query.QueryAccountByUsername(conn, username);
+
+                    if (account == null) {
+                        view.showError("Account with username " + username + " does not exist. Please try again.");
+                        return;
+                    }
+                    String threeWeeksFromNow = Date.valueOf(LocalDate.now().plusWeeks(3)).toString();
+                    MutateBooks.BorrowBook(conn, account.getId(), bookId, threeWeeksFromNow);
+                    loadAvailableBooks();
+                    view.showMessage("Book borrowed successfully!");
+                } catch (SQLException e) {
+                    view.showError("Error connecting to database: " + e.getMessage());
+                }
+
+            } else if (username != null) {
+                // Show error if empty string (Cancel returns null)
+                view.showError("Username cannot be empty.");
+            }
+        }
     }
     
     /**

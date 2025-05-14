@@ -24,6 +24,9 @@ public class ManageBooksUI {
     private JLabel qrCodeLabel;
     private ManageBooksFunction controller = new ManageBooksFunction(this);
     private JDateChooser datePublishedChooser;
+    private JPanel centerPanel;
+    private JLabel headerLabel;
+    private Font headerFont = new Font("Arial", Font.BOLD, 20);
 
     public ManageBooksUI() {
         initializeUI();
@@ -69,6 +72,11 @@ public class ManageBooksUI {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        headerLabel = new JLabel("Available Books", SwingConstants.CENTER);
+        headerLabel.setFont(headerFont);
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(headerLabel, BorderLayout.NORTH);
+
         // 1. Left Panel: Vertical Action Buttons (Add/Edit/Update/Delete)
         JPanel leftPanel = new JPanel(new GridLayout(5, 1, 5, 5)); // Changed from 4 to 5 rows
         JButton addButton = new JButton("Add Book");
@@ -109,23 +117,10 @@ public class ManageBooksUI {
         leftPanel.setPreferredSize(new Dimension(150, 0));
         mainPanel.add(leftPanel, BorderLayout.WEST);
 
-        // 2. Center Panel: Table + Input Fields (Stacked vertically)
-        JPanel centerPanel = new JPanel(new BorderLayout());
 
 
-        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Available Copies"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        bookTable = new JTable(model);
-        bookTable.setDefaultEditor(Object.class, null);
-        bookTable.getTableHeader().setReorderingAllowed(false); // Prevent column reordering
-        bookTable.setDragEnabled(false); // Prevent row reordering
-        bookTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        // remove ID column from table
-        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
-        JScrollPane tableScrollPane = new JScrollPane(bookTable);
-        centerPanel.add(tableScrollPane, BorderLayout.CENTER);
-        controller.loadAvailableBooks();
+
 
         // Input Fields (Under the table)
         JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 10));
@@ -169,8 +164,16 @@ public class ManageBooksUI {
         formPanel.add(datePublishedChooser);
 
         // Add input fields below the table
-
+        centerPanel = new JPanel(new BorderLayout());
         mainPanel.add(centerPanel, BorderLayout.CENTER);
+        bookTable = new JTable();
+        bookTable.setDefaultEditor(Object.class, null);
+        bookTable.getTableHeader().setReorderingAllowed(false); // Prevent column reordering
+        bookTable.setDragEnabled(false); // Prevent row reordering
+        bookTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        JScrollPane tableScrollPane = new JScrollPane(bookTable);
+        centerPanel.add(tableScrollPane, BorderLayout.CENTER);
+        viewAvailableBooks(); // load all available books to table
 
         // 3. Bottom Panel: QR Code (Left) + Return/Back Buttons (Right)
         JPanel bottomPanel = new JPanel(new BorderLayout());
@@ -191,13 +194,17 @@ public class ManageBooksUI {
 
 
         // Return/Back Buttons (Right)
-        JPanel returnBackPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
+        JPanel lowerRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         JButton returnButton = new JButton("Return a Book");
-        JButton backButton = new JButton("Back");
-        returnBackPanel.add(returnButton);
-        returnBackPanel.add(backButton);
+        JButton borrowButton = new JButton("Borrow a Book");
+        JButton viewBorrowersButton = new JButton("View All Borrowers");
+        JButton viewAvailableBooksButton = new JButton("View Available Books");
+        lowerRightPanel.add(borrowButton);
+        lowerRightPanel.add(returnButton);
+        lowerRightPanel.add(viewBorrowersButton);
+        lowerRightPanel.add(viewAvailableBooksButton);
         bottomPanel.add(formPanel, BorderLayout.CENTER, FlowLayout.CENTER);
-        bottomPanel.add(returnBackPanel, BorderLayout.SOUTH);
+        bottomPanel.add(lowerRightPanel, BorderLayout.SOUTH);
 
 
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
@@ -208,7 +215,7 @@ public class ManageBooksUI {
         updateButton.addActionListener(e -> controller.updateBook());
         deleteButton.addActionListener(e -> controller.deleteBook());
         returnButton.addActionListener(e -> controller.returnBook());
-        backButton.addActionListener(e -> controller.goBack());
+        borrowButton.addActionListener(e -> controller.borrowBook());
         // Add action listener to the save button
         saveQRButton.addActionListener(e -> {
             if (qrCodeLabel.getIcon() != null) {
@@ -216,6 +223,12 @@ public class ManageBooksUI {
             } else {
                 showError("No QR code to save! Generate a QR code first.");
             }
+        });
+        viewBorrowersButton.addActionListener(e -> {
+            viewAllBorrowers();
+        });
+        viewAvailableBooksButton.addActionListener(e -> {
+            viewAvailableBooks();
         });
 
 
@@ -229,6 +242,28 @@ public class ManageBooksUI {
 
     public void show() {
         frame.setVisible(true);
+    }
+
+    public void viewAvailableBooks() {
+        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Available Copies"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        bookTable.setModel(model);
+
+        // remove ID column from table
+        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
+        controller.loadAvailableBooks();
+        headerLabel.setText("Available Books");
+    }
+
+    public void viewAllBorrowers() {
+        String[] columnNames = {"Reference ID", "Username", "First Name", "Last Name", "Book Title", "Book Author", "Borrow Date", "Return Date"};
+        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
+        bookTable.setModel(model);
+
+        // remove ID column from table
+        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
+        controller.loadBorrowedBooks();
+        headerLabel.setText("All Borrowers");
     }
 
     public int getSelectedBookID(int selectedRow) {
