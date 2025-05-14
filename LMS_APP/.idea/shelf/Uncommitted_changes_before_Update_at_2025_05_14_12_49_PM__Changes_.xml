@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Update_at_2025_05_14_12_49_PM_[Changes]" date="1747198167076" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025_05_14_12_49_PM_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 2025/05/14 12:49 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/com/example/LibraryManagementSystem/ManageBooksUI.class" />
+    <option name="AFTER_PATH" value="target/classes/com/example/LibraryManagementSystem/ManageBooksUI.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025_05_14_12_49_PM_[Changes]/ManageBooksUI.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/com/example/LibraryManagementSystem/ManageBooksUI$1.class" />
+    <option name="AFTER_PATH" value="target/classes/com/example/LibraryManagementSystem/ManageBooksUI$1.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025_05_14_12_49_PM_[Changes]/ManageBooksUI$1.class" />
+  </binary>
+</changelist>

@@ -1,0 +1,226 @@
+Index: src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.LibraryManagementSystem;\r\n\r\nimport javax.swing.*;\r\nimport java.awt.*;\r\nimport javax.swing.table.DefaultTableModel;\r\n\r\npublic class ManageBooksUI {\r\n    private JFrame frame;\r\n    private JTable bookTable;\r\n    private JTextField titleField;\r\n    private JTextField authorField;\r\n    private JTextField genreField;\r\n    private JTextField publisherField;\r\n    private JTextField datePublishedField;\r\n    private JLabel qrCodeLabel;\r\n    private ManageBooksFunction controller;\r\n\r\n    public ManageBooksUI() {\r\n        initializeUI();\r\n    }\r\n\r\n    private void initializeUI() {\r\n        frame = new JFrame(\"Library Management System\");\r\n        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);\r\n        frame.setSize(1920, 1080);\r\n        frame.setLocationRelativeTo(null);\r\n\r\n        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));\r\n        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));\r\n\r\n        // Table panel\r\n        String[] columnNames = {\"Title\", \"Author\", \"Genre\", \"Publisher\", \"Date Published\"};\r\n        DefaultTableModel model = new DefaultTableModel(columnNames, 0) {\r\n            @Override\r\n            public boolean isCellEditable(int row, int column) {\r\n                return false;\r\n            }\r\n        };\r\n        bookTable = new JTable(model);\r\n        JScrollPane scrollPane = new JScrollPane(bookTable);\r\n\r\n        // Form panel\r\n        JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));\r\n        formPanel.add(new JLabel(\"Title:\"));\r\n        titleField = new JTextField();\r\n        formPanel.add(titleField);\r\n\r\n        formPanel.add(new JLabel(\"Author:\"));\r\n        authorField = new JTextField();\r\n        formPanel.add(authorField);\r\n\r\n        formPanel.add(new JLabel(\"Genre:\"));\r\n        genreField = new JTextField();\r\n        formPanel.add(genreField);\r\n\r\n        formPanel.add(new JLabel(\"Publisher:\"));\r\n        publisherField = new JTextField();\r\n        formPanel.add(publisherField);\r\n\r\n        formPanel.add(new JLabel(\"Date Published:\"));\r\n        datePublishedField = new JTextField();\r\n        formPanel.add(datePublishedField);\r\n\r\n        // Button panel\r\n        JPanel buttonPanel = new JPanel(new GridLayout(6, 1, 5, 5)); // Changed to 6 rows since we removed one button\r\n        JButton addButton = new JButton(\"Add Book\");\r\n        addButton.addActionListener(e -> controller.addBook());\r\n\r\n        JButton editButton = new JButton(\"Edit Book\");\r\n        editButton.addActionListener(e -> {\r\n            int selectedRow = bookTable.getSelectedRow();\r\n            if (selectedRow >= 0) {\r\n                String[] bookData = getBookAtRow(selectedRow);\r\n                titleField.setText(bookData[0]);\r\n                authorField.setText(bookData[1]);\r\n                genreField.setText(bookData[2]);\r\n                publisherField.setText(bookData[3]);\r\n                datePublishedField.setText(bookData[4]);\r\n            }\r\n        });\r\n\r\n        JButton updateButton = new JButton(\"Update Book\");\r\n        updateButton.addActionListener(e -> controller.updateBook());\r\n\r\n        JButton deleteButton = new JButton(\"Delete Book\");\r\n        deleteButton.addActionListener(e -> controller.deleteBook());\r\n\r\n        JButton returnBookButton = new JButton(\"Return a Book\");\r\n        returnBookButton.addActionListener(e -> controller.returnBook());\r\n\r\n        JButton backButton = new JButton(\"Back\");\r\n        backButton.addActionListener(e -> controller.goBack());\r\n\r\n        buttonPanel.add(addButton);\r\n        buttonPanel.add(editButton);\r\n        buttonPanel.add(updateButton);\r\n        buttonPanel.add(deleteButton);\r\n        buttonPanel.add(returnBookButton);\r\n        buttonPanel.add(backButton);\r\n\r\n        // QR Code panel\r\n        qrCodeLabel = new JLabel();\r\n        qrCodeLabel.setHorizontalAlignment(JLabel.CENTER);\r\n        qrCodeLabel.setPreferredSize(new Dimension(300, 300));\r\n        JPanel qrPanel = new JPanel(new BorderLayout());\r\n        qrPanel.setBorder(BorderFactory.createTitledBorder(\"Book QR Code\"));\r\n        qrPanel.add(qrCodeLabel, BorderLayout.CENTER);\r\n\r\n        // Right panel for QR code and buttons\r\n        JPanel rightPanel = new JPanel(new BorderLayout());\r\n        rightPanel.add(qrPanel, BorderLayout.NORTH);\r\n        rightPanel.add(buttonPanel, BorderLayout.CENTER);\r\n        rightPanel.setPreferredSize(new Dimension(350, 0));\r\n\r\n        // Center panel for table and form\r\n        JPanel centerPanel = new JPanel(new BorderLayout());\r\n        centerPanel.add(formPanel, BorderLayout.NORTH);\r\n        centerPanel.add(scrollPane, BorderLayout.CENTER);\r\n\r\n        // Main layout\r\n        mainPanel.add(centerPanel, BorderLayout.CENTER);\r\n        mainPanel.add(rightPanel, BorderLayout.EAST);\r\n\r\n        frame.add(mainPanel);\r\n    }\r\n\r\n    // Rest of the methods remain unchanged...\r\n    public void setController(ManageBooksFunction controller) {\r\n        this.controller = controller;\r\n    }\r\n\r\n    public void show() {\r\n        frame.setVisible(true);\r\n    }\r\n\r\n    public String getTitle() {\r\n        return titleField.getText();\r\n    }\r\n\r\n    public String getAuthor() {\r\n        return authorField.getText();\r\n    }\r\n\r\n    public String getGenre() {\r\n        return genreField.getText();\r\n    }\r\n\r\n    public String getPublisher() {\r\n        return publisherField.getText();\r\n    }\r\n\r\n    public String getDatePublished() {\r\n        return datePublishedField.getText();\r\n    }\r\n\r\n    public void clearForm() {\r\n        titleField.setText(\"\");\r\n        authorField.setText(\"\");\r\n        genreField.setText(\"\");\r\n        publisherField.setText(\"\");\r\n        datePublishedField.setText(\"\");\r\n    }\r\n\r\n    public void showError(String message) {\r\n        JOptionPane.showMessageDialog(frame, message, \"Error\", JOptionPane.ERROR_MESSAGE);\r\n    }\r\n\r\n    public void showMessage(String message) {\r\n        JOptionPane.showMessageDialog(frame, message, \"Message\", JOptionPane.INFORMATION_MESSAGE);\r\n    }\r\n\r\n    public void addBookToTable(String[] bookData) {\r\n        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();\r\n        model.addRow(bookData);\r\n        selectLastRow();\r\n    }\r\n\r\n    public int getSelectedBookRow() {\r\n        return bookTable.getSelectedRow();\r\n    }\r\n\r\n    public String[] getBookAtRow(int row) {\r\n        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();\r\n        String[] bookData = new String[5];\r\n        for (int i = 0; i < 5; i++) {\r\n            bookData[i] = model.getValueAt(row, i).toString();\r\n        }\r\n        return bookData;\r\n    }\r\n\r\n    public void updateBookInTable(int row, String[] bookData) {\r\n        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();\r\n        for (int i = 0; i < 5; i++) {\r\n            model.setValueAt(bookData[i], row, i);\r\n        }\r\n    }\r\n\r\n    public void removeBookFromTable(int row) {\r\n        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();\r\n        model.removeRow(row);\r\n    }\r\n\r\n    public JFrame getFrame() {\r\n        return frame;\r\n    }\r\n\r\n    public JTable getBookTable() {\r\n        return bookTable;\r\n    }\r\n\r\n    public void selectLastRow() {\r\n        int lastRow = bookTable.getRowCount() - 1;\r\n        if (lastRow >= 0) {\r\n            bookTable.setRowSelectionInterval(lastRow, lastRow);\r\n        }\r\n    }\r\n\r\n    public void displayQRCode(ImageIcon qrImage) {\r\n        qrCodeLabel.setIcon(qrImage);\r\n        frame.revalidate();\r\n        frame.repaint();\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java b/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java
+--- a/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java	(revision 9864319fb50ea2eb0e486a6bcbbedca5f7b512b3)
++++ b/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java	(date 1746883589944)
+@@ -10,6 +10,7 @@
+     private JTextField titleField;
+     private JTextField authorField;
+     private JTextField genreField;
++    private JList<String> genreList =
+     private JTextField publisherField;
+     private JTextField datePublishedField;
+     private JLabel qrCodeLabel;
+Index: src/main/java/api/test.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/api/test.java b/src/main/java/api/query.java
+rename from src/main/java/api/test.java
+rename to src/main/java/api/query.java
+--- a/src/main/java/api/test.java	(revision 9864319fb50ea2eb0e486a6bcbbedca5f7b512b3)
++++ b/src/main/java/api/query.java	(date 1746883361952)
+@@ -7,12 +7,9 @@
+ import java.util.Set;
+ 
+ 
+-public class test {
++public class query {
+     public static void main(String[] args) {
+-        // SET ENVIRONMENT VARIABLE AND NAME IT "LMS_PASS"
+-       String password = System.getenv("LMS_PASS");
+-       String url = "jdbc:postgresql://db.fhvoxrqibepnmtraenrd.supabase.co:5432/postgres?user=postgres&password=%s";
+-       url = String.format(url, password);
++       String url = System.getenv("LMS_DB_URL");//TO FIX
+ 
+        try {
+            Connection conn = DriverManager.getConnection(url);
+@@ -22,11 +19,14 @@
+            }
+ 
+             // SAMPLE QUERY
+-           ArrayList<Book> Books = searchBooks(conn, "Bl", "; DROP TABLE books; --");
+-
+-           if (Books != null) {
++           ArrayList<Book> Books = QueryAllBooks(conn);
++           if (Books == null) {
++               System.out.println("Error fetching books.");
++           } else if (Books.isEmpty()) {
++               System.out.println("Empty search results.");
++           } else {
+                for (Book book : Books) {
+-                   System.out.println("Book " + book.getId());
++                   System.out.println("Book ID: " + book.getId());
+                    System.out.println("Title: " + book.getTitle());
+                    System.out.println("Author: " + book.getAuthor());
+                    System.out.println("Genre/s: " + book.getGenre());
+@@ -35,8 +35,6 @@
+                    System.out.println("Is Borrowed? " + book.isBorrowed());
+                    System.out.println();
+                }
+-           } else {
+-               System.out.println("Empty search results.");
+            }
+ 
+        } catch (SQLException e) {
+@@ -45,7 +43,8 @@
+ 
+     }
+ 
+-    public static ArrayList<Book> searchBooks(Connection Conn, String SearchQuery, String SearchBy) {
++    // search books by title, author, genre, publisher, or published_date
++    public static ArrayList<Book> SearchBooks(Connection Conn, String SearchQuery, String SearchBy) {
+         ArrayList<Book> BookResults = new ArrayList<>();
+         try {
+             final Set<String> VALID_COLUMNS = Set.of(
+@@ -62,9 +61,9 @@
+                     "INNER JOIN genres ON genres_of_book.genre_id = genres.id " +
+                     "INNER JOIN publishers ON publishers.id = books.publisher_id " +
+                     "WHERE " + SearchBy + " LIKE ? " +
+-                    "GROUP BY books.id, books.title, publisher_name, published_date";
++                    "GROUP BY books.id, books.title, publisher_name, published_date " +
++                    "ORDER BY books.id";
+             PreparedStatement pstmt = Conn.prepareStatement(query);
+-//            pstmt.setString(1, SearchBy);
+             pstmt.setString(1, '%' + SearchQuery + '%');
+             ResultSet rs = pstmt.executeQuery();
+ 
+@@ -88,4 +87,58 @@
+         }
+         return BookResults;
+     }
++
++    // search books by title, author, genre, publisher, or published_date
++    public static ArrayList<Book> QueryAllBooks(Connection Conn) {
++        ArrayList<Book> BookResults = new ArrayList<>();
++        try {
++            String query = "SELECT " +
++                    "  books.id, books.title, books.author, string_agg(genres.genre_name, ', ') AS genres," +
++                    "  publisher_name, published_date, is_borrowed " +
++                    "FROM books " +
++                    "INNER JOIN genres_of_book ON books.id = genres_of_book.book_id " +
++                    "INNER JOIN genres ON genres_of_book.genre_id = genres.id " +
++                    "INNER JOIN publishers ON publishers.id = books.publisher_id " +
++                    "GROUP BY books.id, books.title, publisher_name, published_date " +
++                    "ORDER BY books.id";
++            PreparedStatement pstmt = Conn.prepareStatement(query);
++            ResultSet rs = pstmt.executeQuery();
++            while (rs.next()) {
++                Book book = new Book (
++                        rs.getInt("id"),
++                        rs.getString("title"),
++                        rs.getString("author"),
++                        rs.getString("genres"),
++                        rs.getString("publisher_name"),
++                        rs.getString("published_date"),
++                        rs.getBoolean("is_borrowed")
++                );
++                BookResults.add(book);
++            }
++            rs.close();
++            pstmt.close();
++        } catch (SQLException | IllegalArgumentException e) {
++            System.out.println(e.getMessage());
++            return null;
++        }
++        return BookResults;
++    }
++
++    public static ArrayList<String> QueryAllGenres(Connection conn) {
++        ArrayList<String> genres = new ArrayList<>();
++        try {
++            String query = "SELECT DISTINCT genres.genre_name FROM genres";
++            Statement stmt = conn.createStatement();
++            ResultSet rs = stmt.executeQuery(query);
++            while (rs.next()) {
++                genres.add(rs.getString("genre_name"));
++            }
++            rs.close();
++            stmt.close();
++        } catch (SQLException e) {
++            System.out.println(e.getMessage());
++            return null;
++        }
++        return genres;
++    }
+ }
+\ No newline at end of file
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>target/\r\n!.mvn/wrapper/maven-wrapper.jar\r\n!**/src/main/**/target/\r\n!**/src/test/**/target/\r\n\r\n### IntelliJ IDEA ###\r\n.idea/\r\n*.iws\r\n*.iml\r\n*.ipr\r\n\r\n### Eclipse ###\r\n.apt_generated\r\n.classpath\r\n.factorypath\r\n.project\r\n.settings\r\n.springBeans\r\n.sts4-cache\r\n\r\n### NetBeans ###\r\n/nbproject/private/\r\n/nbbuild/\r\n/dist/\r\n/nbdist/\r\n/.nb-gradle/\r\nbuild/\r\n!**/src/main/**/build/\r\n!**/src/test/**/build/\r\n\r\n### VS Code ###\r\n.vscode/\r\n\r\n### Mac OS ###\r\n.DS_Store
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.gitignore b/.gitignore
+--- a/.gitignore	(revision 9864319fb50ea2eb0e486a6bcbbedca5f7b512b3)
++++ b/.gitignore	(date 1746863663168)
+@@ -32,4 +32,7 @@
+ .vscode/
+ 
+ ### Mac OS ###
+-.DS_Store
+\ No newline at end of file
++.DS_Store
++
++# Environment Variables
++.env
+Index: src/main/java/api/mutate.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/api/mutate.java b/src/main/java/api/mutate.java
+new file mode 100644
+--- /dev/null	(date 1746882363721)
++++ b/src/main/java/api/mutate.java	(date 1746882363721)
+@@ -0,0 +1,14 @@
++package api;
++
++import java.sql.*;
++
++public class mutate {
++    public static void main(String[] args) {
++        String url = System.getenv("LMS_DB_URL");
++        System.out.println("Hello World!");
++    }
++
++    public static void AddBook() {
++
++    }
++}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n  <modelVersion>4.0.0</modelVersion>\r\n\r\n  <groupId>com.example</groupId>\r\n  <artifactId>Library-Management-System</artifactId>\r\n  <version>1.0-SNAPSHOT</version>\r\n  <n>QR Code Reader</n>\r\n  <description>A Java application for reading QR codes</description>\r\n\r\n  <properties>\r\n    <maven.compiler.source>11</maven.compiler.source>\r\n    <maven.compiler.target>11</maven.compiler.target>\r\n    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\r\n    <zxing.version>3.5.2</zxing.version>\r\n    <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>\r\n    <exec.plugin.version>3.1.0</exec.plugin.version>\r\n    <assembly.plugin.version>3.6.0</assembly.plugin.version>\r\n  </properties>\r\n\r\n  <dependencies>\r\n    <!-- ZXing Core Library -->\r\n    <dependency>\r\n      <groupId>com.google.zxing</groupId>\r\n      <artifactId>core</artifactId>\r\n      <version>${zxing.version}</version>\r\n    </dependency>\r\n\r\n    <!-- ZXing Java SE Extensions -->\r\n    <dependency>\r\n      <groupId>com.google.zxing</groupId>\r\n      <artifactId>javase</artifactId>\r\n      <version>${zxing.version}</version>\r\n    </dependency>\r\n    \r\n    <!-- Webcam Capture library -->\r\n    <dependency>\r\n      <groupId>com.github.sarxos</groupId>\r\n      <artifactId>webcam-capture</artifactId>\r\n      <version>0.3.12</version>\r\n    </dependency>\r\n\r\n    <!-- For unit testing -->\r\n    <dependency>\r\n      <groupId>org.junit.jupiter</groupId>\r\n      <artifactId>junit-jupiter</artifactId>\r\n      <version>5.9.2</version>\r\n      <scope>test</scope>\r\n    </dependency>\r\n  </dependencies>\r\n\r\n  <build>\r\n    <plugins>\r\n      <!-- Compiler Plugin -->\r\n      <plugin>\r\n        <groupId>org.apache.maven.plugins</groupId>\r\n        <artifactId>maven-compiler-plugin</artifactId>\r\n        <version>${maven.compiler.plugin.version}</version>\r\n      </plugin>\r\n\r\n      <!-- Exec Plugin - for running directly from Maven -->\r\n      <plugin>\r\n        <groupId>org.codehaus.mojo</groupId>\r\n        <artifactId>exec-maven-plugin</artifactId>\r\n        <version>${exec.plugin.version}</version>\r\n        <configuration>\r\n          <mainClass>com.example.Main</mainClass>\r\n        </configuration>\r\n      </plugin>\r\n\r\n      <!-- Assembly Plugin - for creating fat JAR -->\r\n      <plugin>\r\n        <groupId>org.apache.maven.plugins</groupId>\r\n        <artifactId>maven-assembly-plugin</artifactId>\r\n        <version>${assembly.plugin.version}</version>\r\n        <configuration>\r\n          <archive>\r\n            <manifest>\r\n              <mainClass>com.example.Main</mainClass>\r\n            </manifest>\r\n          </archive>\r\n          <descriptorRefs>\r\n            <descriptorRef>jar-with-dependencies</descriptorRef>\r\n          </descriptorRefs>\r\n          <finalName>qr-code-reader-${project.version}</finalName>\r\n        </configuration>\r\n        <executions>\r\n          <execution>\r\n            <phase>package</phase>\r\n            <goals>\r\n              <goal>single</goal>\r\n            </goals>\r\n          </execution>\r\n        </executions>\r\n      </plugin>\r\n\r\n      <!-- Surefire Plugin for testing -->\r\n      <plugin>\r\n        <groupId>org.apache.maven.plugins</groupId>\r\n        <artifactId>maven-surefire-plugin</artifactId>\r\n        <version>3.1.2</version>\r\n      </plugin>\r\n    </plugins>\r\n  </build>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 9864319fb50ea2eb0e486a6bcbbedca5f7b512b3)
++++ b/pom.xml	(date 1746864167351)
+@@ -49,8 +49,18 @@
+       <version>5.9.2</version>
+       <scope>test</scope>
+     </dependency>
++
++    <!-- for dot env -->
++    <dependency>
++      <groupId>io.github.cdimascio</groupId>
++      <artifactId>java-dotenv</artifactId>
++      <version>5.2.2</version>
++    </dependency>
+   </dependencies>
+ 
++
++
++
+   <build>
+     <plugins>
+       <!-- Compiler Plugin -->

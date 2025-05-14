@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="login from database">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/LibraryManagementSystem/ManageBooksFunction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/LibraryManagementSystem/ManageBooksFunction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/LibraryManagementSystem/ManageBooksUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/LibraryManagementSystem/ManageBooksUI.class" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+    <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;seodowa&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Aguynamedkent7/Library_Management_System.git&quot;,
+    &quot;accountId&quot;: &quot;d9532bec-b8bc-4c03-b4f8-ae4a89189e16&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2wrY4zSuldB7NbFik2ka7G6e0WE" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AdminDashboard.executor": "Run",
+    "Application.LibraryManagementSystemApp.executor": "Run",
+    "Application.LoginPage.executor": "Run",
+    "Application.MutateAccounts.executor": "Run",
+    "Application.MutateBooks.executor": "Run",
+    "Application.Query.executor": "Run",
+    "Application.ReadQR.executor": "Run",
+    "Application.RegisterPage.executor": "Run",
+    "Application.UserDashboard.executor": "Run",
+    "Application.auth.executor": "Run",
+    "Application.mutate.executor": "Run",
+    "Application.query.executor": "Run",
+    "Application.test.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/Theodore/Documents/prugraming/java stuff/OOP PIT/LMS_APP",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "CodeWithMe",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Theodore\Documents\prugraming\java stuff\OOP PIT\LMS_APP\src\db_driver" />
+      <recent name="C:\Users\Theodore\Documents\prugraming\java stuff\OOP PIT\LMS_APP\src\main\java" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.109" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="" />
+      <created>1746800972203</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746800972203</updated>
+      <workItem from="1746800973330" duration="2002000" />
+      <workItem from="1746803007048" duration="2457000" />
+      <workItem from="1746845435099" duration="12066000" />
+      <workItem from="1746862566670" duration="1768000" />
+      <workItem from="1746881995222" duration="156000" />
+      <workItem from="1746882160808" duration="1421000" />
+      <workItem from="1746887501932" duration="198000" />
+      <workItem from="1746887708813" duration="8021000" />
+      <workItem from="1746931752984" duration="20978000" />
+      <workItem from="1746978127094" duration="2830000" />
+      <workItem from="1747033774123" duration="13460000" />
+      <workItem from="1747122126072" duration="12746000" />
+      <workItem from="1747188971682" duration="9800000" />
+    </task>
+    <task id="LOCAL-00001" summary="connected to database">
+      <option name="closed" value="true" />
+      <created>1746805278492</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746805278492</updated>
+    </task>
+    <task id="LOCAL-00002" summary="connected to database">
+      <option name="closed" value="true" />
+      <created>1746845707694</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746845707694</updated>
+    </task>
+    <task id="LOCAL-00003" summary="added basic search function">
+      <option name="closed" value="true" />
+      <created>1746860085939</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1746860085939</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added genres dropdown in manage books">
+      <option name="closed" value="true" />
+      <created>1746895018810</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1746895018810</updated>
+    </task>
+    <task id="LOCAL-00005" summary="added genres dropdown in manage books">
+      <option name="closed" value="true" />
+      <created>1746895075400</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1746895075400</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added ability to load from database">
+      <option name="closed" value="true" />
+      <created>1746937779698</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1746937779698</updated>
+    </task>
+    <task id="LOCAL-00007" summary="can add books in UI (publisher must be in database, need to change this)">
+      <option name="closed" value="true" />
+      <created>1746946547412</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746946547412</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added delete books functionality">
+      <option name="closed" value="true" />
+      <created>1746958844133</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1746958844133</updated>
+    </task>
+    <task id="LOCAL-00009" summary="added update books functionality">
+      <option name="closed" value="true" />
+      <created>1746979609794</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1746979609794</updated>
+    </task>
+    <task id="LOCAL-00010" summary="disabled cell editing and swapping; force single selection of cells">
+      <option name="closed" value="true" />
+      <created>1746980852436</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1746980852436</updated>
+    </task>
+    <task id="LOCAL-00011" summary="added account registration; borrow book and return book functionality">
+      <option name="closed" value="true" />
+      <created>1747047862405</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1747047862405</updated>
+    </task>
+    <task id="LOCAL-00012" summary="added login; enabled book copies etc">
+      <option name="closed" value="true" />
+      <created>1747152336516</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1747152336516</updated>
+    </task>
+    <task id="LOCAL-00013" summary="login from database">
+      <option name="closed" value="true" />
+      <created>1747198229306</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1747198229306</updated>
+    </task>
+    <task id="LOCAL-00014" summary="login from database">
+      <option name="closed" value="true" />
+      <created>1747198377687</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1747198377687</updated>
+    </task>
+    <task id="LOCAL-00015" summary="login from database">
+      <option name="closed" value="true" />
+      <created>1747198467723</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1747198467723</updated>
+    </task>
+    <task id="LOCAL-00016" summary="login from database">
+      <option name="closed" value="true" />
+      <created>1747199593381</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1747199593381</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="connected to database" />
+    <MESSAGE value="added basic search function" />
+    <MESSAGE value="added genres dropdown in manage books" />
+    <MESSAGE value="added ability to load from database" />
+    <MESSAGE value="can add books in UI (publisher must be in database, need to change this)" />
+    <MESSAGE value="added delete books functionality" />
+    <MESSAGE value="added update books functionality" />
+    <MESSAGE value="disabled cell editing and swapping; force single selection of cells" />
+    <MESSAGE value="added account registration; borrow book and return book functionality" />
+    <MESSAGE value="added login; enabled book copies etc" />
+    <MESSAGE value="login from database" />
+    <option name="LAST_COMMIT_MESSAGE" value="login from database" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

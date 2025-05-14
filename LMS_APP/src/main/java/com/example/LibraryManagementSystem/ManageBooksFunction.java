@@ -10,7 +10,14 @@ import com.google.zxing.common.BitMatrix;
 import models.Book;
 
 import javax.swing.*;
+import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.IOException;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -18,7 +25,7 @@ import java.util.ArrayList;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;
-    
+
     // Replace single ReadQR with modular components
     private QRScannerView qrScanner;
     private BookQRHandler bookQRHandler;
@@ -97,8 +104,6 @@ public class ManageBooksFunction {
             view.clearForm();
             view.showMessage("Book added successfully!");
             loadAvailableBooks();
-            // Generate QR code for the newly added book
-            generateQRCode();
         } catch (SQLException e) {
             view.showError("Error adding book: " + e.getMessage());
             System.out.println(e.getMessage());
@@ -173,7 +178,7 @@ public class ManageBooksFunction {
                 // Initialize components in the proper order
                 initializeQRComponents();
             }
-            
+
             // Show the scanner window and start scanning automatically
             qrScanner.show();
             qrScanner.startScanning();
@@ -182,7 +187,7 @@ public class ManageBooksFunction {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Initialize QR scanner components using the recommended approach
      */
@@ -190,14 +195,14 @@ public class ManageBooksFunction {
         // 1. Create QR service with event handlers
         qrService = new QRCodeService(
             // These handlers will be replaced by QRScannerView
-            text -> {}, 
-            status -> {}, 
+            text -> {},
+            status -> {},
             error -> view.showError("QR Scanner error: " + error.getMessage())
         );
-        
+
         // 2. Create book handler that references this class
         bookQRHandler = new BookQRHandler(this);
-        
+
         // 3. Create scanner view with the service and handler
         qrScanner = new QRScannerView(qrService, bookQRHandler);
     }
@@ -214,8 +219,7 @@ public class ManageBooksFunction {
         }
     }
 
-    public void generateQRCode() {
-        int selectedRow = view.getSelectedBookRow();
+    public void generateQRCode(int selectedRow) {
         if (selectedRow == -1) {
             view.showError("Please select a book to generate QR code");
             return;
@@ -251,7 +255,43 @@ public class ManageBooksFunction {
         });
     }
 
-    private String formatQRContent(String title, String author, String genre, String publisher, String date) {
+    public void saveQRCodeToFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save QR Code");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
+
+        if (fileChooser.showSaveDialog(view.getFrame()) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            // Add .png extension if not present
+            if (!file.getName().toLowerCase().endsWith(".png")) {
+                file = new File(file.getParentFile(), file.getName() + ".png");
+            }
+
+            try {
+                // Convert ImageIcon to BufferedImage
+                ImageIcon icon = (ImageIcon) view.getQrCodeLabel().getIcon();
+                BufferedImage image = new BufferedImage(
+                        icon.getIconWidth(),
+                        icon.getIconHeight(),
+                        BufferedImage.TYPE_INT_RGB
+                );
+                Graphics2D g2d = image.createGraphics();
+                g2d.drawImage(icon.getImage(), 0, 0, null);
+                g2d.dispose();
+
+                // Save the image
+                ImageIO.write(image, "png", file);
+                JOptionPane.showMessageDialog(view.getFrame(),
+                        "QR Code saved successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException ex) {
+                view.showError("Error saving QR code: " + ex.getMessage());
+            }
+        }
+    }
+
+        private String formatQRContent(String title, String author, String genre, String publisher, String date) {
         StringBuilder content = new StringBuilder();
         content.append("=== Book Information ===\n\n");
         content.append("Title: ").append(title).append("\n");

@@ -24,7 +24,6 @@ public class ManageBooksUI {
     private JLabel qrCodeLabel;
     private ManageBooksFunction controller = new ManageBooksFunction(this);
     private JDateChooser datePublishedChooser;
-    private JTextField availableCopiesField;
 
     public ManageBooksUI() {
         initializeUI();
@@ -34,15 +33,15 @@ public class ManageBooksUI {
         DefaultListModel<JCheckBox> model = new DefaultListModel<>();
         JList<String> tempList = controller.queryGenresFromDB();
         ListModel<String> tempModel = tempList.getModel();
-        
+
         for (int i = 0; i < tempModel.getSize(); i++) {
             model.addElement(new JCheckBox(tempModel.getElementAt(i)));
         }
-        
+
         genreList = new JList<>(model);
         genreList.setCellRenderer(new CheckBoxListCellRenderer());
         genreList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        
+
         // Handle checkbox toggling
         genreList.addMouseListener(new MouseAdapter() {
             @Override
@@ -55,7 +54,7 @@ public class ManageBooksUI {
                 }
             }
         });
-        
+
         genreScrollPane = new JScrollPane(genreList);
         genreScrollPane.setPreferredSize(new Dimension(150, 30));
     }
@@ -64,14 +63,14 @@ public class ManageBooksUI {
     private void initializeUI() {
         frame = new JFrame("Library Management System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1920, 1080);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // 1. Left Panel: Vertical Action Buttons (Add/Edit/Update/Delete)
-        JPanel leftPanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        JPanel leftPanel = new JPanel(new GridLayout(5, 1, 5, 5)); // Changed from 4 to 5 rows
         JButton addButton = new JButton("Add Book");
         JButton editButton = new JButton("Edit Book");
         editButton.addActionListener(e -> {
@@ -90,10 +89,23 @@ public class ManageBooksUI {
         });
         JButton updateButton = new JButton("Update Book");
         JButton deleteButton = new JButton("Delete Book");
+        JButton generateQRButton = new JButton("Generate QR Code");
+
         leftPanel.add(addButton);
         leftPanel.add(editButton);
         leftPanel.add(updateButton);
         leftPanel.add(deleteButton);
+        leftPanel.add(generateQRButton);
+
+        // Add action listener for the Generate QR Code button
+        generateQRButton.addActionListener(e -> {
+            int selectedRow = bookTable.getSelectedRow();
+            if (selectedRow >= 0) {
+                controller.generateQRCode(selectedRow);
+            } else {
+                showError("Please select a book to generate QR code!");
+            }
+        });
         leftPanel.setPreferredSize(new Dimension(150, 0));
         mainPanel.add(leftPanel, BorderLayout.WEST);
 
@@ -171,6 +183,13 @@ public class ManageBooksUI {
         qrPanel.add(qrCodeLabel, BorderLayout.CENTER);
         bottomPanel.add(qrPanel, BorderLayout.WEST);
 
+        // Create a button panel for the save button
+        JPanel qrButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton saveQRButton = new JButton("Save QR Code");
+        qrButtonPanel.add(saveQRButton);
+        qrPanel.add(qrButtonPanel, BorderLayout.SOUTH);
+
+
         // Return/Back Buttons (Right)
         JPanel returnBackPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         JButton returnButton = new JButton("Return a Book");
@@ -190,6 +209,15 @@ public class ManageBooksUI {
         deleteButton.addActionListener(e -> controller.deleteBook());
         returnButton.addActionListener(e -> controller.returnBook());
         backButton.addActionListener(e -> controller.goBack());
+        // Add action listener to the save button
+        saveQRButton.addActionListener(e -> {
+            if (qrCodeLabel.getIcon() != null) {
+                controller.saveQRCodeToFile();
+            } else {
+                showError("No QR code to save! Generate a QR code first.");
+            }
+        });
+
 
         frame.add(mainPanel);
     }
@@ -224,7 +252,7 @@ public class ManageBooksUI {
         ListModel<JCheckBox> model = genreList.getModel();
         StringBuilder genres = new StringBuilder();
         boolean first = true;
-        
+
         for (int i = 0; i < model.getSize(); i++) {
             JCheckBox checkbox = model.getElementAt(i);
             if (checkbox.isSelected()) {
@@ -244,7 +272,7 @@ public class ManageBooksUI {
         for (int i = 0; i < model.getSize(); i++) {
             model.getElementAt(i).setSelected(false);
         }
-        
+
         if (genres == null || genres.trim().isEmpty()) {
             return;
         }
@@ -352,6 +380,10 @@ public class ManageBooksUI {
         qrCodeLabel.setIcon(qrImage);
         frame.revalidate();
         frame.repaint();
+    }
+
+    public JLabel getQrCodeLabel() {
+        return qrCodeLabel;
     }
 
     public void setDatePublished(String dateStr) {

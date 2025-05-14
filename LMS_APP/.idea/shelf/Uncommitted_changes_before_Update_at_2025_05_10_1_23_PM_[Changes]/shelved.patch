@@ -1,0 +1,196 @@
+Index: src/main/java/api/test.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package api;\r\n\r\nimport java.sql.*;\r\n\r\npublic class test {\r\n    public static void main(String[] args) {\r\n        // SET ENVIRONMENT VARIABLE AND NAME IT \"LMS_PASS\"\r\n       String password = System.getenv(\"LMS_PASS\");\r\n       String url = \"jdbc:postgresql://db.fhvoxrqibepnmtraenrd.supabase.co:5432/postgres?user=postgres&password=%s\";\r\n       url = String.format(url, password);\r\n\r\n       try {\r\n           Connection conn = DriverManager.getConnection(url);\r\n\r\n           if (!conn.isValid(10)) {\r\n               throw new SQLException();\r\n           }\r\n            // SAMPLE QUERY\r\n           Statement stmt = conn.createStatement();\r\n           ResultSet rs = stmt.executeQuery(\"SELECT * FROM books\");\r\n           while (rs.next()) {\r\n               int id = rs.getInt(\"id\");\r\n               String title = rs.getString(\"title\");\r\n               String author = rs.getString(\"author\");\r\n               String published_date = rs.getString(\"published_date\");\r\n               String publisher = rs.getString(\"publisher\");\r\n               String is_borrowed = rs.getString(\"is_borrowed\");\r\n\r\n               System.out.println(\"Book ID:\" + id);\r\n               System.out.println(\"Title: \" + title);\r\n               System.out.println(\"Author: \" + author);\r\n               System.out.println(\"Published Date: \" + published_date);\r\n               System.out.println(\"Publisher: \" + publisher);\r\n               System.out.println(\"Is Borrowed: \" + is_borrowed);\r\n           }\r\n           rs.close();\r\n           stmt.close();\r\n           conn.close();\r\n       } catch (SQLException e) {\r\n           System.out.println(\"Failed to connect to database: \" + e);\r\n       }\r\n\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/api/test.java b/src/main/java/api/test.java
+--- a/src/main/java/api/test.java	(revision 379c2e1442c32e8c40eafa55c9abb2a7eec0eba9)
++++ b/src/main/java/api/test.java	(date 1746854466010)
+@@ -1,6 +1,10 @@
+ package api;
+ 
++import models.Book;
++
+ import java.sql.*;
++import java.util.ArrayList;
++
+ 
+ public class test {
+     public static void main(String[] args) {
+@@ -15,30 +19,60 @@
+            if (!conn.isValid(10)) {
+                throw new SQLException();
+            }
++
+             // SAMPLE QUERY
+-           Statement stmt = conn.createStatement();
+-           ResultSet rs = stmt.executeQuery("SELECT * FROM books");
+-           while (rs.next()) {
+-               int id = rs.getInt("id");
+-               String title = rs.getString("title");
+-               String author = rs.getString("author");
+-               String published_date = rs.getString("published_date");
+-               String publisher = rs.getString("publisher");
+-               String is_borrowed = rs.getString("is_borrowed");
+-
+-               System.out.println("Book ID:" + id);
+-               System.out.println("Title: " + title);
+-               System.out.println("Author: " + author);
+-               System.out.println("Published Date: " + published_date);
+-               System.out.println("Publisher: " + publisher);
+-               System.out.println("Is Borrowed: " + is_borrowed);
+-           }
+-           rs.close();
+-           stmt.close();
+-           conn.close();
+-       } catch (SQLException e) {
+-           System.out.println("Failed to connect to database: " + e);
+-       }
+-
++           ArrayList<Book> Books = searchBooks(conn, "test", "title");
++
++           if (Books != null) {
++               for (Book book : Books) {
++                   System.out.println("Book " + book.getId());
++                   System.out.println("Title: " + book.getTitle());
++                   System.out.println("Author: " + book.getAuthor());
++                   System.out.println("Genre: " + book.getGenre());
++                   System.out.println("Publisher: " + book.getPublisher());
++                   System.out.println("Published Date: " + book.getPublished_Date());
++                   System.out.println("Is Borrowed? " + book.isBorrowed());
++                   System.out.println();
++               }
++           } else if (Books.isEmpty()){
++               System.out.println("Empty search results.");
++           }
++           System.out.println(Books.size());
++
++       } catch (SQLException e) {
++           System.out.println(e.getMessage());
++       }
++
++    }
++
++    public static ArrayList<Book> searchBooks (Connection Conn, String SearchQuery, String SearchBy) {
++        ArrayList<Book> BookResults = new ArrayList<>();
++        try {
++            String query = "SELECT title, author, published_date, publisher, is_borrowed FROM books WHERE title LIKE ?";
++            PreparedStatement pstmt = Conn.prepareStatement(query);
++            pstmt.setString(1, SearchBy);
++            pstmt.setString(1, '%' + SearchQuery + '%');
++            ResultSet rs = pstmt.executeQuery();
++
++            while (rs.next()) {
++                System.out.println(rs.getInt("id"));
++                Book book = new Book (
++                        rs.getInt("id"),
++                        rs.getString("title"),
++                        rs.getString("author"),
++                        rs.getString("genre"),
++                        rs.getString("publisher"),
++                        rs.getString("published_date"),
++                        rs.getBoolean("is_borrowed")
++                );
++                BookResults.add(book);
++            }
++            rs.close();
++            pstmt.close();
++        } catch (SQLException e) {
++            System.out.println(e.getMessage());
++            return null;
++        }
++        return BookResults;
+     }
+ }
+\ No newline at end of file
+Index: src/main/java/models/Book.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/models/Book.java b/src/main/java/models/Book.java
+new file mode 100644
+--- /dev/null	(date 1746853884880)
++++ b/src/main/java/models/Book.java	(date 1746853884880)
+@@ -0,0 +1,78 @@
++package models;
++
++public class Book {
++    private int id;
++    private String title;
++    private String author;
++    private String genre;
++    private String publisher;
++    private String published_date;
++    private boolean is_borrowed;
++
++    public Book (int id, String title, String author, String genre, String publisher, String published_date, boolean is_borrowed) {
++        this.id = id;
++        this.author = author;
++        this.title = title;
++        this.genre = genre;
++        this.publisher = publisher;
++        this.published_date = published_date;
++        this.is_borrowed = is_borrowed;
++    }
++
++    public int getId() {
++        return id;
++    }
++
++    public void setId(int id) {
++        this.id = id;
++    }
++
++    public String getTitle() {
++        return title;
++    }
++
++    public void setTitle(String title) {
++        this.title = title;
++    }
++
++    public String getAuthor() {
++        return author;
++    }
++
++    public void setAuthor(String author) {
++        this.author = author;
++    }
++
++    public String getGenre() {
++        return genre;
++    }
++
++    public void setGenre(String genre) {
++        this.genre = genre;
++    }
++
++    public String getPublisher() {
++        return publisher;
++    }
++
++    public void setPublisher(String publisher) {
++        this.publisher = publisher;
++    }
++
++    public String getPublished_Date() {
++        return published_date;
++    }
++
++    public void setPublished_Date(String published_date) {
++        this.published_date = published_date;
++    }
++
++    public boolean isBorrowed() {
++        return is_borrowed;
++    }
++
++    public void setIsBorrowed(boolean is_borrowed) {
++        this.is_borrowed = is_borrowed;
++    }
++
++}
+\ No newline at end of file
