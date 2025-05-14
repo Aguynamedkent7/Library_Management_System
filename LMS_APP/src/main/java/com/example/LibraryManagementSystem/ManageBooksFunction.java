@@ -99,7 +99,6 @@ public class ManageBooksFunction {
             for (BorrowedBook book : borrowedBooks) {
                 Object[] rowData = {
                         book.getReferenceID(),
-                        book.getUsername(),
                         book.getFirstName(),
                         book.getLastName(),
                         book.getBookTitle(),
@@ -352,36 +351,37 @@ public class ManageBooksFunction {
         } else {
             Object[] bookData = view.getBookAtRow(selectedRow);
             int bookId = Integer.parseInt(bookData[0].toString());
+            JTextField firstNameField = new JTextField(10);
+            JTextField lastNameField = new JTextField(10);
 
-            // Show username input dialog
-            String username = JOptionPane.showInputDialog(
-                    view.getFrame(), // parent component
-                    "Enter username: ", // message
-                    "Username", // title
-                    JOptionPane.PLAIN_MESSAGE // message type
+            JPanel panel = new JPanel();
+            panel.add(new JLabel("First Name:"));
+            panel.add(firstNameField);
+            panel.add(Box.createHorizontalStrut(15)); // space
+            panel.add(new JLabel("Last Name:"));
+            panel.add(lastNameField);
+
+            int result = JOptionPane.showConfirmDialog(
+                    null,
+                    panel,
+                    "Enter First & Last Name",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
             );
-            if (username != null && !username.trim().isEmpty()) {
-                // Valid username entered, proceed with borrowing logic
+
+            if (result == JOptionPane.OK_OPTION) {
                 try {
                     String url = System.getenv("LMS_DB_URL");
                     Connection conn = DriverManager.getConnection(url);
-                    Account account = Query.QueryAccountByUsername(conn, username);
-
-                    if (account == null) {
-                        view.showError("Account with username " + username + " does not exist. Please try again.");
-                        return;
-                    }
+                    String firstName = firstNameField.getText();
+                    String lastName = lastNameField.getText();
                     String threeWeeksFromNow = Date.valueOf(LocalDate.now().plusWeeks(3)).toString();
-                    MutateBooks.BorrowBook(conn, account.getId(), bookId, threeWeeksFromNow);
+                    MutateBooks.BorrowBook(conn, firstName, lastName, bookId, threeWeeksFromNow);
                     loadAvailableBooks();
                     view.showMessage("Book borrowed successfully!");
                 } catch (SQLException e) {
                     view.showError("Error connecting to database: " + e.getMessage());
                 }
-
-            } else if (username != null) {
-                // Show error if empty string (Cancel returns null)
-                view.showError("Username cannot be empty.");
             }
         }
     }

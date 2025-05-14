@@ -237,7 +237,7 @@ public class MutateBooks {
         }
     }
 
-    public static int BorrowBook(Connection conn, int account_id, int book_id, String return_date) throws SQLException {
+    public static int BorrowBook(Connection conn, String borrower_fname, String borrower_lname, int book_id, String return_date) throws SQLException {
         try {
             String query = "SELECT copy_id FROM book_copies WHERE book_id = ? AND status = 'AVAILABLE' LIMIT 1";
             conn.setAutoCommit(false);
@@ -251,17 +251,18 @@ public class MutateBooks {
 
             int copy_id = rs.getInt("copy_id");
 
-            query = "INSERT INTO borrowed_books (account_id, book_copy_id, borrow_date, return_date) " +
-                    "VALUES (?, ?, ?, ?)";
+            query = "INSERT INTO borrowed_books (borrower_fname, borrower_lname, book_copy_id, borrow_date, return_date) " +
+                    "VALUES (?, ?, ?, ?, ?)";
 
             Date borrow_date = Date.valueOf(LocalDate.now());
             Date return_date_obj = Date.valueOf(LocalDate.parse(return_date));
 
             pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, account_id);
-            pstmt.setInt(2, copy_id);
-            pstmt.setDate(3, borrow_date);
-            pstmt.setDate(4, return_date_obj);
+            pstmt.setString(1, borrower_fname);
+            pstmt.setString(2, borrower_lname);
+            pstmt.setInt(3, copy_id);
+            pstmt.setDate(4, borrow_date);
+            pstmt.setDate(5, return_date_obj);
             pstmt.executeUpdate();
 
             query = "UPDATE book_copies SET status = 'BORROWED' WHERE copy_id = ?";

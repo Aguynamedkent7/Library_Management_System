@@ -226,9 +226,11 @@ public class ManageBooksUI {
         });
         viewBorrowersButton.addActionListener(e -> {
             viewAllBorrowers();
+            setComponentsEnabled(leftPanel, false);
         });
         viewAvailableBooksButton.addActionListener(e -> {
             viewAvailableBooks();
+            setComponentsEnabled(leftPanel, true);
         });
 
 
@@ -256,12 +258,10 @@ public class ManageBooksUI {
     }
 
     public void viewAllBorrowers() {
-        String[] columnNames = {"Reference ID", "Username", "First Name", "Last Name", "Book Title", "Book Author", "Borrow Date", "Return Date"};
+        String[] columnNames = {"Reference ID", "Borrower First Name", "Borrower Last Name", "Book Title", "Book Author", "Borrow Date", "Return Date"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable.setModel(model);
 
-        // remove ID column from table
-        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(0));
         controller.loadBorrowedBooks();
         headerLabel.setText("All Borrowers");
     }
@@ -432,6 +432,15 @@ public class ManageBooksUI {
             }
         } else {
             datePublishedChooser.setDate(null);
+        }
+    }
+
+    private void setComponentsEnabled(Container container, boolean enabled) {
+        for (Component comp : container.getComponents()) {
+            comp.setEnabled(enabled);
+            if (comp instanceof Container) {
+                setComponentsEnabled((Container) comp, enabled);
+            }
         }
     }
 

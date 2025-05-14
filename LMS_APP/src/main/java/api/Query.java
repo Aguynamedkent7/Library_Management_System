@@ -20,14 +20,6 @@ public class Query {
                throw new SQLException();
            }
 
-            ArrayList<BorrowedBook> borrowedBooks = QueryBorrowedBooksByAccount(conn, 3);
-           for (BorrowedBook borrowedBook : borrowedBooks) {
-                System.out.println(borrowedBook.getUsername());
-                System.out.println(borrowedBook.getBookCopyID());
-                System.out.println(borrowedBook.getBookTitle());
-                System.out.println(borrowedBook.getBookAuthor());
-            }
-
        } catch (SQLException e) {
            System.out.println(e.getMessage());
        }
@@ -185,9 +177,9 @@ public class Query {
         ArrayList<BorrowedBook> borrowedBooks = new ArrayList<>();
 
         try {
-            String query = "SELECT reference_id, book_copy_id, accounts.username, accounts.first_name, accounts.last_name, " +
+            String query = "SELECT reference_id, book_copy_id, borrower_fname, borrower_lname, " +
                     "books.title, books.author, borrow_date, return_date " +
-                    "FROM accounts INNER JOIN borrowed_books ON accounts.id = borrowed_books.account_id " +
+                    "FROM borrowed_books " +
                     "INNER JOIN book_copies ON borrowed_books.book_copy_id = book_copies.copy_id " +
                     "INNER JOIN books ON book_copies.book_id = books.id";
             PreparedStatement pstmt = conn.prepareStatement(query);
@@ -196,53 +188,13 @@ public class Query {
             while (rs.next()) {
                 int reference_id = rs.getInt("reference_id");
                 int book_copy_id = rs.getInt("book_copy_id");
-                String username = rs.getString("username");
-                String first_name = rs.getString("first_name");
-                String last_name = rs.getString("last_name");
+                String first_name = rs.getString("borrower_fname");
+                String last_name = rs.getString("borrower_lname");
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String borrow_date = rs.getDate("borrow_date").toString();
                 String return_date = rs.getDate("return_date").toString();
-                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, book_copy_id, username,
-                        first_name, last_name,
-                        title, author, borrow_date, return_date);
-                borrowedBooks.add(borrowed_book_instance);
-            }
-            rs.close();
-            pstmt.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }
-
-        return borrowedBooks;
-    }
-
-    public static ArrayList<BorrowedBook> QueryBorrowedBooksByAccount(Connection conn, int account_id) throws SQLException {
-        ArrayList<BorrowedBook> borrowedBooks = new ArrayList<>();
-
-        try {
-            String query = "SELECT reference_id, book_copy_id, accounts.username, accounts.first_name, accounts.last_name, " +
-                    "books.title, books.author, borrow_date, return_date " +
-                    "FROM accounts INNER JOIN borrowed_books ON accounts.id = borrowed_books.account_id " +
-                    "INNER JOIN book_copies ON borrowed_books.book_copy_id = book_copies.copy_id " +
-                    "INNER JOIN books ON book_copies.book_id = books.id " +
-                    "WHERE accounts.id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, account_id);
-            ResultSet rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-                int reference_id = rs.getInt("reference_id");
-                int book_copy_id = rs.getInt("book_copy_id");
-                String username = rs.getString("username");
-                String first_name = rs.getString("first_name");
-                String last_name = rs.getString("last_name");
-                String title = rs.getString("title");
-                String author = rs.getString("author");
-                String borrow_date = rs.getDate("borrow_date").toString();
-                String return_date = rs.getDate("return_date").toString();
-                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, book_copy_id, username,
+                BorrowedBook borrowed_book_instance = new BorrowedBook(reference_id, book_copy_id,
                         first_name, last_name,
                         title, author, borrow_date, return_date);
                 borrowedBooks.add(borrowed_book_instance);
