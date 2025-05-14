@@ -20,10 +20,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -204,18 +201,23 @@ public class ManageBooksFunction {
      * This method replaces both the old scanQR and returnBook functions
      */
     public void returnBook() {
-        try {
-            if (qrScanner == null) {
-                // Initialize components in the proper order
-                initializeQRComponents();
-            }
+        ManageBooksUI parentFrame = view;
+        showReferenceOrQRDialog(view.getFrame(),
+                this::initializeQRScanner,
+                referenceId -> {
+                    returnBookByRefID(Integer.parseInt(referenceId));
+                });
+        view.viewAllBorrowers();
+    }
 
-            // Show the scanner window and start scanning automatically
-            qrScanner.show();
-            qrScanner.startScanning();
-        } catch (Exception e) {
-            view.showError("Error initializing QR scanner: " + e.getMessage());
-            e.printStackTrace();
+    private void returnBookByRefID(int referenceID) {
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            MutateBooks.ReturnBook(conn, referenceID);
+            view.showMessage("Book returned successfully!");
+        } catch (SQLException e) {
+            view.showError(e.getMessage());
         }
     }
 
@@ -247,6 +249,22 @@ public class ManageBooksFunction {
             view.getBookTable().setRowSelectionInterval(rowIndex, rowIndex);
             view.getBookTable().scrollRectToVisible(
                 view.getBookTable().getCellRect(rowIndex, 0, true));
+        }
+    }
+
+    private void initializeQRScanner() {
+        try {
+            if (qrScanner == null) {
+                // Initialize components in the proper order
+                initializeQRComponents();
+            }
+
+            // Show the scanner window and start scanning automatically
+            qrScanner.show();
+            qrScanner.startScanning();
+        } catch (Exception e) {
+            view.showError("Error initializing QR scanner: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -408,4 +426,50 @@ public class ManageBooksFunction {
     public ManageBooksUI getView() {
         return view;
     }
+
+    public static void showReferenceOrQRDialog(JFrame parentFrame, Runnable onScanQR, java.util.function.Consumer<String> onReferenceIdEntered) {
+        JTextField refIdField = new JTextField(12);
+        JButton scanQRButton = new JButton("Scan QR Code");
+        JButton OKButton = new JButton("OK");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.add(new JLabel("Reference ID:"));
+        inputPanel.add(refIdField);
+        panel.add(inputPanel);
+        buttonPanel.add(scanQRButton);
+        buttonPanel.add(OKButton);
+        panel.add(buttonPanel);
+
+        JDialog dialog = new JDialog(parentFrame, "Return Book", true);
+        dialog.setContentPane(panel);
+        dialog.setSize(300, 150);
+        dialog.setLocationRelativeTo(parentFrame);
+
+        // Scan QR code button action
+        scanQRButton.addActionListener(e -> {
+            dialog.dispose();
+            onScanQR.run();
+        });
+
+        OKButton.addActionListener(e -> {
+            if (refIdField.getText().trim().isEmpty() || !refIdField.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(parentFrame,
+                        "Please enter a valid Reference ID.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+
+            }
+            dialog.dispose();
+            onReferenceIdEntered.accept(refIdField.getText());
+        });
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+
 }
+

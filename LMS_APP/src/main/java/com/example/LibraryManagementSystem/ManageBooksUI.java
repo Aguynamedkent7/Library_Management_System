@@ -242,6 +242,15 @@ public class ManageBooksUI {
         this.controller = controller;
     }
 
+    public JLabel getHeaderLabel() {
+        return headerLabel;
+    }
+
+    public void setHeaderLabel(String headerLabelText) {
+        headerLabel.setText(headerLabelText);
+    }
+
+
     public void show() {
         frame.setVisible(true);
     }

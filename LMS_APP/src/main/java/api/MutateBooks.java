@@ -14,12 +14,6 @@ public class MutateBooks {
                 throw new SQLException();
             }
 
-            int account_id = 3;
-            int book_id = 2;
-
-            int copy_id = 1;
-            ReturnBook(conn, copy_id, account_id);
-
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -281,23 +275,30 @@ public class MutateBooks {
         }
     }
 
-    public static void ReturnBook(Connection conn, int copy_id, int account_id) throws SQLException {
+    public static void ReturnBook(Connection conn, int reference_id) throws SQLException {
         try {
-            String query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
+            String query = "SELECT book_copy_id FROM borrowed_books WHERE reference_id = ?";
             conn.setAutoCommit(false);
             PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, reference_id);
+            ResultSet rs = pstmt.executeQuery();
+            if (!rs.next()) {
+                throw new SQLException("Invalid reference ID.");
+            }
+            int copy_id = rs.getInt("book_copy_id");
+
+            query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
+            pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, copy_id);
             pstmt.executeUpdate();
 
-            String newQuery = "DELETE FROM borrowed_books WHERE book_copy_id = ? AND account_id = ?";
+            String newQuery = "DELETE FROM borrowed_books WHERE reference_id = ?";
             pstmt = conn.prepareStatement(newQuery);
-            pstmt.setInt(1, copy_id);
-            pstmt.setInt(2, account_id);
+            pstmt.setInt(1, reference_id);
             pstmt.executeUpdate();
 
             pstmt.close();
             conn.commit();
-            System.out.println("Book returned successfully!");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             conn.rollback();
