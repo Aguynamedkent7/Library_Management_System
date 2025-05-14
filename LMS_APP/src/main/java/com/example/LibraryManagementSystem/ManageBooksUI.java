@@ -115,11 +115,8 @@ public class ManageBooksUI {
             }
         });
         leftPanel.setPreferredSize(new Dimension(150, 0));
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         mainPanel.add(leftPanel, BorderLayout.WEST);
-
-
-
-
 
 
         // Input Fields (Under the table)
@@ -235,6 +232,30 @@ public class ManageBooksUI {
 
 
         frame.add(mainPanel);
+    }
+
+    // Add this method to ManageBooksUI class
+    public JPanel getContentPanel() {
+        // Return the main panel that's in the frame
+        return (JPanel) frame.getContentPane().getComponent(0);
+    }
+
+    // Add this method to ManageBooksUI class
+    public void replaceMainContent(JPanel newPanel, String headerText) {
+        // Clear the center panel
+        centerPanel.removeAll();
+        
+        // Add the new panel
+        centerPanel.add(newPanel, BorderLayout.CENTER);
+        
+        // Update the header
+        headerLabel.setText(headerText);
+        
+        // Refresh the UI
+        centerPanel.revalidate();
+        centerPanel.repaint();
+        frame.revalidate();
+        frame.repaint();
     }
 
     // Rest of the methods remain unchanged...

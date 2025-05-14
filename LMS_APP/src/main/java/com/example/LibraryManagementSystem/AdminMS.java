@@ -5,8 +5,17 @@ import java.awt.*;
 
 public class AdminMS extends JFrame {
     private static final Color BG_COLOR = new Color(0xaa, 0xaa, 0xaa);
+    private AdminDashboard dashboard; // Reference to the parent dashboard
 
+    // Default constructor for standalone operation
     public AdminMS() {
+        this(null);
+    }
+
+    // Constructor that accepts dashboard reference
+    public AdminMS(AdminDashboard dashboard) {
+        this.dashboard = dashboard;
+        
         setTitle("Manage Students");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,8 +84,14 @@ public class AdminMS extends JFrame {
         // Control Buttons
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
         controlPanel.setBackground(BG_COLOR);
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton("Back to Dashboard");
         JButton updateButton = new JButton("Update");
+        
+        // Set the back button action directly if we have a dashboard reference
+        if (dashboard != null) {
+            backButton.addActionListener(e -> dashboard.showDashboardPanel());
+        }
+        
         controlPanel.add(backButton);
         controlPanel.add(updateButton);
 
