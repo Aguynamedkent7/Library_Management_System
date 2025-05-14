@@ -4,7 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="96a04804-ab9d-438c-8f70-379e3aeebf99" name="Changes" comment="" />
+    <list default="true" id="96a04804-ab9d-438c-8f70-379e3aeebf99" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/src/main/java/com/example/LibraryManagementSystem/LoginPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/LMS_APP/src/main/java/com/example/LibraryManagementSystem/LoginPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/src/main/java/com/example/LibraryManagementSystem/RegisterPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/LMS_APP/src/main/java/com/example/LibraryManagementSystem/RegisterPage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/LoginPage$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/LoginPage$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/LoginPage$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/LoginPage.class" beforeDir="false" afterPath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/LoginPage.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/RegisterPage$1.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/RegisterPage$2.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/RegisterPage.class" beforeDir="false" afterPath="$PROJECT_DIR$/LMS_APP/target/classes/com/example/LibraryManagementSystem/RegisterPage.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,6 +33,8 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.LoginPage.executor": "Run",
+    "Application.RegisterPage.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -56,8 +68,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.109" />
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.109" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
       </set>
     </attachedChunks>
   </component>
@@ -70,6 +82,7 @@
       <updated>1746798891138</updated>
       <workItem from="1746798892710" duration="1824000" />
       <workItem from="1746800819714" duration="151000" />
+      <workItem from="1747193426317" duration="1937000" />
     </task>
     <servers />
   </component>

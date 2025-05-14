@@ -32,82 +32,93 @@ public class LoginPage extends JFrame {
     }
 
     private JPanel createLoginPanel() {
-        // Create the login panel with fixed size
         JPanel loginPanel = new JPanel(new GridBagLayout());
         loginPanel.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         loginPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(150, 150, 150), 1),
                 BorderFactory.createEmptyBorder(0, 20, 20, 20)
         ));
-        loginPanel.setBackground( new Color(0xDADADA));
+        loginPanel.setBackground(new Color(0xDADADA));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 5, 10, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
 
-        // Title label
+        // Title label (centered)
         JLabel titleLabel = new JLabel("Log-in", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.PAGE_START;
-        gbc.insets = new Insets(0, 5, 10, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(20, 5, 30, 5);
         loginPanel.add(titleLabel, gbc);
 
-        // Username
+        // Username (centered)
         JLabel usernameLabel = new JLabel("Username:");
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        gbc.insets = new Insets(50, 5, 10, 5);
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 5, 5, 5);
         loginPanel.add(usernameLabel, gbc);
 
         JTextField usernameField = new JTextField(15);
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.insets = new Insets(10, 5, 10, 5);
-        usernameField.setPreferredSize(new Dimension(100, 30));
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 5, 20, 5);
+        usernameField.setPreferredSize(new Dimension(200, 30));
         loginPanel.add(usernameField, gbc);
 
-        // Password
+        // Password (centered)
         JLabel passwordLabel = new JLabel("Password:");
         gbc.gridx = 0;
         gbc.gridy = 3;
-        gbc.anchor = GridBagConstraints.ABOVE_BASELINE;
-        gbc.insets = new Insets(35, 5, 10, 5);
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 5, 5, 5);
         loginPanel.add(passwordLabel, gbc);
 
         JPasswordField passwordField = new JPasswordField(15);
         gbc.gridx = 0;
         gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.LINE_START;
-        gbc.insets = new Insets(10, 5, 10, 5);
-        passwordField.setPreferredSize(new Dimension(100, 30));
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 5, 30, 5);
+        passwordField.setPreferredSize(new Dimension(200, 30));
         loginPanel.add(passwordField, gbc);
+
+        // Button panel (centered)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setBackground(new Color(0xDADADA));
 
         // Login button
         JButton loginButton = new JButton("Login");
-        loginButton.setPreferredSize(new Dimension(100, 25));
+        loginButton.setPreferredSize(new Dimension(100, 35));
+        loginButton.addActionListener(e -> {
+            String username = usernameField.getText();
+            String password = new String(passwordField.getPassword());
+            JOptionPane.showMessageDialog(LoginPage.this,
+                    "Login attempted with:\nUsername: " + username);
+        });
+
+        // Create Account button
+        JButton createAccountButton = new JButton("Create Account");
+        createAccountButton.setPreferredSize(new Dimension(140, 35));
+        createAccountButton.addActionListener(e -> {
+            // Add navigation to register page here
+            JOptionPane.showMessageDialog(LoginPage.this,
+                    "Redirecting to account creation...");
+        });
+
+        buttonPanel.add(loginButton);
+        buttonPanel.add(createAccountButton);
+
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(50, 5, 10, 5);
-        loginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = usernameField.getText();
-                String password = new String(passwordField.getPassword());
-                JOptionPane.showMessageDialog(LoginPage.this,
-                        "Login attempted with:\nUsername: " + username);
-            }
-        });
-        loginPanel.add(loginButton, gbc);
+        gbc.insets = new Insets(20, 5, 20, 5);
+        loginPanel.add(buttonPanel, gbc);
 
         return loginPanel;
     }
