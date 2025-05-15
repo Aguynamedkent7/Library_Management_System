@@ -18,12 +18,12 @@ public class AdminDashboard extends JFrame {
     private static final String DASHBOARD_PANEL = "Dashboard";
     private static final String MANAGE_BOOKS_PANEL = "ManageBooks";
     private static final String BORROWED_BOOKS_PANEL = "BorrowedBooks";
-    private static final String MANAGE_STUDENTS_PANEL = "ManageStudents";
+    private static final String LIBRARY_INVENTORY_PANEL = "LibraryInventory";
     
     // UI component references
     private ManageBooksUI manageBooksUI;
-    private AdminBB adminBB;
-    private AdminMS adminMS;
+    private LibraryInventoryUI libraryInventoryUI;
+    private BorrowedBooksUI borrowedBooksUI;
 
     public AdminDashboard() {
         setTitle("Library Management System");
@@ -75,58 +75,53 @@ public class AdminDashboard extends JFrame {
         addBackButtonToManageBooks(manageBooksPanel);
         contentPanel.add(manageBooksPanel, MANAGE_BOOKS_PANEL);
         
-        // Initialize AdminBB (Borrowed Books)
-        adminBB = new AdminBB();
-        JPanel borrowedBooksPanel = getBorrowedBooksPanel(); 
+        // Create a table for borrowed books
+        JTable borrowedBooksTable = new JTable();
+        borrowedBooksTable.setDefaultEditor(Object.class, null);
+        borrowedBooksTable.getTableHeader().setReorderingAllowed(false);
+        borrowedBooksTable.setDragEnabled(false);
+        borrowedBooksTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // Create a header label for borrowed books
+        JLabel borrowedBooksHeaderLabel = new JLabel("All Borrowers", SwingConstants.CENTER);
+        borrowedBooksHeaderLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        // Initialize BorrowedBooksUI with the table and header
+        borrowedBooksUI = new BorrowedBooksUI(borrowedBooksTable, borrowedBooksHeaderLabel);
+        JPanel borrowedBooksPanel = createBorrowedBooksPanel(borrowedBooksUI);
         contentPanel.add(borrowedBooksPanel, BORROWED_BOOKS_PANEL);
         
-        // Initialize AdminMS (Manage Students) - Pass this dashboard instance
-        adminMS = new AdminMS(this);
-        JPanel manageStudentsPanel = getManageStudentsPanel();
-        contentPanel.add(manageStudentsPanel, MANAGE_STUDENTS_PANEL);
+        // Initialize LibraryInventoryUI
+        libraryInventoryUI = new LibraryInventoryUI();
+        // Set back button to return to dashboard
+        libraryInventoryUI.setBackButtonAction(e -> showDashboardPanel());
+        JPanel libraryInventoryPanel = libraryInventoryUI.getMainPanel();
+        contentPanel.add(libraryInventoryPanel, LIBRARY_INVENTORY_PANEL);
     }
     
-    private JPanel getBorrowedBooksPanel() {
-        // Get the content from AdminBB
-        JPanel mainPanel = (JPanel) adminBB.getContentPane().getComponent(0);
+    private JPanel createBorrowedBooksPanel(BorrowedBooksUI borrowedBooksUI) {
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Add a title at the top
-        JLabel titleLabel = new JLabel("Borrowed Books", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        // Add header to panel
+        mainPanel.add(borrowedBooksUI.getHeaderLabel(), BorderLayout.NORTH);
         
-        // Find and modify the results panel to include the title
-        Component[] components = mainPanel.getComponents();
-        for (Component component : components) {
-            if (component instanceof JPanel) {
-                JPanel panel = (JPanel) component;
-                // Add the title to the first panel we find (or we could use more specific criteria)
-                if (panel.getLayout() instanceof BorderLayout) {
-                    panel.add(titleLabel, BorderLayout.NORTH);
-                    break;
-                }
-            }
-        }
+        // Get content panel from BorrowedBooksUI
+        JPanel contentPanel = borrowedBooksUI.getContentPanel();
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
         
-        // Find and modify the back button
-        for (Component component : mainPanel.getComponents()) {
-            if (component instanceof JPanel) {
-                JPanel panel = (JPanel) component;
-                modifyBackButton(panel);
-            }
-        }
+        // Create bottom panel for back button
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton backButton = new JButton("Back to Dashboard");
+        backButton.addActionListener(e -> showDashboardPanel());
+        bottomPanel.add(backButton);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
         
         return mainPanel;
     }
     
-    private JPanel getManageStudentsPanel() {
-        // Get the content from AdminMS
-        JPanel mainPanel = (JPanel) adminMS.getContentPane().getComponent(0);
-        
-        // Find and modify the back button 
-        JPanel controlPanel = (JPanel) mainPanel.getComponent(2); // South component
-        modifyBackButton(controlPanel);
-        
-        return mainPanel;
+    private JPanel getLibraryInventoryUIPanel() {
+        return libraryInventoryUI.getMainPanel();
     }
     
     private void modifyBackButton(Container container) {
@@ -212,8 +207,8 @@ public class AdminDashboard extends JFrame {
         String[] cardLabels = {
                 "Manage Books",
                 "Borrowed Books",
-                "Returned Books",
-                "Manage Students"
+                "Scan to return a book",
+                "Library Inventory"
         };
 
         for (String label : cardLabels) {
@@ -233,11 +228,11 @@ public class AdminDashboard extends JFrame {
                         showBorrowedBooksPanel();
                     }
                 });
-            } else if (label.equals("Manage Students")) {
+            } else if (label.equals("Library Inventory")) {
                 card.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
-                        showManageStudentsPanel();
+                        showLibraryInventoryPanel();
                     }
                 });
             }
@@ -294,9 +289,9 @@ public class AdminDashboard extends JFrame {
         cardLayout.show(contentPanel, BORROWED_BOOKS_PANEL);
     }
     
-    public void showManageStudentsPanel() {
-        setTitle("Library Management System - Manage Students");
-        cardLayout.show(contentPanel, MANAGE_STUDENTS_PANEL);
+    public void showLibraryInventoryPanel() {
+        setTitle("Library Management System - Library Inventory");
+        cardLayout.show(contentPanel, LIBRARY_INVENTORY_PANEL);
     }
     
     public static void main(String[] args) {

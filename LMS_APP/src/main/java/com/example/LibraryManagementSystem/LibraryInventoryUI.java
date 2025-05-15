@@ -1,20 +1,9 @@
 package com.example.LibraryManagementSystem;
 
-import api.Query;
-import models.Book;
-import models.BorrowedBook;
-import com.google.zxing.WriterException;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
+
 
 public class LibraryInventoryUI extends JPanel {
     private LibraryInventoryFunctionality controller = new LibraryInventoryFunctionality(this);

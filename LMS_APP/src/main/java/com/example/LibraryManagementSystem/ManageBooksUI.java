@@ -296,15 +296,41 @@ public class ManageBooksUI {
         headerLabel.setText("Available Books");
     }
 
-    public void viewAllBorrowers() {
-        String[] columnNames = {"Reference ID", "Borrower First Name", "Borrower Last Name", "Book Copy ID", "Book Title", "Book Author", "Borrow Date", "Return Date"};
-        DefaultTableModel model = new DefaultTableModel(columnNames, 0);
-        bookTable.setModel(model);
-
-        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(3));
-        controller.loadBorrowedBooks();
-        headerLabel.setText("All Borrowers");
-    }
+// Replace the viewAllBorrowers method with this version that uses BorrowedBooksUI properly
+public void viewAllBorrowers() {
+    // Create the BorrowedBooksUI instance and pass the necessary components
+    BorrowedBooksUI borrowedBooksUI = new BorrowedBooksUI(bookTable, headerLabel);
+    
+    // Disable the book management buttons when in borrowed books view
+    JPanel leftPanel = (JPanel) ((JPanel) frame.getContentPane().getComponent(0))
+        .getComponent(1); // Get the left panel with buttons
+    setComponentsEnabled(leftPanel, false);
+    
+    // Create a button to go back to the available books view
+    JButton backButton = new JButton("Back to Available Books");
+    backButton.addActionListener(e -> {
+        viewAvailableBooks();
+        setComponentsEnabled(leftPanel, true);
+    });
+    
+    // Add a panel for the back button at the bottom of the borrowed books content panel
+    JPanel borrowedBooksPanel = borrowedBooksUI.getContentPanel();
+    JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    bottomButtonPanel.add(backButton);
+    
+    // Create a wrapper panel that includes the borrowed books content and the back button
+    JPanel wrapperPanel = new JPanel(new BorderLayout());
+    wrapperPanel.add(borrowedBooksPanel, BorderLayout.CENTER);
+    wrapperPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
+    
+    // Clear the current center panel content and add the wrapper panel
+    centerPanel.removeAll();
+    centerPanel.add(wrapperPanel, BorderLayout.CENTER);
+    
+    // Refresh the UI
+    centerPanel.revalidate();
+    centerPanel.repaint();
+}
 
     public int getSelectedBookID(int selectedRow) {
         // Convert view index to model index in case table is sorted
