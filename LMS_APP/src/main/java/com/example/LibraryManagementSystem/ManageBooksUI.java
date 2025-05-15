@@ -201,14 +201,8 @@ public class ManageBooksUI {
 
         // Return/Back Buttons (Right)
         JPanel lowerRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        JButton returnButton = new JButton("Return a Book");
         JButton borrowButton = new JButton("Borrow a Book");
-        JButton viewBorrowersButton = new JButton("View All Borrowers");
-        JButton viewAvailableBooksButton = new JButton("View Available Books");
         lowerRightPanel.add(borrowButton);
-        lowerRightPanel.add(returnButton);
-        lowerRightPanel.add(viewBorrowersButton);
-        lowerRightPanel.add(viewAvailableBooksButton);
         bottomPanel.add(formPanel, BorderLayout.CENTER, FlowLayout.CENTER);
         bottomPanel.add(lowerRightPanel, BorderLayout.SOUTH);
 
@@ -219,7 +213,6 @@ public class ManageBooksUI {
         addButton.addActionListener(e -> controller.addBook());
         updateButton.addActionListener(e -> controller.updateBook());
         deleteButton.addActionListener(e -> controller.deleteBook());
-        returnButton.addActionListener(e -> controller.returnBook());
         borrowButton.addActionListener(e -> controller.borrowBook());
         // Add action listener to the save button
         saveQRButton.addActionListener(e -> {
@@ -228,14 +221,6 @@ public class ManageBooksUI {
             } else {
                 showError("No QR code to save! Generate a QR code first.");
             }
-        });
-        viewBorrowersButton.addActionListener(e -> {
-            viewAllBorrowers();
-            setComponentsEnabled(leftPanel, false);
-        });
-        viewAvailableBooksButton.addActionListener(e -> {
-            viewAvailableBooks();
-            setComponentsEnabled(leftPanel, true);
         });
         addCopies.addActionListener(e -> controller.addBookCopies());
         removeCopies.addActionListener(e -> controller.removeBookCopies());

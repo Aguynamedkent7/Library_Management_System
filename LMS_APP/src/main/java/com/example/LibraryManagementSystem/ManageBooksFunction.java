@@ -199,26 +199,7 @@ public class ManageBooksFunction {
      * Open QR code reader to scan and process books
      * This method replaces both the old scanQR and returnBook functions
      */
-    public void returnBook() {
-        ManageBooksUI parentFrame = view;
-        // show dialog
-        showReferenceOrQRDialog(view.getFrame(),
-                this::initializeQRScanner,
-                bookCopyID -> {
-                    returnBookByBookCopyID(Integer.parseInt(bookCopyID));
-                });
-    }
 
-    private void returnBookByBookCopyID(int bookCopyID) {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            MutateBooks.ReturnBook(conn, bookCopyID);
-            view.showMessage("Book returned successfully!");
-        } catch (SQLException e) {
-            view.showError(e.getMessage());
-        }
-    }
 
     /**
      * Initialize QR scanner components using the recommended approach
@@ -467,53 +448,7 @@ public class ManageBooksFunction {
         return view;
     }
 
-    public void showReferenceOrQRDialog(JFrame parentFrame, Runnable onScanQR, java.util.function.Consumer<String> onBookCopyIdEntered) {
-        JButton scanQRButton = new JButton("Scan QR Code");
-        JButton ReturnButton = new JButton("Return Book");
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(new JLabel("Select a row or scan QR Code to return."));
-        buttonPanel.add(scanQRButton);
-        buttonPanel.add(ReturnButton);
-        panel.add(buttonPanel);
-
-        JDialog dialog = new JDialog(parentFrame, "Return Book", true);
-        dialog.setContentPane(panel);
-        dialog.setSize(300, 150);
-        dialog.setLocationRelativeTo(parentFrame);
-
-        // Scan QR code button action
-        scanQRButton.addActionListener(e -> {
-            dialog.dispose();
-            onScanQR.run();
-        });
-
-        ReturnButton.addActionListener(e -> {
-            dialog.dispose();
-            int selectedRow = view.getSelectedBookRow();
-            if (selectedRow == -1) {
-                view.showError("Please select a book to return");
-                return;
-            }
-            int bookCopyID = view.getSelectedRowBookCopyID(selectedRow);
-
-            try {
-                String url = System.getenv("LMS_DB_URL");
-                Connection conn = DriverManager.getConnection(url);
-                MutateBooks.ReturnBook(conn, bookCopyID);
-                conn.close();
-                view.showMessage("Book returned successfully!");
-                loadBorrowedBooks();
-            } catch (SQLException ex) {
-                view.showError("Error returning book: " + ex.getMessage());
-            }
-        });
-
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setVisible(true);
-    }
 
     public void addBookCopies() {
         int selectedRow = view.getSelectedBookRow();
