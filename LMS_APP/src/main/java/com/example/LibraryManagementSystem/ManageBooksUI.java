@@ -297,10 +297,11 @@ public class ManageBooksUI {
     }
 
     public void viewAllBorrowers() {
-        String[] columnNames = {"Reference ID", "Borrower First Name", "Borrower Last Name", "Book Title", "Book Author", "Borrow Date", "Return Date"};
+        String[] columnNames = {"Reference ID", "Borrower First Name", "Borrower Last Name", "Book Copy ID", "Book Title", "Book Author", "Borrow Date", "Return Date"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable.setModel(model);
 
+        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(3));
         controller.loadBorrowedBooks();
         headerLabel.setText("All Borrowers");
     }
@@ -312,6 +313,14 @@ public class ManageBooksUI {
         Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
         return Integer.parseInt(idValue.toString());
 
+    }
+
+    public int getSelectedRowBookCopyID(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 3);
+        return Integer.parseInt(idValue.toString());
     }
 
     public int getSelectedBookAvailableCopies(int selectedRow) {

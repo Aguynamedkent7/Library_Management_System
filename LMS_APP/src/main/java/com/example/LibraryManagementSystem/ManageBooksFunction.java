@@ -96,6 +96,7 @@ public class ManageBooksFunction {
                         book.getReferenceID(),
                         book.getFirstName(),
                         book.getLastName(),
+                        book.getBookCopyID(),
                         book.getBookTitle(),
                         book.getBookAuthor(),
                         book.getBorrowDate(),
@@ -200,18 +201,19 @@ public class ManageBooksFunction {
      */
     public void returnBook() {
         ManageBooksUI parentFrame = view;
+        // show dialog
         showReferenceOrQRDialog(view.getFrame(),
                 this::initializeQRScanner,
-                referenceId -> {
-                    returnBookByRefID(Integer.parseInt(referenceId));
+                bookCopyID -> {
+                    returnBookByBookCopyID(Integer.parseInt(bookCopyID));
                 });
     }
 
-    private void returnBookByRefID(int referenceID) {
+    private void returnBookByBookCopyID(int bookCopyID) {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            MutateBooks.ReturnBook(conn, referenceID);
+            MutateBooks.ReturnBook(conn, bookCopyID);
             view.showMessage("Book returned successfully!");
         } catch (SQLException e) {
             view.showError(e.getMessage());
@@ -465,20 +467,16 @@ public class ManageBooksFunction {
         return view;
     }
 
-    public static void showReferenceOrQRDialog(JFrame parentFrame, Runnable onScanQR, java.util.function.Consumer<String> onReferenceIdEntered) {
-        JTextField refIdField = new JTextField(12);
+    public void showReferenceOrQRDialog(JFrame parentFrame, Runnable onScanQR, java.util.function.Consumer<String> onBookCopyIdEntered) {
         JButton scanQRButton = new JButton("Scan QR Code");
-        JButton OKButton = new JButton("OK");
+        JButton ReturnButton = new JButton("Return Book");
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JPanel inputPanel = new JPanel(new FlowLayout());
-        inputPanel.add(new JLabel("Reference ID:"));
-        inputPanel.add(refIdField);
-        panel.add(inputPanel);
+        panel.add(new JLabel("Select a row or scan QR Code to return."));
         buttonPanel.add(scanQRButton);
-        buttonPanel.add(OKButton);
+        buttonPanel.add(ReturnButton);
         panel.add(buttonPanel);
 
         JDialog dialog = new JDialog(parentFrame, "Return Book", true);
@@ -492,17 +490,25 @@ public class ManageBooksFunction {
             onScanQR.run();
         });
 
-        OKButton.addActionListener(e -> {
-            if (refIdField.getText().trim().isEmpty() || !refIdField.getText().matches("\\d+")) {
-                JOptionPane.showMessageDialog(parentFrame,
-                        "Please enter a valid Reference ID.",
-                        "Input Error",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-
-            }
+        ReturnButton.addActionListener(e -> {
             dialog.dispose();
-            onReferenceIdEntered.accept(refIdField.getText());
+            int selectedRow = view.getSelectedBookRow();
+            if (selectedRow == -1) {
+                view.showError("Please select a book to return");
+                return;
+            }
+            int bookCopyID = view.getSelectedRowBookCopyID(selectedRow);
+
+            try {
+                String url = System.getenv("LMS_DB_URL");
+                Connection conn = DriverManager.getConnection(url);
+                MutateBooks.ReturnBook(conn, bookCopyID);
+                conn.close();
+                view.showMessage("Book returned successfully!");
+                loadBorrowedBooks();
+            } catch (SQLException ex) {
+                view.showError("Error returning book: " + ex.getMessage());
+            }
         });
 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

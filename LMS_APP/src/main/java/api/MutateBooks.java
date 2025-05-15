@@ -275,26 +275,19 @@ public class MutateBooks {
         }
     }
 
-    public static void ReturnBook(Connection conn, int reference_id) throws SQLException {
+    public static void ReturnBook(Connection conn, int book_copy_id) throws SQLException {
         try {
-            String query = "SELECT book_copy_id FROM borrowed_books WHERE reference_id = ?";
             conn.setAutoCommit(false);
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, reference_id);
-            ResultSet rs = pstmt.executeQuery();
-            if (!rs.next()) {
-                throw new SQLException("Invalid reference ID.");
-            }
-            int copy_id = rs.getInt("book_copy_id");
 
-            query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
+            String query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
             pstmt = conn.prepareStatement(query);
-            pstmt.setInt(1, copy_id);
+            pstmt.setInt(1, book_copy_id);
             pstmt.executeUpdate();
 
-            String newQuery = "DELETE FROM borrowed_books WHERE reference_id = ?";
+            String newQuery = "DELETE FROM borrowed_books WHERE book_copy_id = ?";
             pstmt = conn.prepareStatement(newQuery);
-            pstmt.setInt(1, reference_id);
+            pstmt.setInt(1, book_copy_id);
             pstmt.executeUpdate();
 
             pstmt.close();
