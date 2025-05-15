@@ -26,6 +26,8 @@ public class LibraryInventoryFunctionality {
     private LibraryInventoryUI view;
     private Connection connection;
 
+
+
     public LibraryInventoryFunctionality(LibraryInventoryUI view) {
         this.view = view;
     }
@@ -154,4 +156,82 @@ public class LibraryInventoryFunctionality {
             view.showError("Error loading books: " + e.getMessage());
         }
     }
+    // Add this constant for the output folder
+    private static final String QR_FOLDER = "generated_qr_codes";
+
+    // New method for bulk QR generation
+    public void generateAllQRCodes() {
+        try {
+            // Create output directory if needed
+            File qrFolder = new File(QR_FOLDER);
+            if (!qrFolder.exists() && !qrFolder.mkdirs()) {
+                view.showError("Failed to create QR code directory!");
+                return;
+            }
+
+            // Get database connection
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            ArrayList<Book> books = Query.BookInventory(conn);
+            conn.close();
+
+            if (books == null || books.isEmpty()) {
+                view.showError("No books found in database");
+                return;
+            }
+
+            int successCount = 0;
+            int errorCount = 0;
+
+            // Process each book
+            for (Book book : books) {
+                try {
+                    // Reuse existing QR content generation
+                    String qrContent = formatQRContent(
+                            String.valueOf(book.getId()),
+                            book.getTitle(),
+                            book.getAuthor(),
+                            book.getGenre(),
+                            book.getPublisher(),
+                            book.getPublished_Date()
+                    );
+
+                    // Generate filename
+                    String fileName = sanitizeFilename(book.getTitle())
+                            + "-" + book.getId() + ".png";
+
+                    // Reuse existing QR image generation
+                    BufferedImage qrImage = generateQRCodeImage(qrContent);
+
+                    // Save directly to folder
+                    File outputFile = new File(qrFolder, fileName);
+                    ImageIO.write(qrImage, "png", outputFile);
+
+                    successCount++;
+                } catch (Exception e) {
+                    errorCount++;
+                    System.err.println("Failed to generate QR for book ID "
+                            + book.getId() + ": " + e.getMessage());
+                }
+            }
+
+            view.showError(
+                    "QR code generation completed!\n" +
+                            "Success: " + successCount + "\n" +
+                            "Failures: " + errorCount + "\n" +
+                            "Saved to: " + qrFolder.getAbsolutePath()
+            );
+
+        } catch (SQLException e) {
+            view.showError("Database error: " + e.getMessage());
+        }
+    }
+
+    // Helper method for filename sanitization
+    private String sanitizeFilename(String input) {
+        return input.replaceAll("[^a-zA-Z0-9-_.]", "_")
+                .replaceAll("\\s+", "_")
+                .replaceAll("_{2,}", "_");
+    }
+
 }

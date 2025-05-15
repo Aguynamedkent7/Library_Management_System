@@ -13,12 +13,15 @@ public class LibraryInventoryUI extends JPanel {
     private JPanel mainPanel;
     private JScrollPane tableScrollPane;
     private JLabel qrCodeLabel; // Added QR code label
+    private LibraryInventoryFunctionality functionality;
 
     public LibraryInventoryUI() {
         initializeUI();
     }
 
     private void initializeUI() {
+
+        functionality = new LibraryInventoryFunctionality(this);
         // Set up the main panel with BorderLayout
         mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -81,11 +84,15 @@ public class LibraryInventoryUI extends JPanel {
                 BorderFactory.createTitledBorder("Actions"),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
-        controlPanel.setLayout(new GridLayout(3, 1, 0, 10)); // 3 rows, 1 column, 10px vertical gap
+        controlPanel.setLayout(new GridLayout(4, 1, 0, 10)); // 3 rows, 1 column, 10px vertical gap
         
         JButton generateQRButton = new JButton("Generate QR Code");
+        JButton generateAllQRButton = new JButton("Generate All QR Codes");
         JButton refreshButton = new JButton("Refresh");
         JButton backButton = new JButton("Back");
+
+        generateAllQRButton.addActionListener(e -> handleGenerateAllQRCodes());
+
         
         // Add QR code generation action
         generateQRButton.addActionListener(e -> {
@@ -104,6 +111,7 @@ public class LibraryInventoryUI extends JPanel {
         
         // Add buttons to the control panel
         controlPanel.add(generateQRButton);
+        controlPanel.add(generateAllQRButton);
         controlPanel.add(refreshButton);
         controlPanel.add(backButton);
         
@@ -121,6 +129,32 @@ public class LibraryInventoryUI extends JPanel {
     /**
      * Generates a QR code for the selected book
      */
+
+    private void handleGenerateAllQRCodes() {
+        // Show confirmation dialog
+        int confirm = JOptionPane.showConfirmDialog(
+                mainPanel,
+                "This will generate QR codes for ALL books.\nContinue?",
+                "Confirm Bulk Generation",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            // Run in background thread to prevent UI freeze
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    functionality.generateAllQRCodes();
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    // Any post-processing
+                }
+            }.execute();
+        }
+    }
 
     public Object[] getBookAtRow(int row) {
         DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
