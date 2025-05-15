@@ -113,8 +113,11 @@ public class AdminDashboard extends JFrame {
         // Create bottom panel for back button
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton backButton = new JButton("Back to Dashboard");
+        JButton returnButton = new JButton("Return Book");
         backButton.addActionListener(e -> showDashboardPanel());
+        returnButton.addActionListener(e -> { borrowedBooksUI.getController().showReturnDialog();});
         bottomPanel.add(backButton);
+        bottomPanel.add(returnButton);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
         
         return mainPanel;
@@ -287,6 +290,7 @@ public class AdminDashboard extends JFrame {
     public void showBorrowedBooksPanel() {
         setTitle("Library Management System - Borrowed Books");
         cardLayout.show(contentPanel, BORROWED_BOOKS_PANEL);
+        borrowedBooksUI.getController().loadBorrowedBooks();
     }
     
     public void showLibraryInventoryPanel() {

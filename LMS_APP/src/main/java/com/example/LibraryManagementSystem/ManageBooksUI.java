@@ -221,7 +221,6 @@ public class ManageBooksUI {
         addButton.addActionListener(e -> controller.addBook());
         updateButton.addActionListener(e -> controller.updateBook());
         deleteButton.addActionListener(e -> controller.deleteBook());
-        returnButton.addActionListener(e -> controller.returnBook());
         borrowButton.addActionListener(e -> controller.borrowBook());
         // Add action listener to the save button
         saveQRButton.addActionListener(e -> {
@@ -230,14 +229,6 @@ public class ManageBooksUI {
             } else {
                 showError("No QR code to save! Generate a QR code first.");
             }
-        });
-        viewBorrowersButton.addActionListener(e -> {
-            viewAllBorrowers();
-            setComponentsEnabled(leftPanel, false);
-        });
-        viewAvailableBooksButton.addActionListener(e -> {
-            viewAvailableBooks();
-            setComponentsEnabled(leftPanel, true);
         });
         addCopies.addActionListener(e -> controller.addBookCopies());
         removeCopies.addActionListener(e -> controller.removeBookCopies());

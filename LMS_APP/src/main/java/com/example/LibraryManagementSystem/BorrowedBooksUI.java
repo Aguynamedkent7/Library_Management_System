@@ -35,9 +35,7 @@ public class BorrowedBooksUI {
         // Add the table to a scroll pane
         JScrollPane scrollPane = new JScrollPane(bookTable);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
-        
-        // Load the borrowed books data
-        controller.loadBorrowedBooks();
+
     }
 
     public JPanel getContentPanel() {
@@ -64,5 +62,39 @@ public class BorrowedBooksUI {
 
     public JTable getBookTable() {
         return bookTable;
+    }
+
+    public int getSelectedBookID(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
+        return Integer.parseInt(idValue.toString());
+
+    }
+
+    public int getSelectedRowBookCopyID(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 3);
+        return Integer.parseInt(idValue.toString());
+    }
+
+    public int getSelectedBookAvailableCopies(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 6);
+        return Integer.parseInt(idValue.toString());
+
+    }
+
+    public int getSelectedBookRow() {
+        return bookTable.getSelectedRow();
+    }
+
+    public BorrowedBooksFunction getController() {
+        return controller;
     }
 }

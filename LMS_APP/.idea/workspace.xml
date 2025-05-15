@@ -6,7 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="got rid of accounts ig">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/api/Query.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/api/Query.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +136,7 @@
       <workItem from="1747122126072" duration="12746000" />
       <workItem from="1747188971682" duration="9800000" />
       <workItem from="1747235882373" duration="688000" />
-      <workItem from="1747320546775" duration="1961000" />
+      <workItem from="1747320546775" duration="6417000" />
     </task>
     <task id="LOCAL-00001" summary="connected to database">
       <option name="closed" value="true" />
