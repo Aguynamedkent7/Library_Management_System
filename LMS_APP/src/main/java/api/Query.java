@@ -74,7 +74,8 @@ public class Query {
                     "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
                     "LEFT JOIN genres ON genres_of_book.genre_id = genres.id " +
                     "LEFT JOIN publishers ON books.publisher_id = publishers.id " +
-                    "GROUP BY books.id, title, author, publisher_name, published_date ";
+                    "GROUP BY books.id, title, author, publisher_name, published_date " +
+                    "ORDER BY title";
             PreparedStatement pstmt = Conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
