@@ -28,6 +28,8 @@ public class ManageBooksUI {
     private JLabel headerLabel;
     private Font headerFont = new Font("Arial", Font.BOLD, 20);
 
+
+
     public ManageBooksUI() {
         initializeUI();
     }
@@ -100,8 +102,12 @@ public class ManageBooksUI {
         JButton generateQRButton = new JButton("Generate QR Code");
         JButton addCopies = new JButton("Add Copies");
         JButton removeCopies = new JButton("Remove Copies");
+        JButton returnButton = new JButton("Return a Book");
+        JButton borrowButton = new JButton("Borrow a Book");
+        JButton viewBorrowersButton = new JButton("View All Borrowers");
+        JButton viewAvailableBooksButton = new JButton("View Available Books");
         // Number of rows = number of buttons, 1 column, with spacing
-        leftPanel.setLayout(new GridLayout(7, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
+        leftPanel.setLayout(new GridLayout(11, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
 
 // Add components
         leftPanel.add(addButton);
@@ -111,6 +117,10 @@ public class ManageBooksUI {
         leftPanel.add(generateQRButton);
         leftPanel.add(addCopies);
         leftPanel.add(removeCopies);
+        leftPanel.add(borrowButton);
+        leftPanel.add(returnButton);
+        leftPanel.add(viewBorrowersButton);
+        leftPanel.add(viewAvailableBooksButton);
 
 
 
@@ -129,7 +139,7 @@ public class ManageBooksUI {
 
 
         // Input Fields (Under the table)
-        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 10));
+        JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
 
         Font smallFont = new Font("Arial", Font.PLAIN, 12);
         Dimension fieldSize = new Dimension(150, 30);
@@ -186,29 +196,21 @@ public class ManageBooksUI {
 
         // QR Code (Left)
         qrCodeLabel = new JLabel();
-        qrCodeLabel.setPreferredSize(new Dimension(300, 300));
+        qrCodeLabel.setPreferredSize(new Dimension(10, 30));
         JPanel qrPanel = new JPanel(new BorderLayout());
         qrPanel.setBorder(BorderFactory.createTitledBorder("Book QR Code"));
-        qrPanel.add(qrCodeLabel, BorderLayout.CENTER);
+
         bottomPanel.add(qrPanel, BorderLayout.WEST);
 
         // Create a button panel for the save button
         JPanel qrButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton saveQRButton = new JButton("Save QR Code");
-        qrButtonPanel.add(saveQRButton);
+
         qrPanel.add(qrButtonPanel, BorderLayout.SOUTH);
 
 
         // Return/Back Buttons (Right)
         JPanel lowerRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
-        JButton returnButton = new JButton("Return a Book");
-        JButton borrowButton = new JButton("Borrow a Book");
-        JButton viewBorrowersButton = new JButton("View All Borrowers");
-        JButton viewAvailableBooksButton = new JButton("View Available Books");
-        lowerRightPanel.add(borrowButton);
-        lowerRightPanel.add(returnButton);
-        lowerRightPanel.add(viewBorrowersButton);
-        lowerRightPanel.add(viewAvailableBooksButton);
         bottomPanel.add(formPanel, BorderLayout.CENTER, FlowLayout.CENTER);
         bottomPanel.add(lowerRightPanel, BorderLayout.SOUTH);
 
