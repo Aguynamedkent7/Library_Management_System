@@ -26,39 +26,30 @@ public class Query {
 
     }
 
-    // search books by title, author, genre, publisher, or published_date
-    public static ArrayList<Book> SearchBooks(Connection Conn, String SearchQuery, String SearchBy) {
+    // Displays Complete Book Inventory (Copies and All)
+    public static ArrayList<Book> BookInventory(Connection Conn) {
         ArrayList<Book> BookResults = new ArrayList<>();
         try {
-            final Set<String> VALID_SEARCH_COLUMNS = Set.of(
-                    "title", "author", "genre"
-            );
-            if (!VALID_SEARCH_COLUMNS.contains(SearchBy)) {
-                throw new IllegalArgumentException("Invalid column: " + SearchBy);
-            }
-            String query = "SELECT books.id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
-                    "publisher_name, published_date, COUNT(DISTINCT book_copies.copy_id) FILTER (WHERE book_copies.status = 'AVAILABLE') " +
-                    "AS available_copies " +
+            String query = "SELECT book_copies.copy_id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
+                    "publisher_name, published_date," +
                     "FROM books " +
                     "LEFT JOIN book_copies ON book_copies.book_id = books.id " +
                     "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
                     "LEFT JOIN genres ON genres_of_book.genre_id = genres.id " +
                     "LEFT JOIN publishers ON books.publisher_id = publishers.id " +
-                    "GROUP BY books.id, title, author, publisher_name, published_date " +
-                    "WHERE " + SearchBy + " = ?";
+                    "GROUP BY book_copies.copy_id, title, author, publisher_name, published_date ";
             PreparedStatement pstmt = Conn.prepareStatement(query);
-            pstmt.setString(1, '%' + SearchQuery + '%');
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Book book = new Book (
-                        rs.getInt("id"),
+                Book book = new Book(
+                        rs.getInt("copy_id"),
                         rs.getString("title"),
                         rs.getString("author"),
                         rs.getString("genres"),
                         rs.getString("publisher_name"),
                         rs.getString("published_date"),
-                        rs.getInt("available_copies")
+                        1
                 );
                 BookResults.add(book);
             }
