@@ -219,7 +219,7 @@ public class LibraryInventoryUI extends JPanel {
             JFrame frame = new JFrame("Library Inventory");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.add(new LibraryInventoryUI());
-            frame.setSize(1920, 1080);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
