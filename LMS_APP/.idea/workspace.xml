@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="got rid of accounts ig">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/api/Query.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/api/Query.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +23,6 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
     <option name="SWAP_SIDES_IN_COMPARE_BRANCHES" value="true" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -38,7 +37,7 @@
   }
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -48,44 +47,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.AdminDashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Application.LibraryManagementSystemApp.executor&quot;: &quot;Run&quot;,
-    &quot;Application.LoginPage.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MutateAccounts.executor&quot;: &quot;Run&quot;,
-    &quot;Application.MutateBooks.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Query.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ReadQR.executor&quot;: &quot;Run&quot;,
-    &quot;Application.RegisterPage.executor&quot;: &quot;Run&quot;,
-    &quot;Application.UserDashboard.executor&quot;: &quot;Run&quot;,
-    &quot;Application.auth.executor&quot;: &quot;Run&quot;,
-    &quot;Application.mutate.executor&quot;: &quot;Run&quot;,
-    &quot;Application.query.executor&quot;: &quot;Run&quot;,
-    &quot;Application.test.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Theodore/Documents/prugraming/java stuff/OOP PIT/LMS_APP&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CodeWithMe&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.AdminDashboard.executor": "Run",
+    "Application.LibraryInventoryUI.executor": "Run",
+    "Application.LibraryManagementSystemApp.executor": "Run",
+    "Application.LoginPage.executor": "Run",
+    "Application.MutateAccounts.executor": "Run",
+    "Application.MutateBooks.executor": "Run",
+    "Application.Query.executor": "Run",
+    "Application.ReadQR.executor": "Run",
+    "Application.RegisterPage.executor": "Run",
+    "Application.UserDashboard.executor": "Run",
+    "Application.auth.executor": "Run",
+    "Application.mutate.executor": "Run",
+    "Application.query.executor": "Run",
+    "Application.test.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/Theodore/Documents/prugraming/java stuff/OOP PIT/LMS_APP",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "CodeWithMe",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Theodore\Documents\prugraming\java stuff\OOP PIT\LMS_APP\src\db_driver" />
@@ -131,7 +131,8 @@
       <workItem from="1747033774123" duration="13460000" />
       <workItem from="1747122126072" duration="12746000" />
       <workItem from="1747188971682" duration="9800000" />
-      <workItem from="1747235882373" duration="307000" />
+      <workItem from="1747235882373" duration="688000" />
+      <workItem from="1747320546775" duration="1961000" />
     </task>
     <task id="LOCAL-00001" summary="connected to database">
       <option name="closed" value="true" />

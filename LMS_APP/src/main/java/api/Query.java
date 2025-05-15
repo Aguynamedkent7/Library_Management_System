@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class Query {
     public static void main(String[] args) {
-       String url = System.getenv("LMS_DB_URL");//TO FIX
+       String url = System.getenv("LMS_DB_URL"); //TO FIX
 
        try {
            Connection conn = DriverManager.getConnection(url);
@@ -23,7 +23,6 @@ public class Query {
        } catch (SQLException e) {
            System.out.println(e.getMessage());
        }
-
     }
 
     // Displays Complete Book Inventory (Copies and All)
