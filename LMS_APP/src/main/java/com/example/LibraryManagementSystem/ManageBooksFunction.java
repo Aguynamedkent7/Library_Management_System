@@ -14,6 +14,7 @@ import models.BorrowedBook;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Graphics2D;
@@ -23,6 +24,7 @@ import java.awt.FlowLayout;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;

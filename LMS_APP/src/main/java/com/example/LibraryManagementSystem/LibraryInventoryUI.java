@@ -1,32 +1,32 @@
 package com.example.LibraryManagementSystem;
 
+import api.Query;
 import models.Book;
+import models.BorrowedBook;
+import com.google.zxing.WriterException;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class LibraryInventoryUI extends JPanel {
+    private LibraryInventoryFunctionality controller = new LibraryInventoryFunctionality(this);
     private JTable inventoryTable;
     private JLabel headerLabel;
     private Font headerFont = new Font("Arial", Font.BOLD, 20);
     private JPanel mainPanel;
     private JScrollPane tableScrollPane;
-    private Connection connection;
-    private final String DB_URL = "jdbc:mysql://localhost:3306/library_management";
-    private final String USER = "root";
-    private final String PASS = "";
+    private JLabel qrCodeLabel; // Added QR code label
 
     public LibraryInventoryUI() {
         initializeUI();
-        loadAllBooks();
     }
 
     private void initializeUI() {
@@ -47,23 +47,82 @@ public class LibraryInventoryUI extends JPanel {
         inventoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Set up the table columns
-        String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Total Copies", "Available Copies"};
+        String[] columnNames = {"Book Copy ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         inventoryTable.setModel(model);
+
+        controller.loadAllBooks();
         
         // Add table to a scroll pane
         tableScrollPane = new JScrollPane(inventoryTable);
         mainPanel.add(tableScrollPane, BorderLayout.CENTER);
         
-        // Control panel at the bottom with buttons
-        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Create a panel for the right side
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 10));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        
+        // QR Code display (top-right)
+        qrCodeLabel = new JLabel();
+        JPanel qrPanel = new JPanel(new BorderLayout());
+        qrPanel.setBorder(BorderFactory.createTitledBorder("Book QR Code"));
+        qrPanel.add(qrCodeLabel, BorderLayout.CENTER);
+        qrPanel.setPreferredSize(new Dimension(300, 300));
+        
+        // Add save QR button inside QR panel
+        JPanel qrButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton saveQRButton = new JButton("Save QR Code");
+        saveQRButton.addActionListener(e -> {
+            if (qrCodeLabel.getIcon() != null) {
+                controller.saveQRCodeToFile(qrCodeLabel, this);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "No QR code to save! Generate a QR code first.", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        qrButtonPanel.add(saveQRButton);
+        qrPanel.add(qrButtonPanel, BorderLayout.SOUTH);
+        
+        rightPanel.add(qrPanel, BorderLayout.NORTH);
+        
+        // Control panel for the bottom-right section
+        JPanel controlPanel = new JPanel();
+        controlPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder("Actions"),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+        controlPanel.setLayout(new GridLayout(3, 1, 0, 10)); // 3 rows, 1 column, 10px vertical gap
+        
+        JButton generateQRButton = new JButton("Generate QR Code");
         JButton refreshButton = new JButton("Refresh");
-        refreshButton.addActionListener(e -> loadAllBooks());
         JButton backButton = new JButton("Back");
         
+        // Add QR code generation action
+        generateQRButton.addActionListener(e -> {
+            int selectedRow = inventoryTable.getSelectedRow();
+            if (selectedRow >= 0) {
+                generateQRCode(selectedRow);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Please select a book to generate QR code!", 
+                    "Selection Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        
+        refreshButton.addActionListener(e -> controller.loadAllBooks());
+        
+        // Add buttons to the control panel
+        controlPanel.add(generateQRButton);
         controlPanel.add(refreshButton);
         controlPanel.add(backButton);
-        mainPanel.add(controlPanel, BorderLayout.SOUTH);
+        
+        // Add control panel to the bottom of the right panel
+        rightPanel.add(controlPanel, BorderLayout.CENTER);
+        
+        // Add right panel to the main panel
+        mainPanel.add(rightPanel, BorderLayout.EAST);
         
         // Add the main panel to this JPanel
         setLayout(new BorderLayout());
@@ -71,155 +130,85 @@ public class LibraryInventoryUI extends JPanel {
     }
     
     /**
-     * Loads all books from the database into the table
+     * Generates a QR code for the selected book
      */
-    public void loadAllBooks() {
+    private void generateQRCode(int selectedRow) {
         DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
-        model.setRowCount(0); // Clear existing data
+        int modelRow = inventoryTable.convertRowIndexToModel(selectedRow);
+        
+        String title = model.getValueAt(modelRow, 1).toString();
+        String author = model.getValueAt(modelRow, 2).toString();
+        String genre = model.getValueAt(modelRow, 3).toString();
+        String publisher = model.getValueAt(modelRow, 4).toString();
+        String date = model.getValueAt(modelRow, 5).toString();
+        
+        String qrContent = controller.formatQRContent(title, author, genre, publisher, date);
         
         try {
-            List<Book> books = fetchAllBooksFromDatabase();
-            for (Book book : books) {
-                Object[] row = {
-                    book.getId(),
-                    book.getTitle(),
-                    book.getAuthor(),
-                    book.getGenre(),
-                    book.getPublisher(),
-                    book.getPublished_Date(),
-                    getTotalCopies(book.getId()),
-                    book.getAvailableCopies()
-                };
-                model.addRow(row);
-            }
-            
-            if (model.getRowCount() > 0) {
-                inventoryTable.setRowSelectionInterval(0, 0); // Select the first row
-            }
-        } catch (SQLException e) {
+            BufferedImage qrImage = controller.generateQRCodeImage(qrContent);
+            displayQRCode(new ImageIcon(qrImage));
+        } catch (WriterException e) {
             JOptionPane.showMessageDialog(this, 
-                "Error loading books: " + e.getMessage(), 
-                "Database Error", 
+                "Failed to generate QR code: " + e.getMessage(), 
+                "QR Generation Error", 
                 JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
         }
     }
     
     /**
-     * Fetches all books from the database
+     * Displays the QR code in the UI
      */
-    private List<Book> fetchAllBooksFromDatabase() throws SQLException {
-        List<Book> books = new ArrayList<>();
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        
-        try {
-            conn = getConnection();
-            String query = "SELECT * FROM books ORDER BY title";
-            stmt = conn.prepareStatement(query);
-            rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                String title = rs.getString("title");
-                String author = rs.getString("author");
-                String genre = rs.getString("genre");
-                String publisher = rs.getString("publisher");
-                String publishedDate = rs.getString("published_date");
-                int availableCopies = rs.getInt("available_copies");
-                
-                Book book = new Book(id, title, author, genre, publisher, publishedDate, availableCopies);
-                books.add(book);
-            }
-        } finally {
-            // Close resources
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
-        }
-        
-        return books;
-    }
-    
-    /**
-     * Gets total copies (both available and currently borrowed) for a book
-     */
-    private int getTotalCopies(int bookId) throws SQLException {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int totalCopies = 0;
-        
-        try {
-            conn = getConnection();
-            // This query assumes you have a 'borrowed_books' table tracking borrowed copies
-            String query = "SELECT COUNT(*) as borrowed FROM borrowed_books WHERE book_id = ?";
-            stmt = conn.prepareStatement(query);
-            stmt.setInt(1, bookId);
-            rs = stmt.executeQuery();
-            
-            int borrowedCopies = 0;
-            if (rs.next()) {
-                borrowedCopies = rs.getInt("borrowed");
-            }
-            
-            // Get available copies
-            rs.close();
-            stmt.close();
-            
-            query = "SELECT available_copies FROM books WHERE id = ?";
-            stmt = conn.prepareStatement(query);
-            stmt.setInt(1, bookId);
-            rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                int availableCopies = rs.getInt("available_copies");
-                totalCopies = availableCopies + borrowedCopies;
-            }
-        } finally {
-            // Close resources
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
-        }
-        
-        return totalCopies;
-    }
-    
-    /**
-     * Gets a database connection
-     */
-    private Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(DB_URL, USER, PASS);
-        }
-        return connection;
+    public void displayQRCode(ImageIcon qrImage) {
+        qrCodeLabel.setIcon(qrImage);
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
     
     /**
      * Updates the back button's action
      */
     public void setBackButtonAction(java.awt.event.ActionListener action) {
-        JPanel controlPanel = (JPanel) mainPanel.getComponent(2); // The control panel is the third component
-        for (Component component : controlPanel.getComponents()) {
-            if (component instanceof JButton && ((JButton) component).getText().equals("Back")) {
-                JButton backButton = (JButton) component;
-                // Remove existing action listeners
-                for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
-                    backButton.removeActionListener(al);
-                }
-                backButton.addActionListener(action);
-                break;
-            }
+        JPanel rightPanel = (JPanel) mainPanel.getComponent(2); // Get the right panel
+        JPanel controlPanel = (JPanel) rightPanel.getComponent(1); // Get the control panel with buttons
+        
+        // The third component (index 2) in the control panel is the Back button
+        JButton backButton = (JButton) controlPanel.getComponent(2);
+        
+        // Remove existing action listeners
+        for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
+            backButton.removeActionListener(al);
         }
+        backButton.addActionListener(action);
     }
-    
+
     /**
      * Returns the main panel
      */
     public JPanel getMainPanel() {
         return mainPanel;
+    }
+    
+    /**
+     * Add a book row to the table (required by functionality class)
+     */
+    public void addBookToTable(Object[] rowData) {
+        DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
+        model.addRow(rowData);
+    }
+    
+    /**
+     * Clear the table (required by functionality class)
+     */
+    public void clearTable() {
+        DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
+        model.setRowCount(0);
+    }
+    
+    /**
+     * Show error message (required by functionality class)
+     */
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     /**
@@ -230,7 +219,7 @@ public class LibraryInventoryUI extends JPanel {
             JFrame frame = new JFrame("Library Inventory");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.add(new LibraryInventoryUI());
-            frame.setSize(900, 600);
+            frame.setSize(1920, 1080);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });

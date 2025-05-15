@@ -31,13 +31,14 @@ public class Query {
         ArrayList<Book> BookResults = new ArrayList<>();
         try {
             String query = "SELECT book_copies.copy_id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
-                    "publisher_name, published_date," +
+                    "publisher_name, published_date " +
                     "FROM books " +
                     "LEFT JOIN book_copies ON book_copies.book_id = books.id " +
                     "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
                     "LEFT JOIN genres ON genres_of_book.genre_id = genres.id " +
                     "LEFT JOIN publishers ON books.publisher_id = publishers.id " +
-                    "GROUP BY book_copies.copy_id, title, author, publisher_name, published_date ";
+                    "GROUP BY book_copies.copy_id, title, author, publisher_name, published_date " +
+                    "ORDER BY title";
             PreparedStatement pstmt = Conn.prepareStatement(query);
             ResultSet rs = pstmt.executeQuery();
 
