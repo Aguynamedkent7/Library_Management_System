@@ -99,7 +99,6 @@ public class ManageBooksUI {
         });
         JButton updateButton = new JButton("Update Book");
         JButton deleteButton = new JButton("Delete Book");
-        JButton generateQRButton = new JButton("Generate QR Code");
         JButton addCopies = new JButton("Add Copies");
         JButton removeCopies = new JButton("Remove Copies");
         JButton returnButton = new JButton("Return a Book");
@@ -107,32 +106,21 @@ public class ManageBooksUI {
         JButton viewBorrowersButton = new JButton("View All Borrowers");
         JButton viewAvailableBooksButton = new JButton("View Available Books");
         // Number of rows = number of buttons, 1 column, with spacing
-        leftPanel.setLayout(new GridLayout(11, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
+        leftPanel.setLayout(new GridLayout(8, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
 
 // Add components
         leftPanel.add(addButton);
         leftPanel.add(editButton);
         leftPanel.add(updateButton);
         leftPanel.add(deleteButton);
-        leftPanel.add(generateQRButton);
+
         leftPanel.add(addCopies);
         leftPanel.add(removeCopies);
         leftPanel.add(borrowButton);
-        leftPanel.add(returnButton);
-        leftPanel.add(viewBorrowersButton);
-        leftPanel.add(viewAvailableBooksButton);
 
 
 
-        // Add action listener for the Generate QR Code button
-        generateQRButton.addActionListener(e -> {
-            int selectedRow = bookTable.getSelectedRow();
-            if (selectedRow >= 0) {
-                controller.generateQRCode(selectedRow);
-            } else {
-                showError("Please select a book to generate QR code!");
-            }
-        });
+
         leftPanel.setPreferredSize(new Dimension(150, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         mainPanel.add(leftPanel, BorderLayout.WEST);
