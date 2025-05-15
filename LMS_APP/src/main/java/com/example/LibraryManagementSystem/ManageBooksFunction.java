@@ -14,17 +14,13 @@ import models.BorrowedBook;
 import javax.swing.*;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ManageBooksFunction {
     private ManageBooksUI view;
@@ -365,51 +361,84 @@ public class ManageBooksFunction {
     }
 
     public void borrowBook() {
-        int selectedRow = view.getBookTable().getSelectedRow();
-
+        int selectedRow = view.getSelectedBookRow();
         if (selectedRow == -1) {
             view.showError("Please select a book to borrow");
-        } else {
-            Object[] bookData = view.getBookAtRow(selectedRow);
-            int bookId = Integer.parseInt(bookData[0].toString());
-            JTextField firstNameField = new JTextField(10);
-            JTextField lastNameField = new JTextField(10);
-            JPanel headTextPanel = new JPanel();
-
-            headTextPanel.add(Box.createHorizontalStrut(15));
-
-            JPanel panel = new JPanel();
-            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-            panel.add(new JLabel("Select a book first, then enter credentials below."));
-            panel.add(new JLabel("First Name:"));
-            panel.add(firstNameField);
-            panel.add(Box.createVerticalStrut(15)); // space
-            panel.add(new JLabel("Last Name:"));
-            panel.add(lastNameField);
-
-            int result = JOptionPane.showConfirmDialog(
-                    null,
-                    panel,
-                    "Enter First & Last Name",
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.PLAIN_MESSAGE
-            );
-
-            if (result == JOptionPane.OK_OPTION) {
-                try {
-                    String url = System.getenv("LMS_DB_URL");
-                    Connection conn = DriverManager.getConnection(url);
-                    String firstName = firstNameField.getText();
-                    String lastName = lastNameField.getText();
-                    String threeWeeksFromNow = Date.valueOf(LocalDate.now().plusWeeks(3)).toString();
-                    MutateBooks.BorrowBook(conn, firstName, lastName, bookId, threeWeeksFromNow);
-                    loadAvailableBooks();
-                    view.showMessage("Book borrowed successfully!");
-                } catch (SQLException e) {
-                    view.showError(e.getMessage());
-                }
-            }
+            return;
         }
+        int bookId = view.getSelectedBookID(selectedRow);
+
+        JTextField fnameField = new JTextField(10);
+        JTextField lnameField = new JTextField(10);
+        JButton cancelButton = new JButton("Cancel");
+        JButton okButton = new JButton("Ok");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(okButton);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel label = new JLabel("Select a book, then enter borrower information");
+        panel.add(label);
+
+        // First name panel
+        JPanel firstNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        firstNamePanel.add(new JLabel("First name: "));
+        firstNamePanel.add(fnameField);
+        panel.add(firstNamePanel);
+
+        // Last name panel
+        JPanel lastNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        lastNamePanel.add(new JLabel("Last name: "));
+        lastNamePanel.add(lnameField);
+        panel.add(lastNamePanel);
+
+        panel.add(buttonPanel);
+
+
+        JDialog dialog = new JDialog(view.getFrame(), "Borrow Book", true);
+        dialog.setContentPane(panel);
+        dialog.setSize(350, 150);
+        dialog.setLocationRelativeTo(view.getFrame());
+
+        // return 3 weeks from borrow date
+        String returnDate = Date.valueOf(LocalDate.now().plusWeeks(3)).toString();
+
+        // Cancel button action
+        cancelButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+
+        // Add button action
+        okButton.addActionListener(e -> {
+            if (fnameField.getText().trim().isEmpty() ||
+                    lnameField.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Input fields cannot be empty.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            dialog.dispose();
+            // Process the valid input
+            try {
+                String firstName = fnameField.getText().trim();
+                String lastName = lnameField.getText().trim();
+                String url = System.getenv("LMS_DB_URL");
+                Connection conn = DriverManager.getConnection(url);
+                MutateBooks.BorrowBook(conn, firstName, lastName, bookId, returnDate);
+                conn.close();
+                view.showMessage("Book borrowed successfully!");
+                loadAvailableBooks();
+            } catch (SQLException ex) {
+                view.showError(ex.getMessage());
+                System.out.println(ex.getMessage());
+            }
+        });
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
     }
     
     /**
