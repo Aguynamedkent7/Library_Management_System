@@ -3,6 +3,7 @@ package api;
 import models.Account;
 import models.Book;
 import models.BorrowedBook;
+import org.bridj.cpp.mfc.CString;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -201,4 +202,50 @@ public class Query {
         return borrowedBooks;
     }
 
+    public static String QueryBorrowerName(Connection conn, int bookCopyID) throws SQLException {
+        try {
+            String query = "SELECT borrower_fname, borrower_lname FROM borrowed_books WHERE book_copy_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, bookCopyID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                String first_name = rs.getString("borrower_fname");
+                String last_name = rs.getString("borrower_lname");
+                return first_name + " " + last_name;
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
+
+    public static ArrayList<String> QueryBookDetailsByCopyID(Connection conn, int bookCopyID) throws SQLException {
+        ArrayList<String> bookDetails = new ArrayList<>();
+        try {
+            String query = "SELECT title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres " +
+                    "FROM books " +
+                    "INNER JOIN book_copies ON book_copies.book_id = books.id " +
+                    "INNER JOIN genres_of_book ON books.id = genres_of_book.book_id " +
+                    "INNER JOIN genres ON genres_of_book.genre_id = genres.id " +
+                    "WHERE book_copies.copy_id = ? " +
+                    "GROUP BY title, author";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, bookCopyID);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String genres = rs.getString("genres");
+                bookDetails.add(title);
+                bookDetails.add(author);
+                bookDetails.add(genres);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+        return bookDetails;
+    }
 }

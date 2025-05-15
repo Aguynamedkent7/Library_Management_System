@@ -49,6 +49,7 @@ public class QRContentWindow {
         contentArea.setLineWrap(true);
         contentArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
         contentArea.setMargin(new Insets(10, 10, 10, 10));
+        contentArea.setFocusable(false);
         
         JScrollPane scrollPane = new JScrollPane(contentArea);
         window.add(scrollPane, BorderLayout.CENTER);

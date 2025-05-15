@@ -92,7 +92,7 @@ public class QRScannerView {
         startButton.addActionListener(e -> startScanning());
         stopButton.addActionListener(e -> stopScanning());
         clearButton.addActionListener(e -> resultTextArea.setText(""));
-        
+
         // Set up QR service event handlers
         setupQRServiceHandlers();
         
@@ -317,6 +317,13 @@ public class QRScannerView {
         if (!qrService.isScanning()) return;
         
         qrService.stopScanning();
+    }
+
+    public void closeWebcam() {
+        Webcam currentWebcam = QRCodeService.getWebcam();
+        if (currentWebcam.isOpen()) {
+            QRCodeService.getWebcam().close();
+        }
     }
     
     /**

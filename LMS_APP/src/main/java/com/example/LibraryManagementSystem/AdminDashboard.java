@@ -19,11 +19,16 @@ public class AdminDashboard extends JFrame {
     private static final String MANAGE_BOOKS_PANEL = "ManageBooks";
     private static final String BORROWED_BOOKS_PANEL = "BorrowedBooks";
     private static final String LIBRARY_INVENTORY_PANEL = "LibraryInventory";
+    private static final String SCAN_QR_RETURN_BOOK_PANEL = "ScanQrReturnBook";
     
     // UI component references
     private ManageBooksUI manageBooksUI;
     private LibraryInventoryUI libraryInventoryUI;
     private BorrowedBooksUI borrowedBooksUI;
+
+    // Scanner component reference
+    private ScanQrReturnBookFunction scanQrReturnBookFunction;
+
 
     public AdminDashboard() {
         setTitle("Library Management System");
@@ -97,6 +102,8 @@ public class AdminDashboard extends JFrame {
         libraryInventoryUI.setBackButtonAction(e -> showDashboardPanel());
         JPanel libraryInventoryPanel = libraryInventoryUI.getMainPanel();
         contentPanel.add(libraryInventoryPanel, LIBRARY_INVENTORY_PANEL);
+
+        scanQrReturnBookFunction = new ScanQrReturnBookFunction();
     }
     
     private JPanel createBorrowedBooksPanel(BorrowedBooksUI borrowedBooksUI) {
@@ -236,6 +243,13 @@ public class AdminDashboard extends JFrame {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent e) {
                         showLibraryInventoryPanel();
+                    }
+                });
+            } else if (label.equals("Scan to return a book")) {
+                card.addMouseListener(new java.awt.event.MouseAdapter() {
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        scanQrReturnBookFunction.initializeQRScanner();
                     }
                 });
             }

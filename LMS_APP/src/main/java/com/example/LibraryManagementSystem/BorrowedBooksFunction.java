@@ -46,19 +46,6 @@ public class BorrowedBooksFunction {
             view.showError("Error loading borrowed books: " + e.getMessage());
         }
     }
-    
-    public void returnBook(int bookCopyID) {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            api.MutateBooks.ReturnBook(conn, bookCopyID);
-            JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            loadBorrowedBooks(); // Refresh the table
-            conn.close();
-        } catch (SQLException e) {
-            view.showError("Error returning book: " + e.getMessage());
-        }
-    }
 
     private void returnBookByBookCopyID(int bookCopyID) {
         try {

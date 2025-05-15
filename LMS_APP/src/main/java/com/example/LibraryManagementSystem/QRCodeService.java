@@ -63,7 +63,11 @@ public class QRCodeService {
     public static void setDefaultWebcam(Webcam webcam) {
         defaultWebcam = webcam;
     }
-    
+
+    public static Webcam getWebcam() {
+        return defaultWebcam;
+    }
+
     /**
      * Check if a default webcam is set
      * @return true if a default webcam is set

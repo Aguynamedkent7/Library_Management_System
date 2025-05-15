@@ -39,7 +39,9 @@ public class LibraryInventoryFunctionality {
         }
 
         Object[] bookData = view.getBookAtRow(selectedRow);
-        String qrContent = formatQRContent(bookData[0].toString(),
+        String borrowerName = getBorrowerName(Integer.parseInt(bookData[0].toString()));
+
+        String qrContent = formatQRContent(borrowerName, bookData[0].toString(),
                 bookData[1].toString(), bookData[2].toString(),
                 bookData[3].toString(), bookData[4].toString(),
                 bookData[5].toString());
@@ -56,7 +58,7 @@ public class LibraryInventoryFunctionality {
     /**
      * Formats the QR content in a standardized format
      */
-    private String formatQRContent(String book_copy_id, String title, String author, String genre, String publisher, String date) {
+    private String formatQRContent(String borrowerName, String book_copy_id, String title, String author, String genre, String publisher, String date) {
         StringBuilder content = new StringBuilder();
         content.append("=== Book Information ===\n\n");
         content.append("Book Copy ID: ").append(book_copy_id).append("\n");
@@ -65,9 +67,20 @@ public class LibraryInventoryFunctionality {
         if (!genre.isEmpty()) content.append("Genre: ").append(genre).append("\n");
         if (!publisher.isEmpty()) content.append("Publisher: ").append(publisher).append("\n");
         if (!date.isEmpty()) content.append("Date Published: ").append(date).append("\n");
+        if (!borrowerName.isEmpty()) content.append("Borrower Name: ").append(borrowerName).append("\n");
         return content.toString();
     }
 
+    public String getBorrowerName(int book_copy_id) {
+        try {
+            String url = System.getenv("LMS_DB_URL");
+            Connection conn = DriverManager.getConnection(url);
+            return Query.QueryBorrowerName(conn, book_copy_id);
+        } catch (SQLException e) {
+            view.showError("Error getting borrower name: " + e.getMessage());
+            return null;
+        }
+    }
     /**
      * Generates QR code image from text content
      */
@@ -188,6 +201,7 @@ public class LibraryInventoryFunctionality {
                 try {
                     // Reuse existing QR content generation
                     String qrContent = formatQRContent(
+                            "",
                             String.valueOf(book.getId()),
                             book.getTitle(),
                             book.getAuthor(),

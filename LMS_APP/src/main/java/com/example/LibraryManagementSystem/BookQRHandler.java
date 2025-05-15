@@ -1,6 +1,7 @@
 package com.example.LibraryManagementSystem;
 
 import javax.swing.*;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,16 +10,10 @@ import java.util.regex.Pattern;
  * Extracts and processes book information from QR code content.
  */
 public class BookQRHandler {
-    private final ManageBooksFunction booksFunction;
-    private final Pattern titlePattern = Pattern.compile("Title: (.+)");
-    
-    /**
-     * Create a new book QR handler
-     * 
-     * @param booksFunction The book management function to process book returns
-     */
-    public BookQRHandler(ManageBooksFunction booksFunction) {
-        this.booksFunction = booksFunction;
+    private final ScanQrReturnBookFunction scanQrReturnBookFunction;
+
+    public BookQRHandler(ScanQrReturnBookFunction scanQrReturnBookFunction) {
+        this.scanQrReturnBookFunction = scanQrReturnBookFunction;
     }
     
     /**
@@ -34,49 +29,29 @@ public class BookQRHandler {
         }
         
         try {
-            // Extract the book title from the QR code
-            Matcher matcher = titlePattern.matcher(qrContent);
+            // Extract the book copy ID from the QR code
+            Pattern copyIDPattern = Pattern.compile("Book Copy ID: (\\d+)");
+            Matcher matcher = copyIDPattern.matcher(qrContent);
             if (matcher.find()) {
-                final String title = matcher.group(1);
-                
-                // Process the book return
-                SwingUtilities.invokeLater(() -> {
-                    // First try to find and select the book in the table
-                    findAndSelectBook(title);
-                    
-                    // Then process the return
-                    booksFunction.processBookReturn(title);
-                });
-                
-                return true;
+                try {
+                    final int bookCopyID = Integer.parseInt(matcher.group(1));
+                    scanQrReturnBookFunction.returnBookByScan(bookCopyID);
+                    JOptionPane.showMessageDialog(null,
+                            "Book returned successfully!", "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                } catch (NumberFormatException | SQLException e) {
+                    JOptionPane.showMessageDialog(null,
+                            "Failed to return book: " + e.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "Error processing book QR Code: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-            
-            // Show error in the view
-            SwingUtilities.invokeLater(() -> 
-                booksFunction.getView().showError("Error processing book QR code: " + e.getMessage()));
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Find a book in the table by title and select it
-     * 
-     * @param title The title of the book to find
-     * @return true if found, false otherwise
-     */
-    private boolean findAndSelectBook(String title) {
-        JTable bookTable = booksFunction.getView().getBookTable();
-        int rowCount = bookTable.getRowCount();
-        
-        for (int i = 0; i < rowCount; i++) {
-            String bookTitle = (String) bookTable.getValueAt(i, 0);
-            if (title.equals(bookTitle)) {
-                booksFunction.selectBookInTable(i);
-                return true;
-            }
+
         }
         
         return false;

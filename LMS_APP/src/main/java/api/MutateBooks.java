@@ -279,8 +279,16 @@ public class MutateBooks {
         try {
             conn.setAutoCommit(false);
 
-            String query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
+            // if book copy ID doesn't exist in borrowed_books, it is available
+            String query = "SELECT reference_id FROM borrowed_books WHERE book_copy_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_copy_id);
+            ResultSet rs = pstmt.executeQuery();
+            if (!rs.next()) {
+                throw new SQLException("Book copy is not borrowed or does not exist.");
+            }
+
+            query = "UPDATE book_copies SET status = 'AVAILABLE' WHERE copy_id = ?";
             pstmt = conn.prepareStatement(query);
             pstmt.setInt(1, book_copy_id);
             pstmt.executeUpdate();
