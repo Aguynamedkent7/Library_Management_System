@@ -258,10 +258,11 @@ public class ManageBooksFunction {
                 // Initialize components in the proper order
                 initializeQRComponents();
             }
-
+            
             // Show the scanner window and start scanning automatically
             qrScanner.show();
             qrScanner.startScanning();
+            
         } catch (Exception e) {
             view.showError("Error initializing QR scanner: " + e.getMessage());
             e.printStackTrace();
@@ -403,7 +404,7 @@ public class ManageBooksFunction {
                     loadAvailableBooks();
                     view.showMessage("Book borrowed successfully!");
                 } catch (SQLException e) {
-                    view.showError("Error connecting to database: " + e.getMessage());
+                    view.showError(e.getMessage());
                 }
             }
         }
@@ -476,5 +477,152 @@ public class ManageBooksFunction {
         dialog.setVisible(true);
     }
 
-}
+    public void addBookCopies() {
+        int selectedRow = view.getSelectedBookRow();
+        if (selectedRow == -1) {
+            view.showError("Please select a book to add copies");
+            return;
+        }
+        int bookId = view.getSelectedBookID(selectedRow);
+        
+        JTextField copiesField = new JTextField(10);
+        JButton cancelButton = new JButton("Cancel");
+        JButton addButton = new JButton("Add Copies");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.add(new JLabel("Number of copies to add:"));
+        inputPanel.add(copiesField);
+        panel.add(inputPanel);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(addButton);
+        panel.add(buttonPanel);
+        
+        JDialog dialog = new JDialog(view.getFrame(), "Add Book Copies", true);
+        dialog.setContentPane(panel);
+        dialog.setSize(350, 150);
+        dialog.setLocationRelativeTo(view.getFrame());
+        
+        // Cancel button action
+        cancelButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+        
+        // Add button action
+        addButton.addActionListener(e -> {
+            if (copiesField.getText().trim().isEmpty() || !copiesField.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a valid number.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            int numberOfCopies = Integer.parseInt(copiesField.getText());
+            if (numberOfCopies <= 0) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a number greater than 0.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            dialog.dispose();
+            // Process the valid input
+            try {
+                String url = System.getenv("LMS_DB_URL");
+                Connection conn = DriverManager.getConnection(url);
+                MutateBooks.addBookCopy(conn, bookId, numberOfCopies);
+                conn.close();
+                view.showMessage("Book copies added successfully!");
+                loadAvailableBooks();
+            } catch (SQLException ex) {
+                view.showError("Error adding book copies: " + ex.getMessage());
+                System.out.println(ex.getMessage());
+            }
+        });
+        
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
 
+    public void removeBookCopies() {
+        int selectedRow = view.getSelectedBookRow();
+        if (selectedRow == -1) {
+            view.showError("Please select a book to remove copies");
+            return;
+        }
+        int bookId = view.getSelectedBookID(selectedRow);
+        int availableCopies = view.getSelectedBookAvailableCopies(selectedRow);
+
+        JTextField copiesField = new JTextField(10);
+        JButton cancelButton = new JButton("Cancel");
+        JButton addButton = new JButton("Remove Copies");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        inputPanel.add(new JLabel("Number of copies to remove: "));
+        inputPanel.add(copiesField);
+        panel.add(inputPanel);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(addButton);
+        panel.add(buttonPanel);
+
+        JDialog dialog = new JDialog(view.getFrame(), "Remove Book Copies", true);
+        dialog.setContentPane(panel);
+        dialog.setSize(350, 150);
+        dialog.setLocationRelativeTo(view.getFrame());
+
+        // Cancel button action
+        cancelButton.addActionListener(e -> {
+            dialog.dispose();
+        });
+
+        // Add button action
+        addButton.addActionListener(e -> {
+            if (copiesField.getText().trim().isEmpty() || !copiesField.getText().matches("\\d+")) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a valid number.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int numberOfCopies = Integer.parseInt(copiesField.getText());
+            if (numberOfCopies <= 0) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Please enter a number greater than 0.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            } else if (numberOfCopies > availableCopies) {
+                JOptionPane.showMessageDialog(dialog,
+                        "Number cannot exceed available copies.",
+                        "Input Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            dialog.dispose();
+            // Process the valid input
+            try {
+                String url = System.getenv("LMS_DB_URL");
+                Connection conn = DriverManager.getConnection(url);
+                MutateBooks.removeBookCopy(conn, bookId, numberOfCopies);
+                conn.close();
+                view.showMessage("Book copies removed successfully!");
+                loadAvailableBooks();
+            } catch (SQLException ex) {
+                view.showError("Error removing book copies: " + ex.getMessage());
+                System.out.println(ex.getMessage());
+            }
+        });
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setVisible(true);
+    }
+}

@@ -305,4 +305,37 @@ public class MutateBooks {
             throw e;
         }
     }
+
+    public static void addBookCopy(Connection conn, int book_id, int numberOfCopies) throws SQLException {
+        try {
+            String query = "INSERT INTO book_copies (book_id, status) VALUES (?, 'AVAILABLE')";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_id);
+
+            for (int i = 0; i < numberOfCopies; i++) {
+                pstmt.executeUpdate();
+            }
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
+
+    public static void removeBookCopy(Connection conn, int book_id, int numberOfCopies) throws SQLException {
+        try {
+            String query = "DELETE FROM book_copies WHERE copy_id IN " +
+                    "(SELECT copy_id FROM book_copies WHERE book_id = ? AND status = 'AVAILABLE' LIMIT ?)";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, book_id);
+            pstmt.setInt(2, numberOfCopies);
+
+            pstmt.executeUpdate();
+
+            pstmt.close();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
+    }
 }

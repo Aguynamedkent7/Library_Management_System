@@ -98,12 +98,21 @@ public class ManageBooksUI {
         JButton updateButton = new JButton("Update Book");
         JButton deleteButton = new JButton("Delete Book");
         JButton generateQRButton = new JButton("Generate QR Code");
+        JButton addCopies = new JButton("Add Copies");
+        JButton removeCopies = new JButton("Remove Copies");
+        // Number of rows = number of buttons, 1 column, with spacing
+        leftPanel.setLayout(new GridLayout(7, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
 
+// Add components
         leftPanel.add(addButton);
         leftPanel.add(editButton);
         leftPanel.add(updateButton);
         leftPanel.add(deleteButton);
         leftPanel.add(generateQRButton);
+        leftPanel.add(addCopies);
+        leftPanel.add(removeCopies);
+
+
 
         // Add action listener for the Generate QR Code button
         generateQRButton.addActionListener(e -> {
@@ -208,7 +217,6 @@ public class ManageBooksUI {
 
         // Add action listeners
         addButton.addActionListener(e -> controller.addBook());
-
         updateButton.addActionListener(e -> controller.updateBook());
         deleteButton.addActionListener(e -> controller.deleteBook());
         returnButton.addActionListener(e -> controller.returnBook());
@@ -229,7 +237,8 @@ public class ManageBooksUI {
             viewAvailableBooks();
             setComponentsEnabled(leftPanel, true);
         });
-
+        addCopies.addActionListener(e -> controller.addBookCopies());
+        removeCopies.addActionListener(e -> controller.removeBookCopies());
 
         frame.add(mainPanel);
     }
@@ -301,6 +310,15 @@ public class ManageBooksUI {
         int modelRow = bookTable.convertRowIndexToModel(selectedRow);
         // Assuming ID is stored in the first column (index 0)
         Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
+        return Integer.parseInt(idValue.toString());
+
+    }
+
+    public int getSelectedBookAvailableCopies(int selectedRow) {
+        // Convert view index to model index in case table is sorted
+        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
+        // Assuming ID is stored in the first column (index 0)
+        Object idValue = bookTable.getModel().getValueAt(modelRow, 6);
         return Integer.parseInt(idValue.toString());
 
     }
