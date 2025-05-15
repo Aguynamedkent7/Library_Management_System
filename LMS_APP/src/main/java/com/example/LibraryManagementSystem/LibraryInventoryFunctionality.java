@@ -30,14 +30,42 @@ public class LibraryInventoryFunctionality {
         this.view = view;
     }
 
+    public void generateQRCode(int selectedRow) {
+        if (selectedRow == -1) {
+            view.showError("Please select a book to generate QR code");
+            return;
+        }
+
+        Object[] bookData = view.getBookAtRow(selectedRow);
+        String qrContent = formatQRContent(bookData[0].toString(),
+                bookData[1].toString(), bookData[2].toString(),
+                bookData[3].toString(), bookData[4].toString(),
+                bookData[5].toString());
+
+        try {
+            BufferedImage qrImage = generateQRCodeImage(qrContent);
+            view.displayQRCode(new ImageIcon(qrImage));
+        } catch (WriterException e) {
+            view.showError("Failed to generate QR code: " + e.getMessage());
+        }
+    }
+
+
     /**
      * Formats the QR content in a standardized format
      */
-    public String formatQRContent(String title, String author, String genre, String publisher, String date) {
-        return String.format("Title: %s\nAuthor: %s\nGenre: %s\nPublisher: %s\nDate Published: %s", 
-                title, author, genre, publisher, date);
+    private String formatQRContent(String book_copy_id, String title, String author, String genre, String publisher, String date) {
+        StringBuilder content = new StringBuilder();
+        content.append("=== Book Information ===\n\n");
+        content.append("Book Copy ID: ").append(book_copy_id).append("\n");
+        content.append("Title: ").append(title).append("\n");
+        content.append("Author: ").append(author).append("\n");
+        if (!genre.isEmpty()) content.append("Genre: ").append(genre).append("\n");
+        if (!publisher.isEmpty()) content.append("Publisher: ").append(publisher).append("\n");
+        if (!date.isEmpty()) content.append("Date Published: ").append(date).append("\n");
+        return content.toString();
     }
-    
+
     /**
      * Generates QR code image from text content
      */
@@ -50,7 +78,7 @@ public class LibraryInventoryFunctionality {
         );
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
-    
+
     /**
      * Saves the generated QR code to a file
      */
@@ -58,39 +86,39 @@ public class LibraryInventoryFunctionality {
         if (qrCodeLabel.getIcon() == null) {
             return;
         }
-        
+
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save QR Code");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PNG Files", "png"));
-        
+
         if (fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             String filePath = file.getAbsolutePath();
             if (!filePath.toLowerCase().endsWith(".png")) {
                 file = new File(filePath + ".png");
             }
-            
+
             try {
                 // Convert Icon to BufferedImage
                 Image img = ((ImageIcon) qrCodeLabel.getIcon()).getImage();
                 BufferedImage bi = new BufferedImage(
-                    img.getWidth(null), 
-                    img.getHeight(null), 
+                    img.getWidth(null),
+                    img.getHeight(null),
                     BufferedImage.TYPE_INT_ARGB);
                 Graphics g = bi.createGraphics();
                 g.drawImage(img, 0, 0, null);
                 g.dispose();
-                
+
                 // Save the image
                 ImageIO.write(bi, "png", file);
-                JOptionPane.showMessageDialog(parent, 
-                    "QR code saved successfully!", 
-                    "Success", 
+                JOptionPane.showMessageDialog(parent,
+                    "QR code saved successfully!",
+                    "Success",
                     JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(parent, 
-                    "Error saving QR code: " + e.getMessage(), 
-                    "Save Error", 
+                JOptionPane.showMessageDialog(parent,
+                    "Error saving QR code: " + e.getMessage(),
+                    "Save Error",
                     JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -125,88 +153,5 @@ public class LibraryInventoryFunctionality {
         } catch (SQLException | NullPointerException e) {
             view.showError("Error loading books: " + e.getMessage());
         }
-    }
-
-    /**
-     * Gets total copies (both available and currently borrowed) for a book
-     */
-    public int getTotalCopies(int bookId) throws SQLException {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        int totalCopies = 0;
-        
-        try {
-            conn = getConnection();
-            // This query assumes you have a 'borrowed_books' table tracking borrowed copies
-            String query = "SELECT COUNT(*) as borrowed FROM borrowed_books WHERE book_id = ?";
-            stmt = conn.prepareStatement(query);
-            stmt.setInt(1, bookId);
-            rs = stmt.executeQuery();
-            
-            int borrowedCopies = 0;
-            if (rs.next()) {
-                borrowedCopies = rs.getInt("borrowed");
-            }
-            
-            // Get available copies
-            rs.close();
-            stmt.close();
-            
-            query = "SELECT available_copies FROM books WHERE id = ?";
-            stmt = conn.prepareStatement(query);
-            stmt.setInt(1, bookId);
-            rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                int availableCopies = rs.getInt("available_copies");
-                totalCopies = availableCopies + borrowedCopies;
-            }
-        } finally {
-            // Close resources
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
-        }
-        
-        return totalCopies;
-    }
-    
-    /**
-     * Loads all borrowed books from the database
-     */
-    public void loadBorrowedBooks() {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            ArrayList<BorrowedBook> borrowedBooks = Query.QueryAllBookBorrowers(conn);
-
-            view.clearTable();
-
-            for (BorrowedBook book : borrowedBooks) {
-                Object[] rowData = {
-                        book.getReferenceID(),
-                        book.getFirstName(),
-                        book.getLastName(),
-                        book.getBookTitle(),
-                        book.getBookAuthor(),
-                        book.getBorrowDate(),
-                        book.getReturnDate()
-                };
-                view.addBookToTable(rowData);
-            }
-
-            conn.close();
-        } catch (SQLException | NullPointerException e) {
-            view.showError("Error loading books: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Establishes a connection to the database
-     */
-    private Connection getConnection() throws SQLException {
-        String url = System.getenv("LMS_DB_URL");
-        return DriverManager.getConnection(url);
     }
 }

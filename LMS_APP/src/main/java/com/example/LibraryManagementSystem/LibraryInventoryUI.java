@@ -46,7 +46,7 @@ public class LibraryInventoryUI extends JPanel {
         inventoryTable.setDragEnabled(false); // Prevent row reordering
         inventoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
-        // Set up the table columns
+        // Set up the table columns - FIXED: Added "Available Copies" column to match data
         String[] columnNames = {"Book Copy ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         inventoryTable.setModel(model);
@@ -102,7 +102,7 @@ public class LibraryInventoryUI extends JPanel {
         generateQRButton.addActionListener(e -> {
             int selectedRow = inventoryTable.getSelectedRow();
             if (selectedRow >= 0) {
-                generateQRCode(selectedRow);
+                controller.generateQRCode(selectedRow);
             } else {
                 JOptionPane.showMessageDialog(this, 
                     "Please select a book to generate QR code!", 
@@ -132,27 +132,17 @@ public class LibraryInventoryUI extends JPanel {
     /**
      * Generates a QR code for the selected book
      */
-    private void generateQRCode(int selectedRow) {
+
+    public Object[] getBookAtRow(int row) {
         DefaultTableModel model = (DefaultTableModel) inventoryTable.getModel();
-        int modelRow = inventoryTable.convertRowIndexToModel(selectedRow);
+        Object[] bookData = new Object[6];
         
-        String title = model.getValueAt(modelRow, 1).toString();
-        String author = model.getValueAt(modelRow, 2).toString();
-        String genre = model.getValueAt(modelRow, 3).toString();
-        String publisher = model.getValueAt(modelRow, 4).toString();
-        String date = model.getValueAt(modelRow, 5).toString();
-        
-        String qrContent = controller.formatQRContent(title, author, genre, publisher, date);
-        
-        try {
-            BufferedImage qrImage = controller.generateQRCodeImage(qrContent);
-            displayQRCode(new ImageIcon(qrImage));
-        } catch (WriterException e) {
-            JOptionPane.showMessageDialog(this, 
-                "Failed to generate QR code: " + e.getMessage(), 
-                "QR Generation Error", 
-                JOptionPane.ERROR_MESSAGE);
+        // FIXED: Get the actual column count from the model instead of hardcoding
+        int columnCount = model.getColumnCount();
+        for (int i = 0; i < columnCount && i < bookData.length; i++) {
+            bookData[i] = model.getValueAt(row, i);
         }
+        return bookData;
     }
     
     /**
