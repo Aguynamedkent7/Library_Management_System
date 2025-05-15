@@ -205,7 +205,6 @@ public class ManageBooksFunction {
                 referenceId -> {
                     returnBookByRefID(Integer.parseInt(referenceId));
                 });
-        view.viewAllBorrowers();
     }
 
     private void returnBookByRefID(int referenceID) {
@@ -372,23 +371,25 @@ public class ManageBooksFunction {
         JTextField lnameField = new JTextField(10);
         JButton cancelButton = new JButton("Cancel");
         JButton okButton = new JButton("Ok");
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonPanel.add(cancelButton);
         buttonPanel.add(okButton);
 
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel label = new JLabel("Select a book, then enter borrower information");
-        panel.add(label);
+        labelPanel.add(label);
+        panel.add(labelPanel);
 
         // First name panel
-        JPanel firstNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel firstNamePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         firstNamePanel.add(new JLabel("First name: "));
         firstNamePanel.add(fnameField);
         panel.add(firstNamePanel);
 
         // Last name panel
-        JPanel lastNamePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel lastNamePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         lastNamePanel.add(new JLabel("Last name: "));
         lastNamePanel.add(lnameField);
         panel.add(lastNamePanel);
@@ -398,7 +399,7 @@ public class ManageBooksFunction {
 
         JDialog dialog = new JDialog(view.getFrame(), "Borrow Book", true);
         dialog.setContentPane(panel);
-        dialog.setSize(350, 150);
+        dialog.setSize(300, 200);
         dialog.setLocationRelativeTo(view.getFrame());
 
         // return 3 weeks from borrow date
