@@ -237,4 +237,8 @@ public class LibraryInventoryUI extends JPanel {
             frame.setVisible(true);
         });
     }
+
+    public LibraryInventoryFunction getController() {
+        return controller;
+    }
 }

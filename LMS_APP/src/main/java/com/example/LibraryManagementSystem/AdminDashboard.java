@@ -281,6 +281,7 @@ private void addBackButtonToManageBooks(JPanel manageBooksPanel) {
     public void showLibraryInventoryPanel() {
         setTitle("Library Management System - Library Inventory");
         cardLayout.show(contentPanel, LIBRARY_INVENTORY_PANEL);
+        libraryInventoryUI.getController().loadAllBooks();
     }
     
     public static void main(String[] args) {

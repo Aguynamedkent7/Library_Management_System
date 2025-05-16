@@ -20,7 +20,6 @@ public class ManageBooksUI {
     private JList<JCheckBox> genreList;
     private JScrollPane genreScrollPane;
     private JTextField publisherField;
-    private JLabel qrCodeLabel;
     private ManageBooksFunction controller = new ManageBooksFunction(this);
     private JDateChooser datePublishedChooser;
     private JPanel centerPanel;
@@ -350,11 +349,6 @@ public class ManageBooksUI {
         bookTable.setRowSelectionInterval(0, 0);
     }
 
-    public void displayQRCode(ImageIcon qrImage) {
-        qrCodeLabel.setIcon(qrImage);
-        frame.revalidate();
-        frame.repaint();
-    }
 
     public void setDatePublished(String dateStr) {
         if (dateStr != null && !dateStr.isEmpty()) {

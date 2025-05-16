@@ -288,12 +288,12 @@ public class ManageBooksFunction {
             return;
         }
         int bookId = view.getSelectedBookID(selectedRow);
-        
+
         JTextField copiesField = new JTextField(10);
         JButton cancelButton = new JButton("Cancel");
         JButton addButton = new JButton("Add Copies");
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         JPanel inputPanel = new JPanel(new FlowLayout());
@@ -303,17 +303,17 @@ public class ManageBooksFunction {
         buttonPanel.add(cancelButton);
         buttonPanel.add(addButton);
         panel.add(buttonPanel);
-        
+
         JDialog dialog = new JDialog(view.getFrame(), "Add Book Copies", true);
         dialog.setContentPane(panel);
         dialog.setSize(350, 150);
         dialog.setLocationRelativeTo(view.getFrame());
-        
+
         // Cancel button action
         cancelButton.addActionListener(e -> {
             dialog.dispose();
         });
-        
+
         // Add button action
         addButton.addActionListener(e -> {
             if (copiesField.getText().trim().isEmpty() || !copiesField.getText().matches("\\d+")) {
@@ -323,7 +323,7 @@ public class ManageBooksFunction {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             int numberOfCopies = Integer.parseInt(copiesField.getText());
             if (numberOfCopies <= 0) {
                 JOptionPane.showMessageDialog(dialog,
@@ -332,7 +332,7 @@ public class ManageBooksFunction {
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             dialog.dispose();
             // Process the valid input
             try {
@@ -347,7 +347,7 @@ public class ManageBooksFunction {
                 System.out.println(ex.getMessage());
             }
         });
-        
+
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
     }
@@ -488,9 +488,6 @@ public class ManageBooksFunction {
             dialog.pack();
             dialog.setLocationRelativeTo(view.getFrame());
             dialog.setVisible(true);
-
-            // Also update the QR code in the main UI
-            view.displayQRCode(new ImageIcon(qrImage));
 
         } catch (WriterException e) {
             view.showError("Failed to generate QR code: " + e.getMessage());

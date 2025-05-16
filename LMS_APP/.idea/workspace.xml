@@ -4,22 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="got rid of accounts ig">
-      <change afterPath="$PROJECT_DIR$/src/main/java/models/BookCopy.java" afterDir="false" />
+    <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="book inventory status; fixed borrowerName null in generateQr">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/api/Query.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/api/Query.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-24.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-27.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-28.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Brave_New_World-25.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Brave_New_World-29.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Brave_New_World-30.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Brave_New_World-31.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Brave_New_World-8.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/The_Fragrant_Flower_Blooms_With_Dignity-21.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../generated_qr_codes/The_Fragrant_Flower_Blooms_With_Dignity-26.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksUI.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -155,7 +145,7 @@
       <workItem from="1747235882373" duration="688000" />
       <workItem from="1747320546775" duration="12465000" />
       <workItem from="1747333147715" duration="7264000" />
-      <workItem from="1747366942312" duration="884000" />
+      <workItem from="1747366942312" duration="2966000" />
     </task>
     <task id="LOCAL-00001" summary="connected to database">
       <option name="closed" value="true" />
@@ -301,7 +291,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747232561468</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="book inventory status; fixed borrowerName null in generateQr">
+      <option name="closed" value="true" />
+      <created>1747368008939</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1747368008939</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -335,7 +333,8 @@
     <MESSAGE value="login from database" />
     <MESSAGE value="generate and save qr" />
     <MESSAGE value="got rid of accounts ig" />
-    <option name="LAST_COMMIT_MESSAGE" value="got rid of accounts ig" />
+    <MESSAGE value="book inventory status; fixed borrowerName null in generateQr" />
+    <option name="LAST_COMMIT_MESSAGE" value="book inventory status; fixed borrowerName null in generateQr" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
