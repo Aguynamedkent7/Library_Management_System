@@ -5,18 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ce59e406-1209-4e71-beed-54f6f77144cf" name="Changes" comment="got rid of accounts ig">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ScanQrReturnBookFunction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/models/BookCopy.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/api/MutateBooks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/api/MutateBooks.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/api/Query.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/api/Query.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/AdminDashboard.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BookQRHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BookQRHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/BorrowedBooksFunction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunctionality.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunctionality.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/ManageBooksFunction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRCodeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRCodeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRContentWindow.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRContentWindow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRScannerView.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/QRScannerView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/LibraryManagementSystem/LibraryInventoryUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-24.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-27.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../generated_qr_codes/Blue_Box-28.png" beforeDir="false" />
@@ -161,7 +154,8 @@
       <workItem from="1747188971682" duration="9800000" />
       <workItem from="1747235882373" duration="688000" />
       <workItem from="1747320546775" duration="12465000" />
-      <workItem from="1747333147715" duration="7113000" />
+      <workItem from="1747333147715" duration="7264000" />
+      <workItem from="1747366942312" duration="884000" />
     </task>
     <task id="LOCAL-00001" summary="connected to database">
       <option name="closed" value="true" />

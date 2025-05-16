@@ -39,7 +39,7 @@ public class LibraryInventoryUI extends JPanel {
         inventoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Set up the table columns - FIXED: Added "Available Copies" column to match data
-        String[] columnNames = {"Book Copy ID", "Title", "Author", "Genre", "Publisher", "Date Published"};
+        String[] columnNames = {"Book Copy ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Status"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         inventoryTable.setModel(model);
 

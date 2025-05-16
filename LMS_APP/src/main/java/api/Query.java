@@ -2,6 +2,7 @@ package api;
 
 import models.Account;
 import models.Book;
+import models.BookCopy;
 import models.BorrowedBook;
 import java.sql.*;
 import java.util.ArrayList;
@@ -23,11 +24,11 @@ public class Query {
     }
 
     // Displays Complete Book Inventory (Copies and All)
-    public static ArrayList<Book> BookInventory(Connection Conn) {
-        ArrayList<Book> BookResults = new ArrayList<>();
+    public static ArrayList<BookCopy> BookInventory(Connection Conn) {
+        ArrayList<BookCopy> BookResults = new ArrayList<>();
         try {
             String query = "SELECT book_copies.copy_id, title, author, string_agg(DISTINCT genres.genre_name, ', ') AS genres, " +
-                    "publisher_name, published_date " +
+                    "publisher_name, published_date, status " +
                     "FROM books " +
                     "LEFT JOIN book_copies ON book_copies.book_id = books.id " +
                     "LEFT JOIN genres_of_book ON books.id = genres_of_book.book_id " +
@@ -39,14 +40,14 @@ public class Query {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
-                Book book = new Book(
+                BookCopy book = new BookCopy(
                         rs.getInt("copy_id"),
                         rs.getString("title"),
                         rs.getString("author"),
                         rs.getString("genres"),
                         rs.getString("publisher_name"),
                         rs.getString("published_date"),
-                        1
+                        rs.getString("status")
                 );
                 BookResults.add(book);
             }

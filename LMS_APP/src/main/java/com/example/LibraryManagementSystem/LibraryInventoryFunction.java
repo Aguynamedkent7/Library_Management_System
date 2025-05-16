@@ -7,6 +7,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import models.BookCopy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,6 +37,10 @@ public class LibraryInventoryFunction {
 
         Object[] bookData = view.getBookAtRow(selectedRow);
         String borrowerName = getBorrowerName(Integer.parseInt(bookData[0].toString()));
+
+        if (borrowerName == null) {
+            borrowerName = "";
+        }
 
         String qrContent = formatQRContent(borrowerName, bookData[0].toString(),
                 bookData[1].toString(), bookData[2].toString(),
@@ -142,20 +147,20 @@ public class LibraryInventoryFunction {
         try {
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            ArrayList<Book> books = Query.BookInventory(conn);
+            ArrayList<BookCopy> books = Query.BookInventory(conn);
 
             view.clearTable();
 
             assert books != null;
-            for (Book book : books) {
+            for (BookCopy book : books) {
                 Object[] rowData = {
-                        book.getId(),
+                        book.getCopyID(),
                         book.getTitle(),
                         book.getAuthor(),
                         book.getGenre(),
                         book.getPublisher(),
-                        book.getPublished_Date(),
-                        book.getAvailableCopies()
+                        book.getDatePublished(),
+                        book.getStatus()
                 };
                 view.addBookToTable(rowData);
             }
@@ -181,7 +186,7 @@ public class LibraryInventoryFunction {
             // Get database connection
             String url = System.getenv("LMS_DB_URL");
             Connection conn = DriverManager.getConnection(url);
-            ArrayList<Book> books = Query.BookInventory(conn);
+            ArrayList<BookCopy> books = Query.BookInventory(conn);
             conn.close();
 
             if (books == null || books.isEmpty()) {
@@ -193,22 +198,22 @@ public class LibraryInventoryFunction {
             int errorCount = 0;
 
             // Process each book
-            for (Book book : books) {
+            for (BookCopy book : books) {
                 try {
                     // Reuse existing QR content generation
                     String qrContent = formatQRContent(
                             "",
-                            String.valueOf(book.getId()),
+                            String.valueOf(book.getCopyID()),
                             book.getTitle(),
                             book.getAuthor(),
                             book.getGenre(),
                             book.getPublisher(),
-                            book.getPublished_Date()
+                            book.getDatePublished()
                     );
 
                     // Generate filename
                     String fileName = sanitizeFilename(book.getTitle())
-                            + "-" + book.getId() + ".png";
+                            + "-" + book.getCopyID() + ".png";
 
                     // Reuse existing QR image generation
                     BufferedImage qrImage = generateQRCodeImage(qrContent);
@@ -221,7 +226,7 @@ public class LibraryInventoryFunction {
                 } catch (Exception e) {
                     errorCount++;
                     System.err.println("Failed to generate QR for book ID "
-                            + book.getId() + ": " + e.getMessage());
+                            + book.getCopyID() + ": " + e.getMessage());
                 }
             }
 
