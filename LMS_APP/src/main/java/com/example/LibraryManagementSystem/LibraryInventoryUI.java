@@ -185,7 +185,7 @@ public class LibraryInventoryUI extends JPanel {
         JPanel controlPanel = (JPanel) rightPanel.getComponent(1); // Get the control panel with buttons
         
         // The third component (index 2) in the control panel is the Back button
-        JButton backButton = (JButton) controlPanel.getComponent(2);
+        JButton backButton = (JButton) controlPanel.getComponent(3);
         
         // Remove existing action listeners
         for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
