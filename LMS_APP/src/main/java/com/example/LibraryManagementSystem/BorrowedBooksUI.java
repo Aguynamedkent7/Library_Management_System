@@ -26,9 +26,6 @@ public class BorrowedBooksUI {
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         bookTable.setModel(model);
         
-        // Hide the Book Copy ID column
-        bookTable.getColumnModel().removeColumn(bookTable.getColumnModel().getColumn(3));
-        
         // Update header
         headerLabel.setText("All Borrowers");
         
@@ -60,34 +57,12 @@ public class BorrowedBooksUI {
         JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
-    public JTable getBookTable() {
-        return bookTable;
-    }
-
-    public int getSelectedBookID(int selectedRow) {
-        // Convert view index to model index in case table is sorted
-        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
-        // Assuming ID is stored in the first column (index 0)
-        Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
-        return Integer.parseInt(idValue.toString());
-
-    }
-
     public int getSelectedRowBookCopyID(int selectedRow) {
         // Convert view index to model index in case table is sorted
         int modelRow = bookTable.convertRowIndexToModel(selectedRow);
         // Assuming ID is stored in the first column (index 0)
         Object idValue = bookTable.getModel().getValueAt(modelRow, 3);
         return Integer.parseInt(idValue.toString());
-    }
-
-    public int getSelectedBookAvailableCopies(int selectedRow) {
-        // Convert view index to model index in case table is sorted
-        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
-        // Assuming ID is stored in the first column (index 0)
-        Object idValue = bookTable.getModel().getValueAt(modelRow, 6);
-        return Integer.parseInt(idValue.toString());
-
     }
 
     public int getSelectedBookRow() {

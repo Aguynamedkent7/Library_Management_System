@@ -6,14 +6,14 @@ import java.awt.*;
 
 
 public class LibraryInventoryUI extends JPanel {
-    private LibraryInventoryFunctionality controller = new LibraryInventoryFunctionality(this);
+    private LibraryInventoryFunction controller = new LibraryInventoryFunction(this);
     private JTable inventoryTable;
     private JLabel headerLabel;
     private Font headerFont = new Font("Arial", Font.BOLD, 20);
     private JPanel mainPanel;
     private JScrollPane tableScrollPane;
     private JLabel qrCodeLabel; // Added QR code label
-    private LibraryInventoryFunctionality functionality;
+    private LibraryInventoryFunction functionality;
 
     public LibraryInventoryUI() {
         initializeUI();
@@ -21,7 +21,7 @@ public class LibraryInventoryUI extends JPanel {
 
     private void initializeUI() {
 
-        functionality = new LibraryInventoryFunctionality(this);
+        functionality = new LibraryInventoryFunction(this);
         // Set up the main panel with BorderLayout
         mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

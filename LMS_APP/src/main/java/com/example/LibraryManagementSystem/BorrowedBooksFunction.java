@@ -47,17 +47,6 @@ public class BorrowedBooksFunction {
         }
     }
 
-    private void returnBookByBookCopyID(int bookCopyID) {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            MutateBooks.ReturnBook(conn, bookCopyID);
-            JOptionPane.showMessageDialog(null, "Book returned successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (SQLException e) {
-            view.showError(e.getMessage());
-        }
-    }
-
     public void showReturnDialog() {
         // Main panel and layout setup
         JPanel mainPanel = new JPanel();

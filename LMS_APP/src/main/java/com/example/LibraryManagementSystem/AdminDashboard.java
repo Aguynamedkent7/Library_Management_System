@@ -129,35 +129,7 @@ public class AdminDashboard extends JFrame {
         
         return mainPanel;
     }
-    
-    private JPanel getLibraryInventoryUIPanel() {
-        return libraryInventoryUI.getMainPanel();
-    }
-    
-    private void modifyBackButton(Container container) {
-        Component[] components = container.getComponents();
-        
-        for (Component component : components) {
-            if (component instanceof JButton && 
-                (((JButton) component).getText().equals("Back") ||
-                 ((JButton) component).getText().equals("Back to Dashboard"))) {
-                JButton backButton = (JButton) component;
-                
-                // Remove existing action listeners
-                for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
-                    backButton.removeActionListener(al);
-                }
-                
-                // Add new action listener to show dashboard
-                backButton.setText("Back to Dashboard");
-                backButton.addActionListener(e -> showDashboardPanel());
-                return;
-            } else if (component instanceof Container) {
-                // Recursively search in this container
-                modifyBackButton((Container) component);
-            }
-        }
-    }
+
 private void addBackButtonToManageBooks(JPanel manageBooksPanel) {
     // The structure from ManageBooksUI
     JPanel bottomPanel = (JPanel) manageBooksPanel.getComponent(3); // Bottom panel is still at index 3

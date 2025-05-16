@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Query {
     public static void main(String[] args) {
-       String url = System.getenv("LMS_DB_URL"); //TO FIX
+       String url = System.getenv("LMS_DB_URL");
 
        try {
            Connection conn = DriverManager.getConnection(url);

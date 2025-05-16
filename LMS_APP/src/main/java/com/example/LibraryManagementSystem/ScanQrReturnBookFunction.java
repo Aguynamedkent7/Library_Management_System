@@ -52,21 +52,6 @@ public class ScanQrReturnBookFunction {
         }
     }
 
-    private void cleanupQRComponents() {
-        if (qrScanner != null) {
-            qrScanner.dispose();
-            qrScanner = null;
-        }
-
-        if (qrService != null) {
-            qrService.dispose();
-            qrService = null;
-        }
-
-        // No need to dispose bookQRHandler as it has no resources
-        bookQRHandler = null;
-    }
-
     public void returnBookByScan(int bookCopyID) throws SQLException {
         try {
             String url = System.getenv("LMS_DB_URL");

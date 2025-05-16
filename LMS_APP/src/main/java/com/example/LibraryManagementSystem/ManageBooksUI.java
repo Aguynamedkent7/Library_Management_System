@@ -202,15 +202,6 @@ public class ManageBooksUI {
         return (JPanel) frame.getContentPane().getComponent(0);
     }
 
-    // Rest of the methods remain unchanged...
-    public void setController(ManageBooksFunction controller) {
-        this.controller = controller;
-    }
-
-    public void show() {
-        frame.setVisible(true);
-    }
-
     public void viewAvailableBooks() {
         String[] columnNames = {"ID", "Title", "Author", "Genre", "Publisher", "Date Published", "Available Copies"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
@@ -363,10 +354,6 @@ public class ManageBooksUI {
         qrCodeLabel.setIcon(qrImage);
         frame.revalidate();
         frame.repaint();
-    }
-
-    public JLabel getQrCodeLabel() {
-        return qrCodeLabel;
     }
 
     public void setDatePublished(String dateStr) {

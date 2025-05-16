@@ -162,42 +162,6 @@ public class ManageBooksFunction {
         }
     }
 
-    public void saveQRCodeToFile() {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Save QR Code");
-        fileChooser.setFileFilter(new FileNameExtensionFilter("PNG Images", "png"));
-
-        if (fileChooser.showSaveDialog(view.getFrame()) == JFileChooser.APPROVE_OPTION) {
-            File file = fileChooser.getSelectedFile();
-            // Add .png extension if not present
-            if (!file.getName().toLowerCase().endsWith(".png")) {
-                file = new File(file.getParentFile(), file.getName() + ".png");
-            }
-
-            try {
-                // Convert ImageIcon to BufferedImage
-                ImageIcon icon = (ImageIcon) view.getQrCodeLabel().getIcon();
-                BufferedImage image = new BufferedImage(
-                        icon.getIconWidth(),
-                        icon.getIconHeight(),
-                        BufferedImage.TYPE_INT_RGB
-                );
-                Graphics2D g2d = image.createGraphics();
-                g2d.drawImage(icon.getImage(), 0, 0, null);
-                g2d.dispose();
-
-                // Save the image
-                ImageIO.write(image, "png", file);
-                JOptionPane.showMessageDialog(view.getFrame(),
-                        "QR Code saved successfully!",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE);
-            } catch (IOException ex) {
-                view.showError("Error saving QR code: " + ex.getMessage());
-            }
-        }
-    }
-
     private String formatQRContent(String borrowerName, String book_copy_id, String title, String author, String genre, String publisher, String date) {
             StringBuilder content = new StringBuilder();
             content.append("=== Book Information ===\n\n");

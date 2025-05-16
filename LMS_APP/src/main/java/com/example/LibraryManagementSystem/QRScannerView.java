@@ -318,13 +318,6 @@ public class QRScannerView {
         
         qrService.stopScanning();
     }
-
-    public void closeWebcam() {
-        Webcam currentWebcam = QRCodeService.getWebcam();
-        if (currentWebcam.isOpen()) {
-            QRCodeService.getWebcam().close();
-        }
-    }
     
     /**
      * Handle detected QR code

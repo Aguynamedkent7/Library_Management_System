@@ -145,19 +145,6 @@ public class QRCodeService {
     }
     
     /**
-     * Backward compatibility method - initializes default webcam
-     */
-    public void initializeWebcam(Runnable onComplete) {
-        List<Webcam> webcams = getAvailableWebcams();
-        if (webcams.isEmpty()) {
-            notifyError(new RuntimeException("No webcams detected"));
-            return;
-        }
-        
-        initializeWebcam(webcams.get(0), onComplete);
-    }
-    
-    /**
      * Start scanning for QR codes
      */
     public void startScanning() {
@@ -251,14 +238,7 @@ public class QRCodeService {
     public boolean isInitializing() {
         return initializing;
     }
-    
-    /**
-     * Get the executor service (may be needed for integration)
-     */
-    public ScheduledExecutorService getExecutor() {
-        return executor;
-    }
-    
+
     /**
      * Clean up resources
      */

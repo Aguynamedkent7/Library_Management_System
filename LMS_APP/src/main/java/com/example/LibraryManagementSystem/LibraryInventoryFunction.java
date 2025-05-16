@@ -19,13 +19,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
-public class LibraryInventoryFunctionality {
+public class LibraryInventoryFunction {
     private LibraryInventoryUI view;
-    private Connection connection;
 
 
 
-    public LibraryInventoryFunctionality(LibraryInventoryUI view) {
+    public LibraryInventoryFunction(LibraryInventoryUI view) {
         this.view = view;
     }
 
