@@ -102,7 +102,7 @@ public class ManageBooksUI {
         JButton removeCopies = new JButton("Remove Copies");
         JButton borrowButton = new JButton("Borrow a Book");
         // Number of rows = number of buttons, 1 column, with spacing
-        leftPanel.setLayout(new GridLayout(8, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
+        leftPanel.setLayout(new GridLayout(7, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
 
 // Add components
         leftPanel.add(addButton);
