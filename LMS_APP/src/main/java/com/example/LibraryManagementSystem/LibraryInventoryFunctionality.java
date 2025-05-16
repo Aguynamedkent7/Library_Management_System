@@ -2,7 +2,6 @@ package com.example.LibraryManagementSystem;
 
 import api.Query;
 import models.Book;
-import models.BorrowedBook;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -16,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;

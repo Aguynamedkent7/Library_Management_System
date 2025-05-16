@@ -7,9 +7,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
-import models.Account;
 import models.Book;
-import models.BorrowedBook;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
@@ -70,34 +68,6 @@ public class ManageBooksFunction {
                         book.getPublisher(),
                         book.getPublished_Date(),
                         book.getAvailableCopies()
-                };
-                view.addBookToTable(rowData);
-            }
-
-            conn.close();
-        } catch (SQLException | NullPointerException e) {
-            view.showError("Error loading books: " + e.getMessage());
-        }
-    }
-
-    public void loadBorrowedBooks() {
-        try {
-            String url = System.getenv("LMS_DB_URL");
-            Connection conn = DriverManager.getConnection(url);
-            ArrayList<BorrowedBook> borrowedBooks = Query.QueryAllBookBorrowers(conn);
-
-            view.clearTable();
-
-            for (BorrowedBook book : borrowedBooks) {
-                Object[] rowData = {
-                        book.getReferenceID(),
-                        book.getFirstName(),
-                        book.getLastName(),
-                        book.getBookCopyID(),
-                        book.getBookTitle(),
-                        book.getBookAuthor(),
-                        book.getBorrowDate(),
-                        book.getReturnDate()
                 };
                 view.addBookToTable(rowData);
             }
@@ -189,38 +159,6 @@ public class ManageBooksFunction {
                 return;
             }
             view.showMessage("Book deleted successfully!");
-        }
-    }
-
-    /**
-     * Open QR code reader to scan and process books
-     * This method replaces both the old scanQR and returnBook functions
-     */
-
-
-
-
-    /**
-     * Select a book in the table by index
-     * This method is called from the BookQRHandler when a book QR is scanned
-     */
-    public void selectBookInTable(int rowIndex) {
-        if (rowIndex >= 0) {
-            view.getBookTable().setRowSelectionInterval(rowIndex, rowIndex);
-            view.getBookTable().scrollRectToVisible(
-                view.getBookTable().getCellRect(rowIndex, 0, true));
-        }
-    }
-
-
-    public void generateQRCode(String[] data) {
-        String qrContent = formatQRContent(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
-
-        try {
-            BufferedImage qrImage = generateQRCodeImage(qrContent);
-            view.displayQRCode(new ImageIcon(qrImage));
-        } catch (WriterException e) {
-            view.showError("Failed to generate QR code: " + e.getMessage());
         }
     }
 
@@ -378,17 +316,6 @@ public class ManageBooksFunction {
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
     }
-    
-    /**
-     * Clean up QR scanner components
-     */
-
-    
-    // Getter for the UI view (needed by BookQRHandler)
-    public ManageBooksUI getView() {
-        return view;
-    }
-
 
     public void addBookCopies() {
         int selectedRow = view.getSelectedBookRow();
@@ -546,26 +473,26 @@ public class ManageBooksFunction {
         try {
             // Format QR content
             String qrContent = formatQRContent(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
-            
+
             // Generate QR image
             BufferedImage qrImage = generateQRCodeImage(qrContent);
-            
+
             // Create popup dialog
             JDialog dialog = new JDialog(view.getFrame(), "Book Borrowed Successfully", true);
             dialog.setLayout(new BorderLayout(10, 10));
-            
+
             // Add title
             JLabel titleLabel = new JLabel("Book Borrowed Successfully", SwingConstants.CENTER);
             titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
             titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             dialog.add(titleLabel, BorderLayout.NORTH);
-            
+
             // Add QR code image
             JLabel qrLabel = new JLabel(new ImageIcon(qrImage));
             qrLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             JPanel qrPanel = new JPanel(new BorderLayout());
             qrPanel.add(qrLabel, BorderLayout.CENTER);
-            
+
             // Add borrower and book info
             JPanel infoPanel = new JPanel();
             infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -574,33 +501,33 @@ public class ManageBooksFunction {
             infoPanel.add(new JLabel("Book: " + data[2]));
             infoPanel.add(new JLabel("Copy ID: " + data[1]));
             qrPanel.add(infoPanel, BorderLayout.SOUTH);
-            
+
             dialog.add(qrPanel, BorderLayout.CENTER);
-            
+
             // Add buttons
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-            
+
             JButton saveButton = new JButton("Save QR Code");
             saveButton.addActionListener(e -> {
                 saveQRImageToFile(qrImage);
                 dialog.dispose();
             });
             buttonPanel.add(saveButton);
-            
+
             JButton closeButton = new JButton("Close");
             closeButton.addActionListener(e -> dialog.dispose());
             buttonPanel.add(closeButton);
-            
+
             dialog.add(buttonPanel, BorderLayout.SOUTH);
-            
+
             // Display dialog
             dialog.pack();
             dialog.setLocationRelativeTo(view.getFrame());
             dialog.setVisible(true);
-            
+
             // Also update the QR code in the main UI
             view.displayQRCode(new ImageIcon(qrImage));
-            
+
         } catch (WriterException e) {
             view.showError("Failed to generate QR code: " + e.getMessage());
         }
@@ -613,13 +540,13 @@ public class ManageBooksFunction {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save QR Code");
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PNG Files", "png"));
-        
+
         if (fileChooser.showSaveDialog(view.getFrame()) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             if (!file.getName().toLowerCase().endsWith(".png")) {
                 file = new File(file.getAbsolutePath() + ".png");
             }
-            
+
             try {
                 ImageIO.write(qrImage, "png", file);
                 view.showMessage("QR code saved successfully!");

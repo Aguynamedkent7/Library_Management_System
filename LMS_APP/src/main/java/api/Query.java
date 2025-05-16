@@ -3,12 +3,8 @@ package api;
 import models.Account;
 import models.Book;
 import models.BorrowedBook;
-import org.bridj.cpp.mfc.CString;
-
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Set;
-
 
 public class Query {
     public static void main(String[] args) {

@@ -5,7 +5,6 @@ import java.awt.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import com.toedter.calendar.JDateChooser;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -101,10 +100,7 @@ public class ManageBooksUI {
         JButton deleteButton = new JButton("Delete Book");
         JButton addCopies = new JButton("Add Copies");
         JButton removeCopies = new JButton("Remove Copies");
-        JButton returnButton = new JButton("Return a Book");
         JButton borrowButton = new JButton("Borrow a Book");
-        JButton viewBorrowersButton = new JButton("View All Borrowers");
-        JButton viewAvailableBooksButton = new JButton("View Available Books");
         // Number of rows = number of buttons, 1 column, with spacing
         leftPanel.setLayout(new GridLayout(8, 1, 0, 5)); // 7 rows, 1 column, 5px vertical gap
 
@@ -118,13 +114,9 @@ public class ManageBooksUI {
         leftPanel.add(removeCopies);
         leftPanel.add(borrowButton);
 
-
-
-
         leftPanel.setPreferredSize(new Dimension(150, 0));
         leftPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         mainPanel.add(leftPanel, BorderLayout.WEST);
-
 
         // Input Fields (Under the table)
         JPanel formPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
@@ -230,37 +222,10 @@ public class ManageBooksUI {
         return (JPanel) frame.getContentPane().getComponent(0);
     }
 
-    // Add this method to ManageBooksUI class
-    public void replaceMainContent(JPanel newPanel, String headerText) {
-        // Clear the center panel
-        centerPanel.removeAll();
-        
-        // Add the new panel
-        centerPanel.add(newPanel, BorderLayout.CENTER);
-        
-        // Update the header
-        headerLabel.setText(headerText);
-        
-        // Refresh the UI
-        centerPanel.revalidate();
-        centerPanel.repaint();
-        frame.revalidate();
-        frame.repaint();
-    }
-
     // Rest of the methods remain unchanged...
     public void setController(ManageBooksFunction controller) {
         this.controller = controller;
     }
-
-    public JLabel getHeaderLabel() {
-        return headerLabel;
-    }
-
-    public void setHeaderLabel(String headerLabelText) {
-        headerLabel.setText(headerLabelText);
-    }
-
 
     public void show() {
         frame.setVisible(true);
@@ -277,42 +242,6 @@ public class ManageBooksUI {
         headerLabel.setText("Available Books");
     }
 
-// Replace the viewAllBorrowers method with this version that uses BorrowedBooksUI properly
-public void viewAllBorrowers() {
-    // Create the BorrowedBooksUI instance and pass the necessary components
-    BorrowedBooksUI borrowedBooksUI = new BorrowedBooksUI(bookTable, headerLabel);
-    
-    // Disable the book management buttons when in borrowed books view
-    JPanel leftPanel = (JPanel) ((JPanel) frame.getContentPane().getComponent(0))
-        .getComponent(1); // Get the left panel with buttons
-    setComponentsEnabled(leftPanel, false);
-    
-    // Create a button to go back to the available books view
-    JButton backButton = new JButton("Back to Available Books");
-    backButton.addActionListener(e -> {
-        viewAvailableBooks();
-        setComponentsEnabled(leftPanel, true);
-    });
-    
-    // Add a panel for the back button at the bottom of the borrowed books content panel
-    JPanel borrowedBooksPanel = borrowedBooksUI.getContentPanel();
-    JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    bottomButtonPanel.add(backButton);
-    
-    // Create a wrapper panel that includes the borrowed books content and the back button
-    JPanel wrapperPanel = new JPanel(new BorderLayout());
-    wrapperPanel.add(borrowedBooksPanel, BorderLayout.CENTER);
-    wrapperPanel.add(bottomButtonPanel, BorderLayout.SOUTH);
-    
-    // Clear the current center panel content and add the wrapper panel
-    centerPanel.removeAll();
-    centerPanel.add(wrapperPanel, BorderLayout.CENTER);
-    
-    // Refresh the UI
-    centerPanel.revalidate();
-    centerPanel.repaint();
-}
-
     public int getSelectedBookID(int selectedRow) {
         // Convert view index to model index in case table is sorted
         int modelRow = bookTable.convertRowIndexToModel(selectedRow);
@@ -320,14 +249,6 @@ public void viewAllBorrowers() {
         Object idValue = bookTable.getModel().getValueAt(modelRow, 0);
         return Integer.parseInt(idValue.toString());
 
-    }
-
-    public int getSelectedRowBookCopyID(int selectedRow) {
-        // Convert view index to model index in case table is sorted
-        int modelRow = bookTable.convertRowIndexToModel(selectedRow);
-        // Assuming ID is stored in the first column (index 0)
-        Object idValue = bookTable.getModel().getValueAt(modelRow, 3);
-        return Integer.parseInt(idValue.toString());
     }
 
     public int getSelectedBookAvailableCopies(int selectedRow) {
@@ -390,7 +311,6 @@ public void viewAllBorrowers() {
         genreList.repaint();
     }
 
-
     public String getPublisher() {
         return publisherField.getText();
     }
@@ -445,18 +365,6 @@ public void viewAllBorrowers() {
         return bookData;
     }
 
-    public void updateBookInTable(int row, String[] bookData) {
-        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
-        for (int i = 0; i < 5; i++) {
-            model.setValueAt(bookData[i], row, i);
-        }
-    }
-
-    public void removeBookFromTable(int row) {
-        DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
-        model.removeRow(row);
-    }
-
     public void clearTable() {
         DefaultTableModel model = (DefaultTableModel) bookTable.getModel();
         model.setRowCount(0);
@@ -465,10 +373,6 @@ public void viewAllBorrowers() {
 
     public JFrame getFrame() {
         return frame;
-    }
-
-    public JTable getBookTable() {
-        return bookTable;
     }
 
     public void selectFirstRow() {
@@ -498,17 +402,7 @@ public void viewAllBorrowers() {
             datePublishedChooser.setDate(null);
         }
     }
-
-    private void setComponentsEnabled(Container container, boolean enabled) {
-        for (Component comp : container.getComponents()) {
-            comp.setEnabled(enabled);
-            if (comp instanceof Container) {
-                setComponentsEnabled((Container) comp, enabled);
-            }
-        }
-    }
-
-    // Add this class at the end of ManageBooksUI
+        // Add this class at the end of ManageBooksUI
     private static class CheckBoxListCellRenderer extends JCheckBox implements ListCellRenderer<JCheckBox> {
         @Override
         public Component getListCellRendererComponent(JList<? extends JCheckBox> list, JCheckBox value,
