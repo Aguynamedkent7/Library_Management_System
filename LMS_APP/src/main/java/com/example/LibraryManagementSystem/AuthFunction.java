@@ -6,10 +6,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class AuthFunction {
-    private LoginPage loginPage;
-
-    public AuthFunction(LoginPage loginPage) {
-        this.loginPage = loginPage;
+    private JFrame parentFrame;
+    
+    public AuthFunction(JFrame parentFrame) {
+        this.parentFrame = parentFrame;
     }
 
     public void loginFunction(String username, String password) {
@@ -20,13 +20,37 @@ public class AuthFunction {
             int user_id = api.auth.login(conn, username, password);
 
             if (user_id == -1) {
-                JOptionPane.showMessageDialog(loginPage, "Invalid username or password");
+                JOptionPane.showMessageDialog(parentFrame, "Invalid username or password");
             } else {
-                JOptionPane.showMessageDialog(loginPage, "Login successful!");
+                // Create a message dialog that will disappear after 3 seconds
+                final JDialog successDialog = new JDialog(parentFrame, "Success", true);
+                JLabel messageLabel = new JLabel("Login successful!");
+                messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                messageLabel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+                successDialog.add(messageLabel);
+                successDialog.pack();
+                successDialog.setLocationRelativeTo(parentFrame);
+
+                // Create a timer to close the dialog after 3 seconds
+                Timer timer = new Timer(3000, e -> {
+                    successDialog.dispose();
+                    
+                    // Open the AdminDashboard and dispose the login page
+                    SwingUtilities.invokeLater(() -> {
+                        AdminDashboard dashboard = new AdminDashboard();
+                        dashboard.setVisible(true);
+                        parentFrame.dispose(); // Close the parent frame
+                    });
+                });
+                timer.setRepeats(false); // Only fire once
+                timer.start();
+
+                // Show the dialog (this will block until disposed)
+                successDialog.setVisible(true);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            JOptionPane.showMessageDialog(loginPage, "Error with login: " + e.getMessage());
+            JOptionPane.showMessageDialog(parentFrame, "Error with login: " + e.getMessage());
         }
     }
 }

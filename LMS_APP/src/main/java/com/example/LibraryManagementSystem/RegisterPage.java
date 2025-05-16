@@ -3,17 +3,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class RegisterPage extends JFrame {
     private static final int PANEL_WIDTH = 400;
     private static final int PANEL_HEIGHT = 500;
+    private JPanel mainPanel;
 
     public RegisterPage() {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Registration System");
 
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(0xaa, 0xaa, 0xaa));
 
         JPanel registerPanel = createRegisterPanel();
@@ -23,6 +27,26 @@ public class RegisterPage extends JFrame {
         mainPanel.add(registerPanel, gbc);
 
         add(mainPanel);
+    }
+
+    // This method needs to be public so LoginPage can call it
+    public void switchToRegisterPanel() {
+        // Remove all components from the main panel
+        mainPanel.removeAll();
+        
+        // Create and add the register panel again
+        JPanel registerPanel = createRegisterPanel();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        mainPanel.add(registerPanel, gbc);
+        
+        // Update the title
+        setTitle("Registration System");
+        
+        // Refresh the UI
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     private JPanel createRegisterPanel() {
@@ -102,8 +126,8 @@ public class RegisterPage extends JFrame {
         backButton.setFont(new Font("Arial", Font.PLAIN, 14));
         backButton.setPreferredSize(new Dimension(140, 35));
         backButton.addActionListener(e -> {
-            dispose();
-            new LoginPage().setVisible(true);
+            // Change content instead of closing the window
+            switchToLoginPanel();
         });
 
         // Register Button
@@ -116,9 +140,43 @@ public class RegisterPage extends JFrame {
             String username = userField.getText();
             String password = new String(passField.getPassword());
 
-            JOptionPane.showMessageDialog(RegisterPage.this,
-                    "Registration Details:\nName: " + firstName + " " + lastName
-                            + "\nUsername: " + username);
+            try {
+                String url = System.getenv("LMS_DB_URL");
+                Connection conn = DriverManager.getConnection(url);
+                
+                // Call the existing RegisterFacultyAccount method
+                api.MutateAccounts.RegisterFacultyAccount(conn, username, password, firstName, lastName);
+                
+                // Create a message dialog that will disappear after 3 seconds
+                final JDialog successDialog = new JDialog(RegisterPage.this, "Success", true);
+                JLabel messageLabel = new JLabel("Faculty account successfully registered!");
+                messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                messageLabel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+                successDialog.add(messageLabel);
+                successDialog.pack();
+                successDialog.setLocationRelativeTo(RegisterPage.this);
+
+                // Create a timer to close the dialog after 3 seconds
+                Timer timer = new Timer(3000, event -> {
+                    successDialog.dispose();
+                });
+                timer.setRepeats(false); // Only fire once
+                timer.start();
+
+                // Show the dialog (this will block until disposed)
+                successDialog.setVisible(true);
+                
+                // Clear input fields after successful registration
+                firstNameField.setText("");
+                lastNameField.setText("");
+                userField.setText("");
+                passField.setText("");
+                
+            } catch (SQLException ex) {
+                System.out.println(ex.getMessage());
+                JOptionPane.showMessageDialog(RegisterPage.this, 
+                        "Registration failed: " + ex.getMessage());
+            }
         });
 
         buttonPanel.add(backButton);
@@ -129,6 +187,25 @@ public class RegisterPage extends JFrame {
         registerPanel.add(buttonPanel, gbc);
 
         return registerPanel;
+    }
+    
+    /**
+     * Switch the current panel to the login panel
+     */
+    private void switchToLoginPanel() {
+        // Remove all components from the main panel
+        mainPanel.removeAll();
+        
+        // Create and add the login content using the static method from LoginPage
+        JPanel loginContent = LoginPage.createLoginContent(this);
+        mainPanel.add(loginContent);
+        
+        // Update the title
+        setTitle("Login System");
+        
+        // Refresh the UI
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     public static void main(String[] args) {

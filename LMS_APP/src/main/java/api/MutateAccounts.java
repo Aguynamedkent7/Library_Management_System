@@ -23,28 +23,6 @@ public class MutateAccounts {
         }
     }
 
-    public static void RegisterStudentAccount(Connection conn, String username,
-                                       String password,
-                                       String first_name, String last_name) throws SQLException {
-        try {
-            String query = "INSERT INTO accounts (username, password, first_name, last_name, role_id) " +
-                    "VALUES (?, ?, ?, ?, ?)";
-            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-            PreparedStatement pstmt = conn.prepareStatement(query);
-            pstmt.setString(1, username);
-            pstmt.setString(2, hashedPassword);
-            pstmt.setString(3, first_name);
-            pstmt.setString(4, last_name);
-            pstmt.setInt(5, STUDENT_ROLE_ID);
-            pstmt.executeUpdate();
-            System.out.println("Student account registered successfully!");
-            pstmt.close();
-        } catch (SQLException e) {
-            System.out.println("Failed to register account: " + e.getMessage());
-            throw e;
-        }
-    }
-
     public static void RegisterFacultyAccount(Connection conn, String username,
                                               String password,
                                               String first_name, String last_name) throws SQLException {

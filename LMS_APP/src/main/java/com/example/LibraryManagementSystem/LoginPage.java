@@ -8,6 +8,7 @@ public class LoginPage extends JFrame {
     private static final int PANEL_WIDTH = 400;
     private static final int PANEL_HEIGHT = 500;
     private AuthFunction authFunctions = new AuthFunction(this);
+    private JPanel mainPanel;
 
     public LoginPage() {
         // Set up the frame for full screen with decorations
@@ -16,7 +17,7 @@ public class LoginPage extends JFrame {
         setTitle("Login System");
 
         // Create main panel with GridBagLayout to center our login panel
-        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(new Color(0xaa, 0xaa, 0xaa)); // Light background color
 
         // Create the fixed-size login panel
@@ -31,8 +32,27 @@ public class LoginPage extends JFrame {
         // Add main panel to frame
         add(mainPanel);
     }
+    
+    // Method to create and return the main login content panel
+    public static JPanel createLoginContent(JFrame parentFrame) {
+        // Create main panel with GridBagLayout to center our login panel
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(new Color(0xaa, 0xaa, 0xaa)); // Light background color
 
-    private JPanel createLoginPanel() {
+        // Create the fixed-size login panel - passing true to indicate it's coming from RegisterPage
+        JPanel loginPanel = createLoginPanel(parentFrame, parentFrame instanceof RegisterPage);
+
+        // Add login panel to center of main panel
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        mainPanel.add(loginPanel, gbc);
+        
+        return mainPanel;
+    }
+
+    // This is now static and takes a parent frame parameter and a showBackButton flag
+    private static JPanel createLoginPanel(JFrame parentFrame, boolean showBackButton) {
         // Create the login panel with fixed size
         JPanel loginPanel = new JPanel(new GridBagLayout());
         loginPanel.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -40,7 +60,7 @@ public class LoginPage extends JFrame {
                 BorderFactory.createLineBorder(new Color(150, 150, 150), 1),
                 BorderFactory.createEmptyBorder(0, 20, 20, 20)
         ));
-        loginPanel.setBackground( new Color(0xDADADA));
+        loginPanel.setBackground(new Color(0xDADADA));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 5, 10, 5);
@@ -90,26 +110,64 @@ public class LoginPage extends JFrame {
         passwordField.setPreferredSize(new Dimension(100, 30));
         loginPanel.add(passwordField, gbc);
 
+        // Button Panel for login and back buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        buttonPanel.setBackground(new Color(0xDADADA));
+        
+        // Back Button (only shown when coming from RegisterPage)
+        if (showBackButton) {
+            JButton backButton = new JButton("Back to Register");
+            backButton.setFont(new Font("Arial", Font.PLAIN, 14));
+            backButton.setPreferredSize(new Dimension(140, 35));
+            backButton.addActionListener(e -> {
+                // Only if parent is a RegisterPage instance
+                if (parentFrame instanceof RegisterPage) {
+                    RegisterPage registerPage = (RegisterPage) parentFrame;
+                    registerPage.switchToRegisterPanel();
+                }
+            });
+            buttonPanel.add(backButton);
+        }
+
         // Login button
         JButton loginButton = new JButton("Login");
-        loginButton.setPreferredSize(new Dimension(100, 25));
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(50, 5, 10, 5);
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setPreferredSize(new Dimension(100, 35));
+        
+        // Handle login action
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                authFunctions.loginFunction(username, password);
+                // Create a new AuthFunction if this is used from RegisterPage
+                if (parentFrame instanceof LoginPage) {
+                    ((LoginPage) parentFrame).getAuthFunction().loginFunction(username, password);
+                } else {
+                    AuthFunction authFunction = new AuthFunction(parentFrame);
+                    authFunction.loginFunction(username, password);
+                }
             }
         });
-        loginPanel.add(loginButton, gbc);
+        buttonPanel.add(loginButton);
+        
+        // Add button panel to login panel
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.insets = new Insets(50, 5, 10, 5);
+        gbc.anchor = GridBagConstraints.CENTER;
+        loginPanel.add(buttonPanel, gbc);
 
         return loginPanel;
+    }
+    
+    // Original method for backward compatibility
+    private JPanel createLoginPanel() {
+        return createLoginPanel(this, false); // Normal login page with no back button
+    }
+
+    public AuthFunction getAuthFunction() {
+        return authFunctions;
     }
 
     public static void main(String[] args) {

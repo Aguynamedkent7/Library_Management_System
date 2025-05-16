@@ -123,8 +123,8 @@ public class AdminDashboard extends JFrame {
         JButton returnButton = new JButton("Return Book");
         backButton.addActionListener(e -> showDashboardPanel());
         returnButton.addActionListener(e -> { borrowedBooksUI.getController().showReturnDialog();});
-        bottomPanel.add(backButton);
         bottomPanel.add(returnButton);
+        bottomPanel.add(backButton);
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
         
         return mainPanel;
@@ -172,7 +172,16 @@ private void addBackButtonToManageBooks(JPanel manageBooksPanel) {
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.setPreferredSize(new Dimension(100, 30));
-        logoutButton.addActionListener(e -> System.exit(0));
+        logoutButton.addActionListener(e -> {
+            // Close the current dashboard
+            this.dispose();
+            
+            // Open the login page
+            SwingUtilities.invokeLater(() -> {
+                LoginPage loginPage = new LoginPage();
+                loginPage.setVisible(true);
+            });
+        });
 
         headerPanel.add(titleLabel);
         headerPanel.add(logoutButton);
