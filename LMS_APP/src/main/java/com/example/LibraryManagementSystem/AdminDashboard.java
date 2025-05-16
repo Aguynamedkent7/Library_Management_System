@@ -158,35 +158,34 @@ public class AdminDashboard extends JFrame {
             }
         }
     }
+private void addBackButtonToManageBooks(JPanel manageBooksPanel) {
+    // The structure from ManageBooksUI
+    JPanel bottomPanel = (JPanel) manageBooksPanel.getComponent(3); // Bottom panel is still at index 3
+    JPanel buttonPanel = (JPanel) bottomPanel.getComponent(2); // Lower right panel with buttons
     
-    private void addBackButtonToManageBooks(JPanel manageBooksPanel) {
-        // The structure from ManageBooksUI
-        JPanel bottomPanel = (JPanel) manageBooksPanel.getComponent(3); // Bottom panel
-        JPanel buttonPanel = (JPanel) bottomPanel.getComponent(2); // Lower right panel with buttons
-        
-        // Check if "Back to Dashboard" button already exists
-        boolean backButtonExists = false;
-        Component[] components = buttonPanel.getComponents();
-        for (Component comp : components) {
-            if (comp instanceof JButton && ((JButton) comp).getText().equals("Back to Dashboard")) {
-                JButton backButton = (JButton) comp;
-                // Update action listener
-                for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
-                    backButton.removeActionListener(al);
-                }
-                backButton.addActionListener(e -> showDashboardPanel());
-                backButtonExists = true;
-                break;
+    // Check if "Back to Dashboard" button already exists
+    boolean backButtonExists = false;
+    Component[] components = buttonPanel.getComponents();
+    for (Component comp : components) {
+        if (comp instanceof JButton && ((JButton) comp).getText().equals("Back to Dashboard")) {
+            JButton backButton = (JButton) comp;
+            // Update action listener
+            for (java.awt.event.ActionListener al : backButton.getActionListeners()) {
+                backButton.removeActionListener(al);
             }
-        }
-        
-        // Add button if it doesn't exist
-        if (!backButtonExists) {
-            JButton backToDashboardButton = new JButton("Back to Dashboard");
-            backToDashboardButton.addActionListener(e -> showDashboardPanel());
-            buttonPanel.add(backToDashboardButton);
+            backButton.addActionListener(e -> showDashboardPanel());
+            backButtonExists = true;
+            break;
         }
     }
+    
+    // Add button if it doesn't exist
+    if (!backButtonExists) {
+        JButton backToDashboardButton = new JButton("Back to Dashboard");
+        backToDashboardButton.addActionListener(e -> showDashboardPanel());
+        buttonPanel.add(backToDashboardButton);
+    }
+}
 
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

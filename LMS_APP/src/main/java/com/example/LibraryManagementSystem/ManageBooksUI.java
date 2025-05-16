@@ -171,29 +171,17 @@ public class ManageBooksUI {
         centerPanel.add(tableScrollPane, BorderLayout.CENTER);
         viewAvailableBooks(); // load all available books to table
 
-        // 3. Bottom Panel: QR Code (Left) + Return/Back Buttons (Right)
+        // 3. Bottom Panel:Return/Back Buttons (Right)
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
-        // QR Code (Left)
-        qrCodeLabel = new JLabel();
-        qrCodeLabel.setPreferredSize(new Dimension(10, 30));
-        JPanel qrPanel = new JPanel(new BorderLayout());
-        qrPanel.setBorder(BorderFactory.createTitledBorder("Book QR Code"));
-
-        bottomPanel.add(qrPanel, BorderLayout.WEST);
-
-        // Create a button panel for the save button
-        JPanel qrButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton saveQRButton = new JButton("Save QR Code");
-
-        qrPanel.add(qrButtonPanel, BorderLayout.SOUTH);
-
+        // Create a button panel for the buttons at the bottom
+        JPanel bottomButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        bottomPanel.add(bottomButtonsPanel, BorderLayout.SOUTH);
 
         // Return/Back Buttons (Right)
         JPanel lowerRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 5));
         bottomPanel.add(formPanel, BorderLayout.CENTER, FlowLayout.CENTER);
         bottomPanel.add(lowerRightPanel, BorderLayout.SOUTH);
-
 
         mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -202,14 +190,6 @@ public class ManageBooksUI {
         updateButton.addActionListener(e -> controller.updateBook());
         deleteButton.addActionListener(e -> controller.deleteBook());
         borrowButton.addActionListener(e -> controller.borrowBook());
-        // Add action listener to the save button
-        saveQRButton.addActionListener(e -> {
-            if (qrCodeLabel.getIcon() != null) {
-                controller.saveQRCodeToFile();
-            } else {
-                showError("No QR code to save! Generate a QR code first.");
-            }
-        });
         addCopies.addActionListener(e -> controller.addBookCopies());
         removeCopies.addActionListener(e -> controller.removeBookCopies());
 
